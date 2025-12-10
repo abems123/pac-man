@@ -106,5 +106,7 @@ cmake --build build
 
 ## Author
 
-Your Name  
+Abdellah El Moussaoui  
+S20246031
+
 Advanced Programming — University of Antwerp
