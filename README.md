@@ -12,13 +12,13 @@ The project follows the official specification and focuses on modular architectu
 ```
 pacman/
 │
-├── logic/                  
-│   ├── include/             # Pure game logic (NO SFML)
+├── logic/                  # Pure game logic (NO SFML)
+│   ├── include/             
 │   ├── src/
 │   └── CMakeLists.txt
 │
-├── app/                    
-│   ├── include/             # SFML representation layer
+├── app/                    # SFML representation layer
+│   ├── include/             
 │   ├── src/
 │   └── CMakeLists.txt
 │
