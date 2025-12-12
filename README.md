@@ -41,7 +41,7 @@ The maze is represented in a plain-text grid, where each character corresponds t
 | `P`    | Pac-Man starting position                             |
 | `$`    | Fruit                                                 |
 | `@`    | Ghost starting positions                              |
-| `E`    | Emty                                                  |
+| `E`    | Empty                                                  |
 
 
 Each character is read by the logic module and mapped to the corresponding entity when the level is loaded.
