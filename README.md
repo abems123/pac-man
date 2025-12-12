@@ -27,6 +27,24 @@ pacman/
 ├── CMakeLists.txt           # Root build file
 └── README.md
 ```
+## Maze Representation
+
+The maze is represented in a plain-text grid, where each character corresponds to a tile in the game world.
+
+
+### Legend
+| Symbol | Meaning                                               |
+|--------|-------------------------------------------------------|
+| `#`    | Wall                                                  |
+| `*`    | Coin                                                  |
+| `&`    | Barrier preventing ghosts from leaving the spawn area |
+| `P`    | Pac-Man starting position                             |
+| `$`    | Fruit                                                 |
+| `@`    | Ghost starting positions                              |
+| `E`    | Emty                                                  |
+
+
+Each character is read by the logic module and mapped to the corresponding entity when the level is loaded.
 
 ## Features
 

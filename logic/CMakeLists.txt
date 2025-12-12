@@ -1,8 +1,11 @@
-# Build the logic library (currently empty)
-add_library(paclogic STATIC)
+file(GLOB_RECURSE LOGIC_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+)
 
-# Public include directory (even if empty now)
-target_include_directories(paclogic
-        PUBLIC
+add_library(paclogic STATIC
+        ${LOGIC_SOURCES}
+)
+
+target_include_directories(paclogic PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )

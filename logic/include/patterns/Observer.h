@@ -1,0 +1,21 @@
+//
+// Created by abdellah on 12/11/25.
+//
+
+#ifndef PACMANPROJECT_OBSERVER_H
+#define PACMANPROJECT_OBSERVER_H
+
+
+namespace logic {
+    class Event;
+
+    class Observer {
+    public:
+        virtual ~Observer() = default;
+
+        void virtual onNotify(const Event &event) = 0;
+    };
+}
+
+
+#endif //PACMANPROJECT_OBSERVER_H

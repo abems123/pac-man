@@ -1,3 +1,4 @@
+#include <iostream>
 #include <SFML/Graphics.hpp>
 
 int main() {
@@ -13,4 +14,6 @@ int main() {
         window.clear(sf::Color::Black);
         window.display();
     }
+
+    std::cout << "IT'S WORKING!" << std::endl;
 }
