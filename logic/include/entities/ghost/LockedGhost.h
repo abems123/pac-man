@@ -6,9 +6,10 @@
 #define PACMANPROJECT_LOCKEDGHOST_H
 #include "Ghost.h"
 
-
-class LockedGhost: public Ghost{
-};
+namespace logic {
+    class LockedGhost : public Ghost {
+    };
+}
 
 
 #endif //PACMANPROJECT_LOCKEDGHOST_H

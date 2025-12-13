@@ -6,9 +6,9 @@
 #define PACMANPROJECT_DIRECTCHASEGHOST_H
 #include "Ghost.h"
 
-
-class DirectChaseGhost : public Ghost {
-};
-
+namespace logic {
+    class DirectChaseGhost : public Ghost {
+    };
+}
 
 #endif //PACMANPROJECT_DIRECTCHASEGHOST_H

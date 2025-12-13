@@ -9,7 +9,7 @@
 #include <string>
 
 namespace logic {
-    enum class TileType { Wall, Empty, Coin, Fruit, Ghost, PacMan };
+    enum class TileType { Wall, Empty, Coin, Fruit, Ghost, PacMan, Barrier };
 
     class TileMap {
         std::vector<std::vector<TileType> > tiles = {};

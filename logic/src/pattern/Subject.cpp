@@ -8,9 +8,11 @@
 
 namespace logic {
     void Subject::notify(const Event &e) const {
-        for (auto &wobs: observers) {
-            if (const auto obs = wobs.lock())
-                obs->onNotify(e); // <-- View receives the event
+        for (auto &obs: observers) {
+            if (obs) {
+                // The Observer (View) receives the event
+                obs->onNotify(e);
+            }
         }
     }
 }

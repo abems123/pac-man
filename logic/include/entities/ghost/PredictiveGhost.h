@@ -6,9 +6,9 @@
 #define PACMANPROJECT_PREDICTIVEGHOST_H
 #include "Ghost.h"
 
-
-class PredictiveGhost : public Ghost{
-};
-
+namespace logic {
+    class PredictiveGhost : public Ghost {
+    };
+}
 
 #endif //PACMANPROJECT_PREDICTIVEGHOST_H

@@ -1,6 +1,11 @@
+# Collect all .cpp files in the app/src directory
+file(GLOB_RECURSE APP_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+)
+
 # Build the application
 add_executable(pacman_app
-        src/main.cpp
+        ${APP_SOURCES}
 )
 
 # Link with the logic library and SFML
@@ -12,7 +17,7 @@ target_link_libraries(pacman_app
         sfml-system
 )
 
-# Include path for app headers (if you later add include/)
+# Include path for app headers
 target_include_directories(pacman_app
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include

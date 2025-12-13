@@ -6,8 +6,11 @@
 #define PACMANPROJECT_STOPWATCH_H
 
 
-class Stopwatch {
-};
+namespace logic {
+    class Stopwatch {
+    };
+}
+
 
 
 #endif //PACMANPROJECT_STOPWATCH_H

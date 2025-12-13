@@ -8,8 +8,11 @@
 #include "utils/Direction.h"
 
 namespace logic {
+    /** Position must be in [-1:1]
+     * So I'm not allowed to use pixels here
+     ***/
     struct Position {
-        int x, y;
+        float x, y;
     };
 
     class EntityModel : public Subject {
@@ -21,9 +24,9 @@ namespace logic {
     public:
         void update(float dt);
 
-        void move(int dx, int dy);
+        void move(float dx, float dy);
 
-        void setPosition(int x, int y);
+        void setPosition(float x, float y);
 
         [[nodiscard]] Position getPosition() const;
 
