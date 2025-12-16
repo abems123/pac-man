@@ -7,10 +7,10 @@
 #include <memory>
 #include <vector>
 
-#include "TileMap.h"
+#include "../../../app/include/utils/ResourceManager.h"
+#include "entities/EntityModel.h"
+#include "entities/PacMan.h"
 
-
-class Direction;
 
 namespace logic {
     class AbstractFactory;
@@ -22,24 +22,31 @@ namespace logic {
     class Fruit;
     class Coin;
     class Ghost;
-    class PacManModel;
+    class Wall;
+
+    using TileMap = std::vector<std::string>;
 
     class World {
+        std::vector<std::shared_ptr<Wall> > _walls{};
+        std::vector<std::shared_ptr<Ghost> > _ghosts{};
+        std::vector<std::shared_ptr<Coin> > _coins{};
+        std::vector<std::shared_ptr<Fruit> > _fruits{};
+        std::shared_ptr<PacMan> _pacman{};
 
-        std::vector<std::unique_ptr<Ghost> > ghosts{};
-        std::vector<std::unique_ptr<Coin> > coins{};
-        std::vector<std::unique_ptr<Fruit> > fruits{};
-        std::unique_ptr<PacManModel> pacman{};
+        // TileMap tilemap;
+        std::shared_ptr<Score> _score;
 
-        TileMap tilemap;
-        Score &score;
-        Stopwatch &stopwatch;
+        std::shared_ptr<AbstractFactory> _factory;
+
+        // I don't need level here, because I'm gonna handel level from LevelState
+        // and I'm gonna set speed and change the hardness from there
+        // int level = 0;
+
 
     public:
-        World();
-        World(Stopwatch& stopwatch, Score& score, AbstractFactory &factory, int level);
+        explicit World(const std::shared_ptr<AbstractFactory> &factory);
 
-        void movePacMan(Direction direction);
+        void movePacMan(Direction direction) const;
 
         void update(float deltaTime);
 
@@ -56,6 +63,23 @@ namespace logic {
         std::pmr::vector<Direction> getViableDirections();
 
         void notifyScore(Event event);
+
+        static float getTileWidth();
+
+        static float getTileHeight();
+
+        // I want to use these methods currently for tests
+        void setLevel(int level);
+
+        void setTileMap(TileMap *tilemap);
+
+        void setPacman(PacMan *pacman) { this->_pacman = std::make_unique<PacMan>(*pacman); }
+
+        void addGhost(std::unique_ptr<Ghost> ghost);
+
+        void addCoin(std::unique_ptr<Coin> coin);
+
+        void addFruit(std::unique_ptr<Fruit> fruit);
     };
 }
 

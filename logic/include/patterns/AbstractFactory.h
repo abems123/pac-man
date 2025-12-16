@@ -4,25 +4,31 @@
 
 #ifndef PACMANPROJECT_ABSTRACTFACTORY_H
 #define PACMANPROJECT_ABSTRACTFACTORY_H
+#include <memory>
 
 
 namespace logic {
     class Fruit;
     class Coin;
     class Ghost;
-    class PacManModel;
+    class PacMan;
+    class Wall;
 
     class AbstractFactory {
     public:
+        virtual std::shared_ptr<PacMan> createPacMan(float x, float y) = 0;
 
-        virtual PacManModel* createPacMan(float x, float y) = 0;
+        virtual std::shared_ptr<Ghost> createLockedGhost(float x, float y) = 0;
 
-        virtual Ghost* createLockedGhost(float x, float y) = 0;
-        virtual Ghost* createPredictiveGhost(float x, float y) = 0;
-        virtual Ghost* createDirectChaseGhost(float x, float y) = 0;
+        virtual std::shared_ptr<Ghost> createPredictiveGhost(float x, float y) = 0;
 
-        virtual Coin* createCoin(float x, float y) = 0;
-        virtual Fruit* createFruit(float x, float y) = 0;
+        virtual std::shared_ptr<Ghost> createDirectChaseGhost(float x, float y) = 0;
+
+        virtual std::shared_ptr<Coin> createCoin(float x, float y) = 0;
+
+        virtual std::shared_ptr<Fruit> createFruit(float x, float y) = 0;
+
+        virtual std::shared_ptr<Wall> createWall(float x, float y) = 0;
 
         virtual ~AbstractFactory() = default;
     };

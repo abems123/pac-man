@@ -2,37 +2,39 @@
 // Created by abdellah on 12/11/25.
 //
 
-#ifndef PACMANPROJECT_GHOST_H
-#define PACMANPROJECT_GHOST_H
+#ifndef PACMANPROJECT_GHOST_Model
+#define PACMANPROJECT_GHOST_Model
 #include "entities/EntityModel.h"
 
 
-class PacManModel;
 class World;
 
 namespace logic {
+    class PacMan;
+
     class Ghost : public EntityModel {
-        enum class GhostState { Chase, Scatter, Fear, Dead };
+        double _target_x, _target_y;
 
-        Position target = {};
-
-        Position spawn = {};
+        double _spawn_x, _spawn_y;
 
         GhostState state = GhostState::Chase;
 
         float frightenedTimer = 0.f;
 
     public:
-        virtual void computeTarget(World *world, PacManModel *pac_man) = 0;
+        using EntityModel::EntityModel;
+
+        virtual void computeTarget(World *world, PacMan *pac_man) = 0;
+
+        virtual void stepTowardTarget(World *world) = 0;
 
         void enterFrightened(float duration);
 
-        [[nodiscard]] bool isFrightened() const { return frightenedTimer > 0.f; };
+        [[nodiscard]] bool isFrightened() const { return frightenedTimer > 0.f; }
 
-        virtual void stepTowardTarget(World *world);
+        ;
     };
 }
 
 
-
-#endif //PACMANPROJECT_GHOST_H
+#endif //PACMANPROJECT_GHOST_Model

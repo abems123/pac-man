@@ -5,37 +5,45 @@
 #ifndef PACMANPROJECT_ENTITYMODEL_H
 #define PACMANPROJECT_ENTITYMODEL_H
 #include "patterns/Subject.h"
-#include "utils/Direction.h"
 
 namespace logic {
-    /** Position must be in [-1:1]
-     * So I'm not allowed to use pixels here
-     ***/
-    struct Position {
-        float x, y;
+    enum class GhostState { Chase, Scatter, Fear, Dead };
+
+    enum class Direction { Up, Down, Right, Left, None };
+
+    struct Rectangle {
+        float x; // left
+        float y; // top (or bottom, depending on your convention)
+        float w; // width
+        float h; // height
     };
 
     class EntityModel : public Subject {
-        Position position = {};
-        Direction direction;
-        float speed = 0;
-        bool active = true;
+    protected:
+        Rectangle bounds;
 
     public:
-        void update(float dt);
+        EntityModel(const float x, const float y) {
+            bounds.x = x;
+            bounds.y = y;
+        }
 
-        void move(float dx, float dy);
+        EntityModel(const EntityModel &that);
+
+        void update(float dt);
 
         void setPosition(float x, float y);
 
-        [[nodiscard]] Position getPosition() const;
+        void setHeight(float tile_height) { bounds.h = tile_height; };
+        void setWidth(float tile_width) { bounds.w = tile_width; };
 
-        [[nodiscard]] Direction getDirection() const;
+        [[nodiscard]] std::pair<double, double> getPosition() const;
 
-        void setDirection(Direction direction);
+        [[nodiscard]] float getHeight() const;
+
+        [[nodiscard]] float getWidth() const;
     };
 }
-
 
 
 #endif //PACMANPROJECT_ENTITYMODEL_H

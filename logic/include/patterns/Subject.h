@@ -9,6 +9,7 @@
 
 
 namespace logic {
+    enum class EventType;
     class Event;
     class Observer;
 
@@ -17,24 +18,24 @@ namespace logic {
     *
     * A Subject keeps track of a list of Observers and can notify them whenever
     * its state changes. Logic-side model classes (like PacMan or Ghost) inherit
-     * from Subject so that their Views and the Score can react to updates.
+    * from Subject so that their Views and the Score can react to updates.
     *
-    * Note on raw pointers:
-    * Observers are stored as raw pointers because the Subject does not own them.
-     * The owning side (usually the State that created the View) controls their
-     * lifetime. Using smart pointers here would incorrectly imply ownership, so
-    * raw pointers are appropriate for this non-owning relationship.
     */
     class Subject {
-        std::vector<Observer *> observers;
+        std::vector<std::weak_ptr<Observer> > observers;
 
     public:
-        void attach(Observer *obs) {
-            if (obs) observers.push_back(obs);
+        virtual ~Subject() = default;
+
+        Subject() = default;
+        Subject(const Subject &that);
+
+        void attach(const std::weak_ptr<Observer> &obs) {
+            if (const auto var = obs.lock()) observers.push_back(var);
         }
 
     protected:
-        void notify(const Event &e) const;
+        void notify(const EventType &e) const;
     };
 }
 

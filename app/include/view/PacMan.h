@@ -5,9 +5,28 @@
 #ifndef PACMANPROJECT_PACMAN_H
 #define PACMANPROJECT_PACMAN_H
 #include "EntityView.h"
+#include "MovableEntityView.h"
+#include "events/Event.h"
+
 
 namespace representation {
     class PacMan : public EntityView {
+    public:
+        PacMan(const std::shared_ptr<logic::EntityModel> &pm,
+               const sf::Texture &texture,
+               const Camera &camera);
+
+        using EntityView::EntityView;
+
+        void onNotify(const logic::EventType &event) override;
+
+        void render(sf::RenderWindow &window) const override;
+
+        void update(float dt) override;
+
+        // void updateAnimation(float dt) override;
+
+        // void updateDirection() override;
     };
 }
 

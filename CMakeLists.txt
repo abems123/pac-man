@@ -9,3 +9,5 @@ find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 add_subdirectory(logic)
 add_subdirectory(app)
+enable_testing()
+add_subdirectory(tests)

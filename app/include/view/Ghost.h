@@ -9,6 +9,14 @@
 
 namespace representation {
     class Ghost : public EntityView {
+    public:
+        using EntityView::EntityView;
+
+        void onNotify(const logic::EventType &event) override;
+
+        void update(float dt) override;
+
+        void render(sf::RenderWindow &window) const override;
     };
 }
 

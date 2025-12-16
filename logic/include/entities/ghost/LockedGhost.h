@@ -8,6 +8,16 @@
 
 namespace logic {
     class LockedGhost : public Ghost {
+    public:
+        void computeTarget(World *world, PacMan *pac_man) override;
+
+        void stepTowardTarget(World *world) override;
+
+        ~LockedGhost() override;
+
+        using Ghost::Ghost;
+
+
     };
 }
 

@@ -14,7 +14,11 @@ namespace logic {
         Died,
         Respawned,
 
-        Collected,
+        CoinEaten,
+        FruitEaten,
+        GhostEaten,
+
+        LevelCleared,
 
         GhostStateChanged,
 
@@ -24,7 +28,9 @@ namespace logic {
 
         FearModeStarted,
         FearModeEnding,
-        FearModeEnded
+        FearModeEnded,
+
+        PacManMoved
     };
 
 

@@ -10,33 +10,42 @@
 #include "state/MenuState.h"
 
 namespace representation {
-    Game::Game()
-        : window(sf::VideoMode::getDesktopMode(), "Pac-Man"),
-          camera(window.getSize().x, window.getSize().y),
-          factory(camera) {
-        window.setFramerateLimit(60);
+    // logic::TileMap &Game::getMap() {
+    //     return map;
+    // }
+
+    void Game::isMapConsistent() {
+        // TODO: check if the map is consistent, it must be of ratio 4:5, throw an error if it's not
+    }
+
+    Game::Game(): _window(sf::VideoMode::getDesktopMode(), "Pac-Man"), _camera(_window.getSize().x, _window.getSize().y, 0, 0) {
+
+        isMapConsistent();
+
+        _window.setFramerateLimit(60);
 
         // initial menu
-        stateManager.pushState(std::make_unique<MenuState>(stateManager, *this));
+        _stateManager.pushState(std::make_unique<MenuState>(_stateManager, *this));
+
+        _camera = Camera(_window.getSize().x, _window.getSize().y, ResourceManager::getMap().size(), ResourceManager::getMap().front().size());
+
+        _factory = std::make_shared<ConcreteFactory>(_camera);
     }
 
     void Game::run() {
-        sf::Clock clock;
-        while (window.isOpen()) {
-            // 1. Calculate delta time
-            float dt = clock.restart().asSeconds();
+        while (_window.isOpen()) {
+            logic::Stopwatch::getInstance().tick();
 
-            // 2. Let the active state process input
-            stateManager.handleInput();
+            // Let the active state process input
+            _stateManager.handleInput();
 
-            // 3. Let the active state update logic
-            stateManager.update(dt);
+            // Let the active state update logic
+            _stateManager.update(logic::Stopwatch::getInstance().dt());
 
-            // 4. Draw everything
-            window.clear(sf::Color::Black);
-            stateManager.render(window);
-            window.display();
+            // Draw everything
+            _window.clear(sf::Color::Cyan);
+            _stateManager.render(_window);
+            _window.display();
         }
     }
-
 }

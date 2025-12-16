@@ -7,13 +7,14 @@
 
 
 namespace logic {
+    enum class EventType;
     class Event;
 
     class Observer {
     public:
         virtual ~Observer() = default;
 
-        void virtual onNotify(const Event &event) = 0;
+        void virtual onNotify(const EventType &event) = 0;
     };
 }
 

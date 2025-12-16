@@ -7,36 +7,36 @@
 #include <stdexcept>
 #include <SFML/Graphics/Font.hpp>
 
+#include "utils/FileReader.h"
+
 namespace representation {
-
-    void ResourceManager::loadResources() {
-
-        // Load main font
+    ResourceManager::ResourceManager() {
         sf::Font main;
         if (!main.loadFromFile("../../assets/fonts/crackman.otf")) {
             throw std::runtime_error("Failed to load crackman.otf");
         }
-        fonts[Font::Main_Font] = std::move(main);
 
-        // Example: more fonts later
-        // sf::Font title;
-        // title.loadFromFile("../assets/fonts/anotherFont.otf");
-        // fonts[Font::Title_Font] = std::move(title);
-        //
-        // sf::Font score;
-        // score.loadFromFile("../assets/fonts/scoreFont.otf");
-        // fonts[Font::Score_Font] = std::move(score);
+        _fonts[Font::Main_Font] = std::move(main);
 
-        loaded = true;
-    }
-
-    const sf::Font& ResourceManager::getFont(const Font type) {
-
-        if (!loaded) {
-            loadResources();
+        if (!_texture.loadFromFile("../../assets/sprites/sprite.png")) {
+            throw std::runtime_error("Failed to load sprite.png");
         }
-
-        return fonts.at(type);
     }
 
+    ResourceManager &ResourceManager::instance() {
+        static ResourceManager inst;
+        return inst;
+    }
+
+    const sf::Font &ResourceManager::getFont(const Font type) const {
+        return _fonts.at(type);
+    }
+
+    const sf::Texture &ResourceManager::getTexture() const {
+        return _texture;
+    }
+
+    const std::vector<std::string> ResourceManager::getMap() {
+        return FileReader::getFileLines("../../assets/maps/map.txt");
+    }
 }

@@ -5,24 +5,26 @@
 #include "../../include/entities/EntityModel.h"
 
 namespace logic {
+    EntityModel::EntityModel(const EntityModel &that) : Subject(that) {
+        bounds = that.bounds;
+    }
+
     void EntityModel::update(float dt) {
     }
 
-    void EntityModel::move(float dx, float dy) {
-    }
 
     void EntityModel::setPosition(float x, float y) {
     }
 
-    Position EntityModel::getPosition() const {
-        return position;
+    std::pair<double, double> EntityModel::getPosition() const {
+        return {bounds.x, bounds.y};
     }
 
-    Direction EntityModel::getDirection() const {
-        return direction;
+    float EntityModel::getHeight() const {
+        return bounds.h;
     }
 
-    void EntityModel::setDirection(Direction direction) {
-        this->direction = direction;
+    float EntityModel::getWidth() const {
+        return bounds.w;
     }
 }

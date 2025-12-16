@@ -10,7 +10,6 @@
 
 
 std::vector<std::string> FileReader::getFileLines(std::string filename) {
-
     std::ifstream file(filename);
     std::vector<std::string> lines;
     std::string line;
@@ -20,4 +19,10 @@ std::vector<std::string> FileReader::getFileLines(std::string filename) {
     }
 
     return lines;
+}
+
+void FileWriter::writeFile(const std::string &filename, const std::string &content) {
+    std::ofstream file(filename);
+    file << content;
+    file.close();
 }

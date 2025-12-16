@@ -7,10 +7,15 @@
 #include <string>
 #include <vector>
 
+class FileManager {
+};
 
-struct FileReader {
-    static std::vector<std::string> getFileLines(std::string filename);
+struct FileReader : public FileManager {
+    [[nodiscard]] static std::vector<std::string> getFileLines(std::string filename);
+};
 
+struct FileWriter : public FileManager {
+    static void writeFile(const std::string &filename, const std::string &content);
 };
 
 

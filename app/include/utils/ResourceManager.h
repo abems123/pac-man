@@ -4,9 +4,10 @@
 
 #ifndef PACMANPROJECT_RESOURCEMANAGER_H
 #define PACMANPROJECT_RESOURCEMANAGER_H
+#include <list>
+#include <memory>
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
-
 
 
 namespace representation {
@@ -17,14 +18,19 @@ namespace representation {
     };
 
     class ResourceManager {
+        std::unordered_map<Font, sf::Font> _fonts;
+        sf::Texture _texture;
+
+        ResourceManager();
+
     public:
-        const sf::Font &getFont(Font type);
+        static ResourceManager& instance();
 
-    private:
-        std::unordered_map<Font, sf::Font> fonts;
-        bool loaded = false;
+        const sf::Font &getFont(Font type) const;
 
-        void loadResources(); // load all fonts once
+        const sf::Texture &getTexture() const;
+
+        static const std::vector<std::string> getMap();
     };
 }
 

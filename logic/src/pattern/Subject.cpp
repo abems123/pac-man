@@ -7,11 +7,15 @@
 #include "patterns/Observer.h"
 
 namespace logic {
-    void Subject::notify(const Event &e) const {
+    Subject::Subject(const Subject &that) {
+        observers = that.observers;
+    }
+
+    void Subject::notify(const EventType &e) const {
         for (auto &obs: observers) {
-            if (obs) {
+            if (const auto ob = obs.lock()) {
                 // The Observer (View) receives the event
-                obs->onNotify(e);
+                ob->onNotify(e);
             }
         }
     }

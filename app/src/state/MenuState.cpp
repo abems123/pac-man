@@ -50,7 +50,7 @@ namespace representation {
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::Enter) {
                     // Transition to LevelState
-                    stateManager.pushState(std::make_unique<LevelState>(stateManager, game));
+                    stateManager.pushState(std::make_unique<LevelState>(stateManager, game, 0));
                 }
             }
         }

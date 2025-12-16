@@ -7,15 +7,20 @@
 #include <memory>
 
 #include "State.h"
+#include "game/Game.h"
 #include "world/World.h"
 
 
 namespace representation {
+    class EntityView;
+
     class LevelState : public State {
-        // std::unique_ptr<logic::World> world;
+        std::unique_ptr<logic::World> _world;
+        std::vector<std::shared_ptr<EntityView> > _views;
+        std::shared_ptr<ConcreteFactory> _factory;
 
     public:
-        using State::State;
+        LevelState(StateManager &manager, Game &game, int level);
 
         void handleInput() override;
 

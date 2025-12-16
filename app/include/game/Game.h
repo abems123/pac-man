@@ -22,22 +22,19 @@ namespace representation {
      ***/
     class Game {
         // Creates and owns the SFML window
-        sf::RenderWindow window;
+        sf::RenderWindow _window;
 
         // Manages all states (Menu, Level, Pause, Victory)
-        StateManager stateManager;
+        StateManager _stateManager;
 
         // Used by views to project world coords → pixels
-        Camera camera;
+        Camera _camera;
 
-        // Representation-side factory (creates model+view pairs)
-        ConcreteFactory factory;
+        // logic::TileMap map = ResourceManager::getMap();
 
-        // Textures, fonts (optional but common)
-        ResourceManager resources;
+        // Representation-side factory (creates both the model+view)
+        std::shared_ptr<ConcreteFactory> _factory;
 
-        // For delta-time (representation timing)
-        logic::Stopwatch stopwatch;
 
         void processEvents();
 
@@ -50,10 +47,15 @@ namespace representation {
     public:
         Game();
 
+        // static logic::TileMap &getMap();
+
+        void isMapConsistent();
+
         void run();
 
-        sf::RenderWindow &getWindow() { return window; }
-        ResourceManager getResources() const { return resources; }
+        sf::RenderWindow &getWindow() { return _window; }
+        ResourceManager getResources() const { return ResourceManager::instance(); }
+        std::shared_ptr<ConcreteFactory> getFactory() const { return _factory; }
     };
 }
 
