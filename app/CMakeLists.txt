@@ -1,3 +1,7 @@
+# SFML 2.6.1 detection
+find_package(SFML 2.6.1 COMPONENTS graphics window system REQUIRED)
+
+
 # Collect all .cpp files in the app/src directory
 file(GLOB_RECURSE APP_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp

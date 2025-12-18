@@ -17,8 +17,8 @@ namespace logic {
     }
 
     void MovableEntityModel::move(const float dx, const float dy) {
-        bounds.x += dx;
-        bounds.x += dy;
+        _x += dx;
+        _y += dy;
 
         notify(EventType::PacManMoved);
     }

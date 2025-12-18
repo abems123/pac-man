@@ -46,6 +46,8 @@ The maze is represented in a plain-text grid, where each character corresponds t
 
 Each character is read by the logic module and mapped to the corresponding entity when the level is loaded.
 
+The playable map is designed with an aspect ratio of approximately **16:7.2**, assuming a 16:9 window. The remaining vertical space is reserved for UI elements such as the score and remaining lives, ensuring consistent tile proportions in the gameplay area.
+
 ## Features
 
 ### Logic Module (`libpaclogic`)
@@ -128,3 +130,9 @@ Abdellah El Moussaoui
 S20246031
 
 Advanced Programming — University of Antwerp
+
+## TODO
+- [ ] Add the wall sprite variants to the main wall
+
+## Deadline
+I will be done with project before **monday 22nd dec 2025** in sha Allah

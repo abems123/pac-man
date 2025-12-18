@@ -13,15 +13,13 @@
 namespace representation {
     class EntityView;
     class ResourceManager;
-    class Camera;
 
 
     class ConcreteFactory : public logic::AbstractFactory {
-        Camera &camera;
 
-        std::vector<std::shared_ptr<EntityView>> *_views;
+        std::vector<std::shared_ptr<EntityView>>* _views;
     public:
-        explicit ConcreteFactory(Camera &camera);
+        explicit ConcreteFactory(std::vector<std::shared_ptr<EntityView> > *views);
 
         ~ConcreteFactory() override;
 
@@ -38,8 +36,6 @@ namespace representation {
         std::shared_ptr<logic::Fruit> createFruit(float x, float y) override;
 
         std::shared_ptr<logic::Wall> createWall(float x, float y) override;
-
-        void setViewList(std::vector<std::shared_ptr<EntityView>> *views);
     };
 }
 

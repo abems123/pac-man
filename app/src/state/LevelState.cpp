@@ -9,14 +9,13 @@
 
 #include "game/Game.h"
 #include "state/PausedState.h"
-#include "view/EntityView.h"
+#include "../../include/view/EntityView.h"
 
 namespace representation {
     LevelState::LevelState(StateManager &manager, Game &game,
                            int level) : State(manager, game),
-                                        _factory(game.getFactory()) {
-        _factory->setViewList(&_views);
-        _world = std::make_unique<logic::World>(game.getFactory());
+                                        _factory(std::make_shared<ConcreteFactory>(&_views)) {
+        _world = std::make_unique<logic::World>(_factory);
     }
 
     void LevelState::handleInput() {
@@ -46,9 +45,15 @@ namespace representation {
     }
 
     void LevelState::update(const float dt) {
-        for (const auto v: _views) {
-            v->update(dt);
+        for (const auto &v: _views) {
+            if (v) {
+                v->update(dt);
+                if (v->modelExpired())
+                    _views.erase(std::remove(_views.begin(), _views.end(), v), _views.end());
+            }
         }
+
+        _world->update(dt);
     }
 
     void LevelState::render(sf::RenderWindow &window) {

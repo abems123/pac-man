@@ -14,8 +14,7 @@ namespace representation {
         sf::RectangleShape _shape;
 
     public:
-        Wall(const std::shared_ptr<logic::EntityModel> &model, const sf::Texture &tex,
-             const Camera &camera);
+        explicit Wall(const std::shared_ptr<logic::EntityModel> &model);
 
         void onNotify(const logic::EventType &event) override;
 
@@ -24,6 +23,7 @@ namespace representation {
         void render(sf::RenderWindow &window) const override;
 
         ~Wall() override = default;
+
     };
 }
 

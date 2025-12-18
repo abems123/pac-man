@@ -9,23 +9,15 @@
 namespace logic {
     enum class GhostState { Chase, Scatter, Fear, Dead };
 
-    enum class Direction { Up, Down, Right, Left, None };
+    enum class Direction { Up, Down, Right, Left };
 
-    struct Rectangle {
-        float x; // left
-        float y; // top (or bottom, depending on your convention)
-        float w; // width
-        float h; // height
-    };
 
     class EntityModel : public Subject {
     protected:
-        Rectangle bounds;
+        float _x, _y;
 
     public:
-        EntityModel(const float x, const float y) {
-            bounds.x = x;
-            bounds.y = y;
+        EntityModel(const float x, const float y) : _x(x), _y(y) {
         }
 
         EntityModel(const EntityModel &that);
@@ -33,9 +25,6 @@ namespace logic {
         void update(float dt);
 
         void setPosition(float x, float y);
-
-        void setHeight(float tile_height) { bounds.h = tile_height; };
-        void setWidth(float tile_width) { bounds.w = tile_width; };
 
         [[nodiscard]] std::pair<double, double> getPosition() const;
 

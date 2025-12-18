@@ -7,8 +7,14 @@
 #include "Collectable.h"
 
 
-class Coin: public Collectable{
-};
+namespace logic {
+    class Coin: public Collectable{
+
+        public:
+            using Collectable::Collectable;
+    };
+}
+
 
 
 #endif //PACMANPROJECT_COIN_H

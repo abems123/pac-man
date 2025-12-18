@@ -15,11 +15,10 @@ namespace representation {
     // }
 
     void Game::isMapConsistent() {
-        // TODO: check if the map is consistent, it must be of ratio 4:5, throw an error if it's not
+        // TODO: check if the map is consistent, it must be of ratio 16:7, throw an error if it's not
     }
 
-    Game::Game(): _window(sf::VideoMode::getDesktopMode(), "Pac-Man"), _camera(_window.getSize().x, _window.getSize().y, 0, 0) {
-
+    Game::Game(): _window(sf::VideoMode::getDesktopMode(), "Pac-Man"){
         isMapConsistent();
 
         _window.setFramerateLimit(60);
@@ -27,9 +26,10 @@ namespace representation {
         // initial menu
         _stateManager.pushState(std::make_unique<MenuState>(_stateManager, *this));
 
-        _camera = Camera(_window.getSize().x, _window.getSize().y, ResourceManager::getMap().size(), ResourceManager::getMap().front().size());
+        // ======== Camera Singleton initializing [START] ========
+        Camera::instance().init(_window.getSize().x, _window.getSize().y);
+        // ======== Camera Singleton initializing [END] ========
 
-        _factory = std::make_shared<ConcreteFactory>(_camera);
     }
 
     void Game::run() {
@@ -43,7 +43,7 @@ namespace representation {
             _stateManager.update(logic::Stopwatch::getInstance().dt());
 
             // Draw everything
-            _window.clear(sf::Color::Cyan);
+            _window.clear(sf::Color::Black);
             _stateManager.render(_window);
             _window.display();
         }

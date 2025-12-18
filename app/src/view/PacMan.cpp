@@ -8,41 +8,69 @@
 
 #include "../../logic/include/entities/EntityModel.h"
 #include "../../logic/include/entities/PacMan.h"
+
+#include "camera/Camera.h"
 #include "events/Event.h"
+#include "utils/AnimationManager.h"
+#include "utils/Constants.h"
 
 
 namespace representation {
-    PacMan::PacMan(const std::shared_ptr<logic::EntityModel> &pm, const sf::Texture &texture,
-                   const Camera &camera) : EntityView(pm,
-                                                      texture,
-                                                      camera) {
+    void PacMan::update(const float dt) {
+        EntityView::update(dt);
 
-        int sprite_size = 35;
-        int space_between_sprites = 15;
-        int start_left = 1;
-        int start_top = 4;
+        // This is used only to update the animation, the movements and direction changing is handeled by onNotify
 
-        // Each frame is a sub-rectangle of the sprite sheet
-        const std::vector<sf::IntRect> frames = {
-            {sf::IntRect(start_left + 17 * (sprite_size + space_between_sprites), start_top, sprite_size, sprite_size)}, // mouth closed
-            {sf::IntRect(start_left + 17 * (sprite_size + space_between_sprites), start_top + 1 * (space_between_sprites + sprite_size), sprite_size, sprite_size)}, // mouth half open
-            {sf::IntRect(start_left + 17 * (sprite_size + space_between_sprites), start_top + 2 * (space_between_sprites + sprite_size), sprite_size, sprite_size)} // mouth fully open
-        };
+        // animation…
+        if (!_frames.empty()) {
+            _animation_timer += dt;
 
-        setFrames(frames);
-
-        _frame_duration = 0.5f;
+            if (_animation_timer >= _frame_duration) {
+                _animation_timer = 0.f;
+                _current_frame = (_current_frame + 1) % _frames.size();
+                _sprite.setTextureRect(_frames[_current_frame]);
+            }
+        }
     }
 
-    void PacMan::update(const float dt) {
-        // This is used only to update the animation, the movements and direction changing is handeled by onNotify
-        EntityView::update(dt);
+
+    PacMan::PacMan(const std::shared_ptr<logic::EntityModel> &model)
+        : EntityView(model, 17, 0, 3) {
+        AnimationManager::setFrames(17, 0, 3, _right_frames);
+        AnimationManager::setFrames(17, 3, 3, _down_frames);
+        AnimationManager::setFrames(17, 6, 3, _left_frames);
+        AnimationManager::setFrames(17, 9, 3, _up_frames);
+    }
+
+    void PacMan::updateDirectionFrames() {
+        if (auto var = _model.lock()) {
+            auto pacmanModel = std::dynamic_pointer_cast<logic::MovableEntityModel>(var);
+
+            if (!pacmanModel) {
+                throw std::logic_error("PacManView has non-movable model");
+            }
+
+            switch (pacmanModel->getDirection()) {
+                case logic::Direction::Left:
+                    _frames = _left_frames;
+                    break;
+                case logic::Direction::Right:
+                    _frames = _right_frames;
+                    break;
+                case logic::Direction::Up:
+                    _frames = _up_frames;
+                    break;
+                case logic::Direction::Down:
+                    _frames = _down_frames;
+                    break;
+            }
+        }
     }
 
     void PacMan::onNotify(const logic::EventType &event) {
         switch (event) {
             case logic::EventType::DirectionChanged:
-                // updateDirectionFrames();
+                updateDirectionFrames();
                 std::cout << "Direction Changed" << std::endl;
                 break;
 

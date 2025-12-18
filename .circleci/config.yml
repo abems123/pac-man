@@ -3,26 +3,42 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/base:24.04
+
     steps:
       - checkout
 
       - run:
-          name: Install build tools
+          name: Install build dependencies
           command: |
-            sudo apt update
-            sudo apt install -y \
+            sudo apt-get update
+            sudo apt-get install -y \
               build-essential \
               cmake \
-              g++ \
-              clang
+              g++-13 \
+              clang-18 \
+              libsfml-dev
 
       - run:
-          name: Configure project
+          name: Verify toolchain versions
           command: |
-            cmake -S . -B build
+            cmake --version
+            g++ --version
+            clang++ --version
+            dpkg -l | grep libsfml
 
       - run:
-          name: Build project
+          name: Configure (CMake)
+          command: |
+            cmake -S . -B build \
+              -DCMAKE_BUILD_TYPE=Release
+
+      - run:
+          name: Build
           command: |
             cmake --build build --parallel
+
+workflows:
+  build_and_test:
+    jobs:
+      - build

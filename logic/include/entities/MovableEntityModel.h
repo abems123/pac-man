@@ -10,8 +10,8 @@
 namespace logic {
     class MovableEntityModel : public EntityModel {
     protected:
-        float _speed = 0.1f;
-        Direction _direction = Direction::None;
+        float _speed = 0.5f;
+        Direction _direction = Direction::Right;
 
     public:
         using EntityModel::EntityModel;
@@ -21,7 +21,7 @@ namespace logic {
         [[nodiscard]] float getSpeed() const { return _speed; }
         void setSpeed(const float speed) { this->_speed = speed; }
 
-        [[nodiscard]] Direction getDirection() const;
+        [[nodiscard]] Direction getDirection() const { return _direction; };
 
         void setDirection(const Direction direction);
 

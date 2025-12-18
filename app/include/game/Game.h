@@ -27,13 +27,8 @@ namespace representation {
         // Manages all states (Menu, Level, Pause, Victory)
         StateManager _stateManager;
 
-        // Used by views to project world coords → pixels
-        Camera _camera;
 
         // logic::TileMap map = ResourceManager::getMap();
-
-        // Representation-side factory (creates both the model+view)
-        std::shared_ptr<ConcreteFactory> _factory;
 
 
         void processEvents();
@@ -55,7 +50,6 @@ namespace representation {
 
         sf::RenderWindow &getWindow() { return _window; }
         ResourceManager getResources() const { return ResourceManager::instance(); }
-        std::shared_ptr<ConcreteFactory> getFactory() const { return _factory; }
     };
 }
 

@@ -6,9 +6,12 @@
 #define PACMANPROJECT_FRUIT_H
 #include "Collectable.h"
 
-
-class Fruit: public Collectable{
-};
+namespace logic {
+    class Fruit : public Collectable {
+    public:
+        using Collectable::Collectable;
+    };
+}
 
 
 #endif //PACMANPROJECT_FRUIT_H

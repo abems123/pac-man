@@ -6,7 +6,8 @@
 
 namespace logic {
     EntityModel::EntityModel(const EntityModel &that) : Subject(that) {
-        bounds = that.bounds;
+        _x = that._x;
+        _y = that._y;
     }
 
     void EntityModel::update(float dt) {
@@ -14,17 +15,11 @@ namespace logic {
 
 
     void EntityModel::setPosition(float x, float y) {
+        _x = x;
+        _y = y;
     }
 
     std::pair<double, double> EntityModel::getPosition() const {
-        return {bounds.x, bounds.y};
-    }
-
-    float EntityModel::getHeight() const {
-        return bounds.h;
-    }
-
-    float EntityModel::getWidth() const {
-        return bounds.w;
+        return {_x, _y};
     }
 }
