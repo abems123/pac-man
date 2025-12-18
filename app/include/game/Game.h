@@ -27,6 +27,7 @@ namespace representation {
         // Manages all states (Menu, Level, Pause, Victory)
         StateManager _stateManager;
 
+        sf::Vector2<unsigned> _windowSize;
 
         // logic::TileMap map = ResourceManager::getMap();
 
@@ -44,7 +45,7 @@ namespace representation {
 
         // static logic::TileMap &getMap();
 
-        void isMapConsistent();
+        static void checkMapConsistent();
 
         void run();
 

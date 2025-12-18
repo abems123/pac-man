@@ -10,7 +10,7 @@
 namespace logic {
     class MovableEntityModel : public EntityModel {
     protected:
-        float _speed = 0.5f;
+        float _speed = 0.2f;
         Direction _direction = Direction::Right;
 
     public:

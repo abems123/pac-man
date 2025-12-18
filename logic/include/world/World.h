@@ -44,15 +44,24 @@ namespace logic {
     public:
         explicit World(const std::shared_ptr<AbstractFactory> &factory);
 
-        void movePacMan(Direction direction, bool change_dir=true) const;
+        void movePacMan(Direction direction, bool change_dir = true) const;
 
         void update(float deltaTime);
+
+        bool intersects(
+            float ax, float ay, float aw, float ah,
+            float bx, float by, float bw, float bh
+        ) const;
+
+        bool wouldCollide(float nextX, float nextY) const;
 
 
         bool collides(const EntityModel *a, const EntityModel *b, double horizontalDistance,
                       double verticalDistance) const;
 
         void coinEaten(std::shared_ptr<Coin> coin);
+
+        bool isWall(Direction direction) const;
     };
 }
 

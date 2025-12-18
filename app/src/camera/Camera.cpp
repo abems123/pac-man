@@ -9,7 +9,8 @@
 #include "entities/EntityModel.h"
 
 namespace representation {
-    sf::Vector2f Camera::worldToScreen(double x, double y) const {
+    sf::Vector2f Camera::worldToScreen(float x, float y) const {
+
         float screenX = (x + 1.f) * 0.5f * width;
         float screenY = game_play_start_y + (y + 1.f) * (game_play_end_y - game_play_start_y) * .5f;
 
@@ -18,12 +19,11 @@ namespace representation {
         return {screenX, screenY};
     }
 
-    float representation::Camera::getTileWidth() const {
-        return (float) width / ResourceManager::instance().getMap().front().size();
+    float Camera::getTileWidth() const {
+        return (float) width / ResourceManager::getMap().front().size();
     }
 
-    float representation::Camera::getTileHeight() const {
-        return (float) (game_play_end_y - game_play_start_y) / ResourceManager::instance().getMap().size();
-        //(height - (height / 10.f) * 2) * world_height;
+    float Camera::getTileHeight() const {
+        return (game_play_end_y - game_play_start_y) / ResourceManager::getMap().size();
     }
 }

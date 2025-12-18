@@ -10,7 +10,7 @@
 namespace representation {
     class PacMan : public EntityView {
 
-        // bool standing = true;
+        bool is_moving = false;
 
         std::vector<sf::IntRect> _up_frames;
         std::vector<sf::IntRect> _down_frames;
@@ -18,7 +18,7 @@ namespace representation {
         std::vector<sf::IntRect> _left_frames;
 
         float _animation_timer = 0.f;
-        float _frame_duration = 0.1f;
+        float _frame_duration = 0.05f;
         int _current_frame = 0;
     public:
         explicit PacMan(const std::shared_ptr<logic::EntityModel> &model);

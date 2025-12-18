@@ -16,7 +16,9 @@ namespace representation {
 
     class LevelState : public State {
         std::unique_ptr<logic::World> _world;
+
         std::vector<std::shared_ptr<EntityView> > _views;
+
         // Representation-side factory (creates both the model+view)
         std::shared_ptr<logic::AbstractFactory> _factory;
 

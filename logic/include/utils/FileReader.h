@@ -11,7 +11,7 @@ class FileManager {
 };
 
 struct FileReader : public FileManager {
-    [[nodiscard]] static std::vector<std::string> getFileLines(std::string filename);
+    [[nodiscard]] static std::vector<std::string> getFileLines(const std::string &filename, bool make=false);
 };
 
 struct FileWriter : public FileManager {

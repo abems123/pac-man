@@ -59,7 +59,7 @@ namespace logic {
     }
 
     void Score::loadHighScores() {
-        const auto lines = FileReader::getFileLines(_score_file_path);
+        const auto lines = FileReader::getFileLines(_score_file_path, true);
 
         for (auto &line: lines) {
             _high_scores.insert(std::stoi(line));

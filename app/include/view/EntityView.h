@@ -39,6 +39,8 @@ namespace representation {
         // Object that is drawn on screen.
         sf::Sprite _sprite;
 
+        std::vector<sf::Vector2i> _sprites_sizes;
+
         sf::Vector2f _position;
 
         std::vector<sf::IntRect> _frames;

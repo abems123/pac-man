@@ -30,7 +30,7 @@ namespace logic {
         FearModeEnding,
         FearModeEnded,
 
-        PacManMoved
+        Stopped
     };
 
 

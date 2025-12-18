@@ -20,6 +20,6 @@ namespace logic {
         _x += dx;
         _y += dy;
 
-        notify(EventType::PacManMoved);
+        notify(EventType::Moved);
     }
 }

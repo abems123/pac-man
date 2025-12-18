@@ -19,7 +19,7 @@ namespace logic {
         _y = y;
     }
 
-    std::pair<double, double> EntityModel::getPosition() const {
+    std::pair<float, float> EntityModel::getPosition() const {
         return {_x, _y};
     }
 }

@@ -20,7 +20,6 @@ namespace representation {
             Camera::instance().getTileWidth() / Constants::SPRITE_SIZE,
             Camera::instance().getTileHeight() / Constants::SPRITE_SIZE
         });
-        _sprite.setOrigin(Camera::instance().getTileWidth() / 2.0f, Camera::instance().getTileHeight() / 2.0f);
         // ============= Sprite initialization [END] =============
 
         // ============= Position Conversion [START] =============
@@ -41,8 +40,8 @@ namespace representation {
 
     void EntityView::update(float dt) {
         if (const auto var = _model.lock()) {
-            auto [x, y] = var->getPosition();
-            _sprite.setPosition(Camera::instance().worldToScreen(x, y));
+            auto [x,y] = Camera::instance().worldToScreen(var->getPosition().first, var->getPosition().second);
+            _sprite.setPosition(x, y);
         }
     }
 

@@ -26,11 +26,7 @@ namespace logic {
 
         void setPosition(float x, float y);
 
-        [[nodiscard]] std::pair<double, double> getPosition() const;
-
-        [[nodiscard]] float getHeight() const;
-
-        [[nodiscard]] float getWidth() const;
+        [[nodiscard]] std::pair<float, float> getPosition() const;
     };
 }
 

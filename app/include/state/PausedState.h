@@ -9,6 +9,7 @@
 namespace representation {
     class PausedState : public State{
     public:
+        using State::State;
         void handleInput() override;
 
         void update(float dt) override;
@@ -19,7 +20,6 @@ namespace representation {
 
         void onExit() override;
 
-        using State::State;
 
     };
 }

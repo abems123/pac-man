@@ -13,11 +13,11 @@
 
 namespace representation {
     Wall::Wall(const std::shared_ptr<logic::EntityModel> &model) : EntityView(model, 0, 8, 2) {
-        // _shape.setFillColor(sf::Color::Blue);
-        // _shape.setSize({Camera::instance().getTileWidth(), Camera::instance().getTileHeight()});
+        _shape.setFillColor(sf::Color::Blue);
+        _shape.setSize({Camera::instance().getTileWidth(), Camera::instance().getTileHeight()});
 
-        // auto [x, y] = _model->getPosition();
-        // _shape.setPosition(Camera::instance().worldToScreen(x, y));
+        auto [x, y] = _model.lock()->getPosition();
+        _shape.setPosition(Camera::instance().worldToScreen(x, y));
 
     }
 
@@ -25,9 +25,12 @@ namespace representation {
     }
 
     void Wall::update(float dt) {
+        EntityView::update(dt);
     }
 
     void Wall::render(sf::RenderWindow &window) const {
-        EntityView::render(window);
+        // EntityView::render(window);
+
+        window.draw(_shape);
     }
 }

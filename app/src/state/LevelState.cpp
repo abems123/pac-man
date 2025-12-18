@@ -19,28 +19,25 @@ namespace representation {
     }
 
     void LevelState::handleInput() {
+        using sf::Keyboard;
+
+        if (Keyboard::isKeyPressed(Keyboard::D)) {
+            _world->movePacMan(logic::Direction::Right);
+        }
+        else if (Keyboard::isKeyPressed(Keyboard::A))
+            _world->movePacMan(logic::Direction::Left);
+        else if (Keyboard::isKeyPressed(Keyboard::W))
+            _world->movePacMan(logic::Direction::Up);
+        else if (Keyboard::isKeyPressed(Keyboard::S))
+            _world->movePacMan(logic::Direction::Down);
+        else if (Keyboard::isKeyPressed(Keyboard::Escape))
+            stateManager.pushState(std::make_unique<PausedState>(stateManager, game));
+
         sf::Event event{};
         auto &window = game.getWindow();
-
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
-
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Escape) {
-                    // Transition to LevelState
-                    stateManager.pushState(std::make_unique<PausedState>(stateManager, game));
-                    std::cout << "LevelState::handleInput()" << std::endl;
-                } else if (event.key.code == sf::Keyboard::D) {
-                    _world->movePacMan(logic::Direction::Right);
-                } else if (event.key.code == sf::Keyboard::A) {
-                    _world->movePacMan(logic::Direction::Left);
-                } else if (event.key.code == sf::Keyboard::W) {
-                    _world->movePacMan(logic::Direction::Up);
-                } else if (event.key.code == sf::Keyboard::S) {
-                    _world->movePacMan(logic::Direction::Down);
-                }
-            }
         }
     }
 
@@ -49,7 +46,7 @@ namespace representation {
             if (v) {
                 v->update(dt);
                 if (v->modelExpired())
-                    _views.erase(std::remove(_views.begin(), _views.end(), v), _views.end());
+                    std::erase(_views, v);
             }
         }
 

@@ -13,7 +13,7 @@
 namespace logic {
     class Score : public Observer {
     public:
-        explicit Score(std::string  filePath = "../../assets/leaderboard.txt");
+        explicit Score(std::string  filePath = "leaderboard.txt");
 
 
         void onNotify(const EventType &event) override;

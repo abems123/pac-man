@@ -1,6 +1,7 @@
 #ifndef PACMANPROJECT_CAMERA_H
 #define PACMANPROJECT_CAMERA_H
 
+#include <iostream>
 #include <SFML/System/Vector2.hpp>
 #include "utils/ResourceManager.h"
 
@@ -47,7 +48,7 @@ namespace representation {
             game_play_end_y = height * .9;
         }
 
-        [[nodiscard]] sf::Vector2f worldToScreen(double x, double y) const;
+        [[nodiscard]] sf::Vector2f worldToScreen(float x, float y) const;
 
         [[nodiscard]] float getTileWidth() const;
         [[nodiscard]] float getTileHeight() const;
