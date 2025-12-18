@@ -126,8 +126,8 @@ cmake --build build
 
 ## Author
 
-Abdellah El Moussaoui  
-S20246031
+Name:           Abdellah El Moussaoui  
+Student Number: S20246031
 
 Advanced Programming — University of Antwerp
 
