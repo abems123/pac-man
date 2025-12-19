@@ -11,11 +11,11 @@ namespace representation {
      * I made this class a Singleton because I need only one instance of it.
      ***/
     class Camera {
-        unsigned width{0};
-        unsigned height{0};
+        unsigned _window_width{0};
+        unsigned _window_height{0};
 
-        float world_width{0.f};
-        float world_height{0.f};
+        float world_models_width{0.f};
+        float world_models_height{0.f};
 
         float game_play_start_y;
         float game_play_end_y;
@@ -38,14 +38,14 @@ namespace representation {
 
         // Explicit initialization
         void init(unsigned windowWidth, unsigned windowHeight) {
-            width = windowWidth;
-            height = windowHeight;
+            _window_width = windowWidth;
+            _window_height = windowHeight;
 
-            world_width  = 2.0f / static_cast<float>(ResourceManager::getMap().front().size());
-            world_height = 2.0f / static_cast<float>(ResourceManager::getMap().size());
+            world_models_width  = 2.0f / static_cast<float>(ResourceManager::getMap().front().size());
+            world_models_height = 2.0f / static_cast<float>(ResourceManager::getMap().size());
 
-            game_play_start_y = height * .1;
-            game_play_end_y = height * .9;
+            game_play_start_y = _window_height * .1;
+            game_play_end_y = _window_height * .9;
         }
 
         [[nodiscard]] sf::Vector2f worldToScreen(float x, float y) const;

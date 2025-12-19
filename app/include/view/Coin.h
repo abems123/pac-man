@@ -8,7 +8,7 @@
 
 namespace representation {
     class Coin : public EntityView {
-
+        sf::CircleShape _shape;
     public:
         Coin(const std::shared_ptr<logic::EntityModel> &model);
 

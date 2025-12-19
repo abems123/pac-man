@@ -8,23 +8,35 @@
 
 #include "EntityView.h"
 
+#include <cmath>
 
 namespace representation {
-    class Wall : public EntityView {
-        sf::RectangleShape _shape;
 
-    public:
-        explicit Wall(const std::shared_ptr<logic::EntityModel> &model);
+class Wall : public EntityView {
+    sf::RectangleShape _shape;
 
-        void onNotify(const logic::EventType &event) override;
+    std::vector<sf::IntRect> _normal_wall_frames;
+    std::vector<sf::IntRect> _edge_wall_frames;
+    std::vector<sf::IntRect> _t_kruispunt_frames;
+    std::vector<sf::IntRect> _tip_walls;
 
-        void update(float dt) override;
+    bool updated = false;
 
-        void render(sf::RenderWindow &window) const override;
 
-        ~Wall() override = default;
+public:
+    explicit Wall(const std::shared_ptr<logic::EntityModel>& model);
 
-    };
-}
+    void onNotify(const logic::EventType& event) override;
 
-#endif //PACMANPROJECT_WALL_VIEW
+    void updateWall();
+    void update(float dt) override;
+
+    void render(sf::RenderWindow& window) const override;
+
+    ~Wall() override = default;
+
+    bool compareFloats(float x, float y) { return std::fabs(x - y) < Constants::EPS; }
+};
+} // namespace representation
+
+#endif // PACMANPROJECT_WALL_VIEW

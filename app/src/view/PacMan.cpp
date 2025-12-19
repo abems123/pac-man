@@ -39,8 +39,6 @@ namespace representation {
         : EntityView(model, 17, 1, 2) {
 
         // TODO: Just hard code the dimensions of sprites since there is no rule to get them
-        _sprites_sizes = {{33, 33}, {30, 33}, {23, 33}};
-
         AnimationManager::setFrames(17, 1, 2, _right_frames);
         AnimationManager::setFrames(17, 4, 2, _down_frames);
         AnimationManager::setFrames(17, 7, 2, _left_frames);

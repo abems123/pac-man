@@ -11,6 +11,8 @@ namespace representation {
         static constexpr int START_TOP_SPACE = 4;
         static constexpr int SPACE_BETWEEN_SPRITES = 15;
         static constexpr int SPRITE_SIZE = 35;
+        static constexpr float EPS = 1e-4f;
+
 
     };
 }

@@ -7,63 +7,66 @@
 #include <memory>
 #include <vector>
 
-#include "../../../app/include/utils/ResourceManager.h"
 #include "entities/EntityModel.h"
 #include "entities/PacMan.h"
 
+#include <map>
+#include <utils/ResourceManager.h>
 
 namespace representation {
-    class EntityView;
+class EntityView;
 }
 
 namespace logic {
-    class AbstractFactory;
-    class Event;
-    class EntityModel;
-    class Stopwatch;
-    class Score;
-    class Fruit;
-    class Coin;
-    class Ghost;
-    class Wall;
+class AbstractFactory;
+class Event;
+class EntityModel;
+class Stopwatch;
+class Score;
+class Fruit;
+class Coin;
+class Ghost;
+class Wall;
 
+class World {
+    std::vector<std::shared_ptr<Wall>> _walls{};
+    std::vector<std::shared_ptr<Ghost>> _ghosts{};
+    std::vector<std::shared_ptr<Coin>> _coins{};
+    std::vector<std::shared_ptr<Fruit>> _fruits{};
+    std::shared_ptr<PacMan> _pacman{};
 
-    class World {
-        std::vector<std::shared_ptr<Wall> > _walls{};
-        std::vector<std::shared_ptr<Ghost> > _ghosts{};
-        std::vector<std::shared_ptr<Coin> > _coins{};
-        std::vector<std::shared_ptr<Fruit> > _fruits{};
-        std::shared_ptr<PacMan> _pacman{};
+    std::shared_ptr<Score> _score;
 
-        std::shared_ptr<Score> _score;
+    std::shared_ptr<AbstractFactory> _factory;
 
-        std::shared_ptr<AbstractFactory> _factory;
+    std::vector<std::string> map;
+    const int n;
+    const int m;
 
-        double _model_width, _model_height;
+    // =========== Calculating models Size in the normalized coordinate system [START] ===========
+    float _model_width = 0.f;
+    float _model_height = 0.f;
+    // =========== Calculating models Size in the normalized coordinate system [END] ===========
 
-    public:
-        explicit World(const std::shared_ptr<AbstractFactory> &factory);
+    std::vector<std::vector<std::shared_ptr<Wall>>> wall_at;
 
-        void movePacMan(Direction direction, bool change_dir = true) const;
+public:
+    explicit World(const std::shared_ptr<AbstractFactory>& factory);
 
-        void update(float deltaTime);
+    void movePacMan(Direction direction, bool change_dir = true) const;
 
-        bool intersects(
-            float ax, float ay, float aw, float ah,
-            float bx, float by, float bw, float bh
-        ) const;
+    void update(float deltaTime);
 
-        bool wouldCollide(float nextX, float nextY) const;
+    bool intersects(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) const;
 
+    bool wouldCollide(float nextX, float nextY) const;
 
-        bool collides(const EntityModel *a, const EntityModel *b, double horizontalDistance,
-                      double verticalDistance) const;
+    bool collides(const EntityModel* a, const EntityModel* b, double horizontalDistance, double verticalDistance) const;
 
-        void coinEaten(std::shared_ptr<Coin> coin);
+    void coinEaten(std::shared_ptr<Coin> coin);
 
-        bool isWall(Direction direction) const;
-    };
-}
+    bool isWall(Direction direction) const;
+};
+} // namespace logic
 
-
-#endif //PACMANPROJECT_WORLD_H
+#endif // PACMANPROJECT_WORLD_H

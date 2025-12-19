@@ -13,8 +13,8 @@ namespace representation {
     public:
         AnimationManager() = default;
 
-        static void setFrames(int column, int row, int frames_number, std::vector<sf::IntRect> &frames,
-                              std::vector<std::pair<int, int>> &sprites_width = {});
+        static void setFrames(int column, int row, int frames_number, std::vector<sf::IntRect>& frames);
+        static void setFrames(int column, int row, sf::IntRect& frame);
     };
 }
 
