@@ -24,14 +24,13 @@ jobs:
           command: |
             cmake --version
             g++ --version
-            clang++ --version
+            clang++-18 --version
             dpkg -l | grep libsfml
 
       - run:
           name: Configure (CMake)
           command: |
-            cmake -S . -B build \
-              -DCMAKE_BUILD_TYPE=Release
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - run:
           name: Build
