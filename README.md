@@ -3,6 +3,13 @@
 This repository contains my implementation of the Pac-Man game for the course **Gevorderd Programmeren** at the University of Antwerp.  
 The project follows the official specification and focuses on modular architecture, clear separation of concerns, correct use of design patterns, and maintainable C++ code.
 
+## Author
+
+Name:           Abdellah El Moussaoui  
+Student Number: S20246031
+
+Advanced Programming — University of Antwerp
+
 ## UML Diagram
 
 [View Full UML Diagram](https://miro.com/app/live-embed/uXjVGdQWha8=/?embedMode=view_only_without_ui&moveToViewport=-2014%2C-210%2C5044%2C2679&embedId=27473108072)
@@ -124,12 +131,6 @@ cmake --build build
 - No logic code inside the app module  
 - DeltaTime used everywhere (no busy waiting)
 
-## Author
-
-Name:           Abdellah El Moussaoui  
-Student Number: S20246031
-
-Advanced Programming — University of Antwerp
 
 ## TODO
 - [ ] Add the wall sprite variants to the main wall
