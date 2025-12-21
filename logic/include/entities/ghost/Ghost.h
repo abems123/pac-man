@@ -13,17 +13,20 @@ class World;
 namespace logic {
     class PacMan;
 
-    class Ghost : public MovableEntityModel{
+    class Ghost : public MovableEntityModel {
     protected:
         double _target_x, _target_y;
         double _spawn_x, _spawn_y;
         GhostMode _mode = GhostMode::Center;
         float frightenedTimer = 0.f;
 
-        GhostType _ghostType;
+        std::vector<Direction> available_directions;
+
     public:
         using MovableEntityModel::MovableEntityModel;
 
+        Ghost(float x, float y, EntityType type) : MovableEntityModel(x, y, type) {
+        }
 
         virtual void computeTarget(World *world, PacMan *pac_man) = 0;
 
@@ -35,10 +38,13 @@ namespace logic {
 
         void setMode(const GhostMode mode) { _mode = mode; };
 
-        GhostType getType() const { return _ghostType; }
+
         void move();
 
         virtual void decideDirection() = 0;
+
+        void addAvailableDir(const Direction dir) { available_directions.push_back(dir); }
+        void clearDirections() { available_directions.clear(); }
 
         void update();
     };

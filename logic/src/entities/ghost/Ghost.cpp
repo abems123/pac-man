@@ -24,7 +24,7 @@ void logic::Ghost::move() {
 }
 
 void logic::Ghost::update() {
-    decideDirection();
+    // decideDirection();
     if (_mode == GhostMode::Chase)
         move();
 }

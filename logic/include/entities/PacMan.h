@@ -13,6 +13,7 @@ namespace logic {
     public:
         using MovableEntityModel::MovableEntityModel;
 
+        PacMan(float x, float y): MovableEntityModel(x, y, EntityType::Pacman) {};
 
     };
 }

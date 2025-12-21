@@ -9,8 +9,7 @@
 namespace logic {
     class PredictiveGhost : public Ghost {
     public:
-        PredictiveGhost(float x, float y) : Ghost(x, y) {
-            _ghostType = GhostType::Predictive;
+        PredictiveGhost(float x, float y) : Ghost(x, y, EntityType::PredictiveGhost) {
         }
 
         void computeTarget(World *world, PacMan *pac_man) override;

@@ -9,27 +9,28 @@
 namespace logic {
     enum class GhostMode { Center, Chase, Fear, Dead };
 
-    enum class GhostType { Predictive, Locked, Follower };
-
     enum class Direction { Up, Down, Right, Left };
 
+    enum class EntityType { Pacman, Wall, Coin, Fruit, LockedGhost, PredictiveGhost, FollowerGhost };
 
     class EntityModel : public Subject {
     protected:
         float _x, _y;
+        EntityType _type;
 
     public:
-        EntityModel(const float x, const float y) : _x(x), _y(y) {
+        EntityModel(const float x, const float y, EntityType type) : _x(x), _y(y), _type(type) {
         }
 
         EntityModel(const EntityModel &that);
+
         EntityModel &operator=(const EntityModel &that);
 
         void setPosition(float x, float y);
 
         [[nodiscard]] std::pair<float, float> getPosition() const;
 
-
+        [[nodiscard]] virtual EntityType getType() const { return _type; };
     };
 }
 

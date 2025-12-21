@@ -22,7 +22,7 @@ void Game::checkMapConsistent() {
 
     if (const bool _correct_ratio = 2.1 <= static_cast<float>(_first_line_len) / map.size() &&
                                     static_cast<float>(_first_line_len) / map.size() <= 2.3;
-        inconsistent_lines_lengths || !_correct_ratio) {
+        inconsistent_lines_lengths /*|| !_correct_ratio*/) {
         throw std::runtime_error(
             "Invalid map: map is not 16:7.2, or some row has different number of elements than other rows");
     }

@@ -17,16 +17,19 @@
 #include <algorithm>
 #include <utils/ResourceManager.h>
 #include <vector>
+#include <SFML/System/Vector2.hpp>
 
 #include "../../../app/include/utils/Constants.h"
 #include "entities/ghost/Ghost.h"
 #include "entities/ghost/LockedGhost.h"
-#include "utils/Constants.h"
 
 namespace logic {
     void World::parseMap() {
         // =========== Parsing assets/map.txt to generate the world [START] ===========
         for (int i = 0, n = map.size(); i < n; ++i) {
+            wall_at.emplace_back();
+            wall_at.back().resize(m, nullptr);
+
             for (int j = 0, m = map[i].length(); j < m; ++j) {
                 const float current_x = 2.0 * j / m - 1; // (static_cast<float>(j) - m / 2.0) / (m / 2.0);
                 const float current_y = 2.0 * i / n - 1; // (static_cast<float>(i) - n / 2.0) / (n / 2.0);
@@ -36,7 +39,7 @@ namespace logic {
                 if (current_c == '#') {
                     auto wall = _factory->createWall(current_x, current_y);
                     _walls.push_back(wall);
-                    wall_at[i][j] = wall; // store
+                    wall_at[i][j] = wall;
                 } else if (current_c == '*') {
                     auto coin = _factory->createCoin(current_x, current_y);
                     _collectables.push_back(coin);
@@ -51,11 +54,11 @@ namespace logic {
                     _collectables.push_back(fruit);
                 } else if (current_c == '@') {
                     auto ghost = _factory->createGhost(current_x, current_y);
-                    if (ghost->getType() == GhostType::Locked) {
+                    if (ghost->getType() == EntityType::LockedGhost) {
                         _locked_ghost = ghost;
-                    } else if (ghost->getType() == GhostType::Predictive) {
+                    } else if (ghost->getType() == EntityType::PredictiveGhost) {
                         _predictive_ghost.push_back(ghost);
-                    } else if (ghost->getType() == GhostType::Follower) {
+                    } else if (ghost->getType() == EntityType::FollowerGhost) {
                         _direct_ghost = ghost;
                     }
                 } else if (current_c == 'E') {
@@ -68,12 +71,53 @@ namespace logic {
     void World::startGhosts() {
     }
 
+    bool World::isIntersection(int r, int c, Direction currentDir) const {
+        auto dirs = getViableDirections(r, c);
+
+        // remove backward direction
+        auto opposite = oppositeOf(currentDir);
+        std::erase(dirs, opposite);
+
+        return dirs.size() >= 2;
+    }
+
+    Direction World::oppositeOf(Direction d) const {
+        switch (d) {
+            case Direction::Up:    return Direction::Down;
+            case Direction::Down:  return Direction::Up;
+            case Direction::Left:  return Direction::Right;
+            case Direction::Right: return Direction::Left;
+        }
+        return Direction::Up; // unreachable
+    }
+
+    void World::updateGhost(Ghost& g) {
+        const int r = rowFromY(g.getPosition().second);
+        const int c = colFromX(g.getPosition().first);
+
+        auto viable = getViableDirections(r, c);
+
+        bool blocked = !std::ranges::any_of(viable, [&](Direction d) {
+            return d == g.getDirection();
+        });
+
+        if (blocked || isIntersection(r, c, g.getDirection())) {
+            g.clearDirections();
+            for (auto d : viable)
+                g.addAvailableDir(d);
+
+            g.decideDirection();
+        }
+
+        g.move();
+    }
+
+
     World::World(const std::shared_ptr<AbstractFactory> &factory)
         : _score(std::make_unique<Score>()), _factory(factory), map(ResourceManager::getMap()),
           n(static_cast<int>(map.size())),
           m(static_cast<int>(map.front().size())),
-          _model_width(2.0f / m), _model_height(2.0f / n),
-          wall_at(std::vector(n, std::vector<std::shared_ptr<Wall> >(m))) {
+          _model_width(2.0f / m), _model_height(2.0f / n) {
         parseMap();
         _pacman->setSpeed(std::min(_model_width, _model_height) * 4.f);
         setWallsTypes();
@@ -116,30 +160,10 @@ namespace logic {
         }
 
 
-        // TODO: do the logic for snapping pacman when in an edge
-        if (direction == Direction::Up || direction == Direction::Down) {
-            // Use Pac-Man's current center X to pick the intended column
-            const float curCenterX = _pacman->getPosition().first + _model_width / 2.f;
-            const int col = colFromX(curCenterX);
-
-            // If 80% aligned with this column, snap X to the tile's left edge (your coordinate convention)
-            if (shouldSnapToColumn(nextX, col, pacW)) {
-                nextX = tileLeftX(col);
-            }
-
-            // Optional: also allow snapping to neighboring column if it's closer
-            // (helps when you're between columns)
-            const int colL = std::max(col - 1, 0);
-            const int colR = std::min(col + 1, m - 1);
-
-            if (shouldSnapToColumn(nextX, colL, pacW)) nextX = tileLeftX(colL);
-            if (shouldSnapToColumn(nextX, colR, pacW)) nextX = tileLeftX(colR);
-        }
-
-
         // Safe to move
         _pacman->setPosition(nextX, nextY);
         _pacman->setDirection(direction);
+
 
         collect();
     }
@@ -160,20 +184,105 @@ namespace logic {
         }
     }
 
-    void World::update() {
-        _locked_ghost->update();
+    std::vector<Direction> World::getViableDirections(
+        int c, int r) const
+    {
+        std::vector<Direction> result;
 
-        bool collided = std::any_of(_walls.begin(), _walls.end(), [this](const std::shared_ptr<Wall> &w) {
-            if (collides(_locked_ghost.get(), w.get())) {
-                std::cout << "collided" << std::endl;
-            }
-            return collides(_locked_ghost.get(), w.get());
-        });
+        auto inside = [&](int r, int c) {
+            return r >= 0 && r < n && c >= 0 && c < m;
+        };
+
+        auto isFree = [&](int r, int c) {
+            if (!inside(r, c)) return false;
+            // nullptr == empty tile => free
+            return !wall_at[r][c];
+        };
+
+
+        if (isFree(r - 1, c)) result.push_back(Direction::Up);
+        if (isFree(r + 1, c)) result.push_back(Direction::Down);
+        if (isFree(r, c - 1)) result.push_back(Direction::Left);
+        if (isFree(r, c + 1)) result.push_back(Direction::Right);
+
+        return result;
+    }
+
+    std::vector<Direction> World::getViableDirections(
+        const std::shared_ptr<MovableEntityModel>& entityModel) const
+    {
+        std::vector<Direction> result;
+
+        auto inside = [&](int r, int c) {
+            return r >= 0 && r < n && c >= 0 && c < m;
+        };
+
+        auto isFree = [&](int r, int c) {
+            if (!inside(r, c)) return false;
+            // nullptr == empty tile => free
+            return !wall_at[r][c];
+        };
+
+        const int c = colFromX(entityModel->getPosition().first);
+        const int r = rowFromY(entityModel->getPosition().second);
+
+        if (isFree(r - 1, c)) result.push_back(Direction::Up);
+        if (isFree(r + 1, c)) result.push_back(Direction::Down);
+        if (isFree(r, c - 1)) result.push_back(Direction::Left);
+        if (isFree(r, c + 1)) result.push_back(Direction::Right);
+
+        return result;
+    }
+
+    void World::update() {
+        const float dt = Stopwatch::getInstance().dt();
+        const float speed = _locked_ghost->getSpeed();
+        const float dist = speed * dt;
+
+        float dx = 0.f, dy = 0.f;
+        switch (_locked_ghost->getDirection()) {
+            case Direction::Up: dy = -dist;
+                break;
+            case Direction::Down: dy = dist;
+                break;
+            case Direction::Left: dx = -dist;
+                break;
+            case Direction::Right: dx = dist;
+                break;
+        }
+
+        const float nextX = _locked_ghost->getPosition().first + dx;
+        const float nextY = _locked_ghost->getPosition().second + dy;
+
+        bool collided = std::any_of(_walls.begin(), _walls.end(),
+                                    [&](const std::shared_ptr<Wall> &w) {
+                                        return intersects(
+                                            nextX, nextY, _model_width, _model_height,
+                                            w->getPosition().first, w->getPosition().second,
+                                            _model_width, _model_height
+                                        );
+                                    });
+
 
         if (collided) {
-            // _locked_ghost->getDirectionRandomly({});
+            const sf::Vector2i coords = {
+                colFromX(_locked_ghost->getPosition().first),
+                rowFromY(_locked_ghost->getPosition().second)
+            };
+
+            auto viable = getViableDirections(_locked_ghost);
+            _locked_ghost->clearDirections();
+
+            for (auto d: viable)
+                _locked_ghost->addAvailableDir(d);
+
+            _locked_ghost->decideDirection();
+            return; // do NOT move this frame
         }
+
+        _locked_ghost->setPosition(nextX, nextY);
     }
+
 
     bool World::intersects(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) const {
         return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
@@ -189,65 +298,23 @@ namespace logic {
     }
 
 
-    static constexpr float SNAP_THRESHOLD = 0.5; // 80%
-
-    bool World::canSnapVertically(float pacX, float pacY, float &snappedX) const {
-        for (const auto &wL: _walls) {
-            for (const auto &wR: _walls) {
-                // walls on same row
-                if (std::abs(wL->getPosition().second - wR->getPosition().second) > 0.01f)
-                    continue;
-
-                // left and right walls around pacman
-                if (wL->getPosition().first >= wR->getPosition().first)
-                    continue;
-
-                float gapLeft = wL->getPosition().first + _model_width;
-                float gapRight = wR->getPosition().first;
-
-                float gapWidth = gapRight - gapLeft;
-
-                // corridor wide enough
-                if (gapWidth < _model_width)
-                    continue;
-
-                float corridorCenter = (gapLeft + gapRight) / 2.f;
-
-                float pacCenter = pacX + _model_width / 2.f;
-                float offset = std::abs(pacCenter - corridorCenter);
-
-                if (offset <= (gapWidth - _model_width) * SNAP_THRESHOLD) {
-                    snappedX = corridorCenter - _model_width / 2.f;
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     int World::colFromX(float x) const {
-        // x is in [-1, 1], tile width = _model_width
         int col = static_cast<int>(std::floor((x + 1.f) / _model_width));
         return std::clamp(col, 0, m - 1);
     }
 
-    float World::tileLeftX(int col) const {
-        return -1.f + col * _model_width; // matches your current_x formula
+    int World::rowFromY(float y) const {
+        // y: -1 (top) -> 0,  +1 (bottom) -> n-1
+        int row = static_cast<int>(std::floor((y + 1.f) / _model_height));
+        return std::clamp(row, 0, n - 1);
     }
 
-    bool World::shouldSnapToColumn(float nextX, int col, float pacW) const {
-        const float tileL = tileLeftX(col);
-        const float tileR = tileL + _model_width;
-
-        const float pacL = nextX + (_model_width - pacW) / 2.f;
-        const float pacR = pacL + pacW;
-
-        const float overlap = std::min(pacR, tileR) - std::max(pacL, tileL);
-        return overlap >= 0.8f * pacW;
+    float World::tileLeftX(int col) const {
+        return -1.f + col * _model_width;
     }
 
     bool World::isWallCell(int r, int c) const {
-        return r >= 0 && r < n && c >= 0 && c < m && wall_at[r][c] != nullptr;
+        return r >= 0 && r < n && c >= 0 && c < m && wall_at[r][c];
     }
 
     bool World::collides(const EntityModel *m1, const EntityModel *m2) const {
@@ -256,18 +323,21 @@ namespace logic {
     }
 
     void World::setWallsTypes() const {
-        auto isWall = [&](int r, int c) { return r >= 0 && r < n && c >= 0 && c < m && wall_at[r][c] != nullptr; };
-
         for (int i = 1; i < n; ++i) {
             for (int j = 1; j < m; ++j) {
-                if (!wall_at[i][j])
+                if (!isWallCell(i, j))
                     continue;
 
+                auto *current_wall = wall_at[i][j].get();
 
-                const bool N = isWall(i - 1, j);
-                const bool E = isWall(i, j + 1);
-                const bool S = isWall(i + 1, j);
-                const bool W = isWall(i, j - 1);
+                if (!current_wall) {
+                    std::cerr << "Wall is null" << std::endl;
+                    return;
+                }
+                const bool N = isWallCell(i - 1, j);
+                const bool E = isWallCell(i, j + 1);
+                const bool S = isWallCell(i + 1, j);
+                const bool W = isWallCell(i, j - 1);
 
                 const int mask = (N << 3) | (E << 2) | (S << 1) | (W << 0);
 
@@ -306,7 +376,6 @@ namespace logic {
                     case 12:
                         type = WallType::CornerNE;
                         break;
-
                     case 7:
                         type = WallType::T_S;
                         break;
@@ -328,7 +397,7 @@ namespace logic {
                         break;
                 }
 
-                wall_at[i][j]->setType(type);
+                current_wall->setWallType(type);
             }
         }
     }

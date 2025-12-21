@@ -11,6 +11,7 @@
 #include "entities/PacMan.h"
 
 #include <map>
+#include <SFML/System/Vector2.hpp>
 #include <utils/ResourceManager.h>
 
 class Collectable;
@@ -65,13 +66,25 @@ namespace logic {
 
         void startGhosts();
 
+        bool isIntersection(int r, int c, Direction currentDir) const;
+
+        [[nodiscard]] Direction oppositeOf(Direction d) const;
+
+        void updateGhost(Ghost &g);
+
+
         explicit World(const std::shared_ptr<AbstractFactory> &factory);
 
         void movePacMan(Direction direction);
 
         void collect();
 
+        std::vector<Direction> getViableDirections(int c, int r) const;
+
+        [[nodiscard]] std::vector<Direction> getViableDirections(const std::shared_ptr<MovableEntityModel> & entityModel) const;
+
         void update();
+
 
         [[nodiscard]] bool intersects(float ax, float ay, float aw, float ah, float bx, float by, float bw,
                                       float bh) const;
@@ -82,13 +95,11 @@ namespace logic {
 
         [[nodiscard]] Score *getScore() const { return _score.get(); }
 
-        bool canSnapVertically(float pacX, float pacY, float &snappedX) const;
-
         [[nodiscard]] int colFromX(float x) const;
 
-        [[nodiscard]] float tileLeftX(int col) const;
+        [[nodiscard]] int rowFromY(float y) const;
 
-        [[nodiscard]] bool shouldSnapToColumn(float nextX, int col, float pacW) const;
+        [[nodiscard]] float tileLeftX(int col) const;
 
         [[nodiscard]] bool isWallCell(int r, int c) const;
 

@@ -7,9 +7,7 @@
 #include "utils/Random.h"
 
 namespace logic {
-    LockedGhost::LockedGhost(const float x, const float y) : Ghost(x, y) {
-        _ghostType = GhostType::Locked;
-
+    LockedGhost::LockedGhost(const float x, const float y) : Ghost(x, y, EntityType::LockedGhost) {
         if (Random::instance().probability(0.5))
             notify(EventType::DirectionChangedRight);
         else notify(EventType::DirectionChangedLeft);;
@@ -21,14 +19,9 @@ namespace logic {
     void LockedGhost::stepTowardTarget(World *world) {
     }
 
-    LockedGhost::~LockedGhost() {
-    }
+    LockedGhost::~LockedGhost() = default;
 
     void LockedGhost::decideDirection() {
-
-    }
-
-    Direction LockedGhost::getDirectionRandomly(std::vector<Direction> available_directions) {
-        return available_directions[Random::instance().uniformInt(0, available_directions.size())];
+        setDirection(available_directions[Random::instance().uniformInt(0, available_directions.size())]);
     }
 }

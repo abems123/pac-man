@@ -9,7 +9,10 @@
 namespace logic {
     class LockedGhost : public Ghost {
     public:
+        using Ghost::Ghost;
+
         LockedGhost(float x, float y);
+
         void computeTarget(World *world, PacMan *pac_man) override;
 
         void stepTowardTarget(World *world) override;
@@ -18,7 +21,6 @@ namespace logic {
 
         void decideDirection() override;
 
-        Direction getDirectionRandomly(std::vector<Direction> available_directions);
 
     };
 }

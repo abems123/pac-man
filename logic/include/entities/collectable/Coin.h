@@ -11,7 +11,7 @@
 namespace logic {
     class Coin : public Collectable {
     public:
-        Coin(const float x, const float y) : Collectable(x, y, Constants::COIN_SCORE) {
+        Coin(const float x, const float y) : Collectable(x, y, Constants::COIN_SCORE, EntityType::Coin) {
         }
     };
 }

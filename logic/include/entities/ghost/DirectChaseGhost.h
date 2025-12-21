@@ -9,13 +9,14 @@
 namespace logic {
     class DirectChaseGhost : public Ghost {
     public:
+        DirectChaseGhost(float x, float y): Ghost(x,y,EntityType::PredictiveGhost) {}
+
         void computeTarget(World *world, PacMan *pac_man) override;
 
         void stepTowardTarget(World *world) override;
 
         void decideDirection() override;
 
-        using Ghost::Ghost;
     };
 }
 
