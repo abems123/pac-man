@@ -17,15 +17,17 @@ namespace logic {
         using EntityModel::EntityModel;
 
         MovableEntityModel(const MovableEntityModel &that);
+        MovableEntityModel& operator=(const MovableEntityModel &that);
 
         [[nodiscard]] float getSpeed() const { return _speed; }
         void setSpeed(const float speed) { this->_speed = speed; }
 
         [[nodiscard]] Direction getDirection() const { return _direction; };
 
-        void setDirection(const Direction direction);
+        void setDirection(Direction direction);
 
-        void move(const float dx, const float dy);;
+
+        // void move(const float dx, const float dy);;
     };
 }
 

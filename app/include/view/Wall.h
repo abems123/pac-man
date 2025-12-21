@@ -10,6 +10,10 @@
 
 #include <cmath>
 
+namespace logic {
+    class Wall;
+}
+
 namespace representation {
 
 class Wall : public EntityView {
@@ -35,7 +39,6 @@ public:
 
     ~Wall() override = default;
 
-    bool compareFloats(float x, float y) { return std::fabs(x - y) < Constants::EPS; }
 };
 } // namespace representation
 

@@ -18,11 +18,7 @@ namespace logic {
     public:
         virtual std::shared_ptr<PacMan> createPacMan(float x, float y) = 0;
 
-        virtual std::shared_ptr<Ghost> createLockedGhost(float x, float y) = 0;
-
-        virtual std::shared_ptr<Ghost> createPredictiveGhost(float x, float y) = 0;
-
-        virtual std::shared_ptr<Ghost> createDirectChaseGhost(float x, float y) = 0;
+        virtual std::shared_ptr<Ghost> createGhost(float x, float y) = 0;
 
         virtual std::shared_ptr<Coin> createCoin(float x, float y) = 0;
 

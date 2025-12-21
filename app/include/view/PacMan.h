@@ -4,24 +4,19 @@
 
 #ifndef PACMANPROJECT_PACMAN_H
 #define PACMANPROJECT_PACMAN_H
-#include "EntityView.h"
+#include "MovableEntityView.h"
 
+
+namespace logic {
+    class PacMan;
+}
 
 namespace representation {
-    class PacMan : public EntityView {
-
+    class PacMan : public MovableEntityView {
         bool is_moving = false;
 
-        std::vector<sf::IntRect> _up_frames;
-        std::vector<sf::IntRect> _down_frames;
-        std::vector<sf::IntRect> _right_frames;
-        std::vector<sf::IntRect> _left_frames;
-
-        float _animation_timer = 0.f;
-        float _frame_duration = 0.05f;
-        int _current_frame = 0;
     public:
-        explicit PacMan(const std::shared_ptr<logic::EntityModel> &model);
+        explicit PacMan(const std::shared_ptr<logic::PacMan> &model);
 
         void updateDirectionFrames();
 
@@ -31,7 +26,7 @@ namespace representation {
 
         void update(float dt) override;
 
-
+        ~PacMan() override = default;
 
 
         // void updateAnimation(float dt) override;

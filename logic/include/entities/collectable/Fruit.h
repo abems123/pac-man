@@ -5,11 +5,13 @@
 #ifndef PACMANPROJECT_FRUIT_H
 #define PACMANPROJECT_FRUIT_H
 #include "Collectable.h"
+#include "../../logic/include/utils/Constants.h"
 
 namespace logic {
     class Fruit : public Collectable {
     public:
-        using Collectable::Collectable;
+        Fruit(const float x, const float y) : Collectable(x, y, Constants::FRUIT_SCORE) {
+        };
     };
 }
 

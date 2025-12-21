@@ -1,0 +1,7 @@
+for each move pacman does:
+    before moving:
+        make a temp pacman with the future position of main pacman after moving
+        if there is wall at temp_pacman.position:
+            do not move
+        else
+            move

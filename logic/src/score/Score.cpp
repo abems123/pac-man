@@ -26,7 +26,7 @@ namespace logic {
                 increaseScore(100);
                 break;
             case EventType::FruitEaten:
-                increaseScore(200);
+                increaseScore(100);
                 break;
             case EventType::LevelCleared:
                 increaseScore(500);

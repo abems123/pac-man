@@ -13,7 +13,7 @@
 namespace logic {
     class Score : public Observer {
     public:
-        explicit Score(std::string  filePath = "leaderboard.txt");
+        explicit Score(std::string filePath = "leaderboard.txt");
 
 
         void onNotify(const EventType &event) override;
@@ -23,9 +23,14 @@ namespace logic {
         void update(float dt);
 
         void saveHighScores() const;
+
         void loadHighScores();
+
         void updateHighScores();
-        [[nodiscard]] const std::set<int>& getHighScores() const;
+
+        [[nodiscard]] const std::set<int> &getHighScores() const;
+
+        int getScore() { return _current_score; }
 
     private:
         int _current_score = 0;
@@ -38,6 +43,7 @@ namespace logic {
         std::string _score_file_path;
 
         void increaseScore(int amount);
+
         [[nodiscard]] int computeCoinBonus() const;
 
         [[nodiscard]] std::string getScoreFormat() const;

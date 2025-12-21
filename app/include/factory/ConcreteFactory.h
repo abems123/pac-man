@@ -18,6 +18,8 @@ namespace representation {
     class ConcreteFactory : public logic::AbstractFactory {
 
         std::vector<std::shared_ptr<EntityView>>* _views;
+        int _created_ghosts = 0;
+
     public:
         explicit ConcreteFactory(std::vector<std::shared_ptr<EntityView> > *views);
 
@@ -25,11 +27,7 @@ namespace representation {
 
         std::shared_ptr<logic::PacMan> createPacMan(float x, float y) override;
 
-        std::shared_ptr<logic::Ghost> createLockedGhost(float x, float y) override;
-
-        std::shared_ptr<logic::Ghost> createPredictiveGhost(float x, float y) override;
-
-        std::shared_ptr<logic::Ghost> createDirectChaseGhost(float x, float y) override;
+        std::shared_ptr<logic::Ghost> createGhost(float x, float y) override;
 
         std::shared_ptr<logic::Coin> createCoin(float x, float y) override;
 

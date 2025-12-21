@@ -32,7 +32,7 @@ public:
     using EntityModel::EntityModel;
 
     void setType(WallType t) { type = t; }
-    WallType getType() const { return type; }
+    [[nodiscard]] WallType getType() const { return type; }
 };
 } // namespace logic
 

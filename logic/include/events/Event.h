@@ -22,7 +22,6 @@ namespace logic {
 
         GhostStateChanged,
 
-        ScoreChanged,
         LivesChanged,
         LevelChanged,
 
@@ -30,7 +29,7 @@ namespace logic {
         FearModeEnding,
         FearModeEnded,
 
-        Stopped
+        DirectionChangedLeft, DirectionChangedUp, DirectionChangedDown, DirectionChangedRight
     };
 
 

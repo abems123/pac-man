@@ -7,17 +7,17 @@
 #include "entities/EntityModel.h"
 
 
-class Collectable: public logic::EntityModel{
+class Collectable : public logic::EntityModel {
+    int score;
+
 public:
-    Collectable(const float x, const float y)
-        : EntityModel(x, y) {
+    Collectable(const float x, const float y, const int score)
+        : EntityModel(x, y), score(score) {
     }
 
-
+    [[nodiscard]] int getScore() const { return score; }
 
 private:
-    bool is_collected = false;
-
 };
 
 

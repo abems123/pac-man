@@ -8,6 +8,16 @@
 
 namespace logic {
     class PredictiveGhost : public Ghost {
+    public:
+        PredictiveGhost(float x, float y) : Ghost(x, y) {
+            _ghostType = GhostType::Predictive;
+        }
+
+        void computeTarget(World *world, PacMan *pac_man) override;
+
+        void stepTowardTarget(World *world) override;
+
+        void decideDirection() override;
     };
 }
 

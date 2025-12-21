@@ -22,6 +22,9 @@ namespace representation {
         // Representation-side factory (creates both the model+view)
         std::shared_ptr<logic::AbstractFactory> _factory;
 
+        // Score text
+        sf::Text score;
+
     public:
         LevelState(StateManager &manager, Game &game, int level);
 

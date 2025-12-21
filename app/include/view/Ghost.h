@@ -5,12 +5,17 @@
 #ifndef PACMANPROJECT_GHOST_H
 #define PACMANPROJECT_GHOST_H
 #include "EntityView.h"
+#include "MovableEntityView.h"
 
+
+namespace logic {
+    class Ghost;
+}
 
 namespace representation {
-    class Ghost : public EntityView {
+    class Ghost : public MovableEntityView {
     public:
-        using EntityView::EntityView;
+        Ghost(const std::shared_ptr<logic::Ghost> &model, int ghost_col);
 
         void onNotify(const logic::EventType &event) override;
 

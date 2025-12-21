@@ -7,7 +7,9 @@
 #include "patterns/Subject.h"
 
 namespace logic {
-    enum class GhostState { Chase, Scatter, Fear, Dead };
+    enum class GhostMode { Center, Chase, Fear, Dead };
+
+    enum class GhostType { Predictive, Locked, Follower };
 
     enum class Direction { Up, Down, Right, Left };
 
@@ -21,12 +23,13 @@ namespace logic {
         }
 
         EntityModel(const EntityModel &that);
-
-        void update(float dt);
+        EntityModel &operator=(const EntityModel &that);
 
         void setPosition(float x, float y);
 
         [[nodiscard]] std::pair<float, float> getPosition() const;
+
+
     };
 }
 

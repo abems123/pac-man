@@ -9,14 +9,16 @@
 namespace logic {
     class LockedGhost : public Ghost {
     public:
+        LockedGhost(float x, float y);
         void computeTarget(World *world, PacMan *pac_man) override;
 
         void stepTowardTarget(World *world) override;
 
         ~LockedGhost() override;
 
-        using Ghost::Ghost;
+        void decideDirection() override;
 
+        Direction getDirectionRandomly(std::vector<Direction> available_directions);
 
     };
 }

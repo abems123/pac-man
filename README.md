@@ -133,7 +133,16 @@ cmake --build build
 
 
 ## TODO
-- [ ] Add the wall sprite variants to the main wall
+- [X] Add the wall sprite variants to the main wall
+- [X] Implement Fruit and make pac man eat it
+- [X] Implement Score and update it when needed
+- [X] Show score on the top of screen
+- [ ] Add ghosts and their AI
+- [ ] Add lives and manage them
+- [ ] Add animations when fruits are eaten
+- [ ] Make pacman move when in edges
+- [ ] Add the available fruits for each level on bottom right of the screen and spawn them randomly during gameplay
+- [ ] Perfect small details
 
 ## Deadline
 I will be done with project before **monday 22nd dec 2025** in sha Allah

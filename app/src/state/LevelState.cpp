@@ -4,18 +4,23 @@
 
 #include "../../include/state/LevelState.h"
 
-#include <iostream>
 #include <SFML/Window/Event.hpp>
 
 #include "game/Game.h"
 #include "state/PausedState.h"
-#include "../../include/view/EntityView.h"
+#include "view/EntityView.h"
+#include "score/Score.h"
 
 namespace representation {
     LevelState::LevelState(StateManager &manager, Game &game,
                            int level) : State(manager, game),
                                         _factory(std::make_shared<ConcreteFactory>(&_views)) {
         _world = std::make_unique<logic::World>(_factory);
+
+        score.setFont(ResourceManager::instance().getFont(Font::Main_Font));
+        score.setCharacterSize(game.getWindow().getSize().y * .05);
+        score.setPosition(game.getWindow().getSize().x * .09, 0);
+        score.setColor(sf::Color::White);
     }
 
     void LevelState::handleInput() {
@@ -23,8 +28,7 @@ namespace representation {
 
         if (Keyboard::isKeyPressed(Keyboard::D)) {
             _world->movePacMan(logic::Direction::Right);
-        }
-        else if (Keyboard::isKeyPressed(Keyboard::A))
+        } else if (Keyboard::isKeyPressed(Keyboard::A))
             _world->movePacMan(logic::Direction::Left);
         else if (Keyboard::isKeyPressed(Keyboard::W))
             _world->movePacMan(logic::Direction::Up);
@@ -50,12 +54,15 @@ namespace representation {
             }
         }
 
-        _world->update(dt);
+        _world->update();
+
+        score.setString(std::to_string(_world->getScore()->getScore()));
     }
 
     void LevelState::render(sf::RenderWindow &window) {
         for (const auto &view: _views) {
             view->render(window);
         }
+        window.draw(score);
     }
 }

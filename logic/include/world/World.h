@@ -13,60 +13,87 @@
 #include <map>
 #include <utils/ResourceManager.h>
 
+class Collectable;
+
 namespace representation {
-class EntityView;
+    class EntityView;
 }
 
 namespace logic {
-class AbstractFactory;
-class Event;
-class EntityModel;
-class Stopwatch;
-class Score;
-class Fruit;
-class Coin;
-class Ghost;
-class Wall;
+    class LockedGhost;
+    class AbstractFactory;
+    class Event;
+    class EntityModel;
+    class Stopwatch;
+    class Score;
+    class Fruit;
+    class Coin;
+    class Ghost;
+    class Wall;
 
-class World {
-    std::vector<std::shared_ptr<Wall>> _walls{};
-    std::vector<std::shared_ptr<Ghost>> _ghosts{};
-    std::vector<std::shared_ptr<Coin>> _coins{};
-    std::vector<std::shared_ptr<Fruit>> _fruits{};
-    std::shared_ptr<PacMan> _pacman{};
+    class World {
+        std::vector<std::shared_ptr<Wall> > _walls{};
+        std::vector<std::shared_ptr<Collectable> > _collectables{};
+        std::shared_ptr<PacMan> _pacman{};
 
-    std::shared_ptr<Score> _score;
+        std::shared_ptr<Ghost> _locked_ghost;
+        std::vector<std::shared_ptr<Ghost>> _predictive_ghost;
+        std::shared_ptr<Ghost> _direct_ghost;
 
-    std::shared_ptr<AbstractFactory> _factory;
 
-    std::vector<std::string> map;
-    const int n;
-    const int m;
+        std::unique_ptr<Score> _score;
 
-    // =========== Calculating models Size in the normalized coordinate system [START] ===========
-    float _model_width = 0.f;
-    float _model_height = 0.f;
-    // =========== Calculating models Size in the normalized coordinate system [END] ===========
+        std::shared_ptr<AbstractFactory> _factory;
 
-    std::vector<std::vector<std::shared_ptr<Wall>>> wall_at;
+        std::vector<std::string> map;
+        const int n;
+        const int m;
 
-public:
-    explicit World(const std::shared_ptr<AbstractFactory>& factory);
+        // =========== Calculating models Size in the normalized coordinate system [START] ===========
+        float _model_width = 0.f;
+        float _model_height = 0.f;
+        // =========== Calculating models Size in the normalized coordinate system [END] ===========
 
-    void movePacMan(Direction direction, bool change_dir = true) const;
+        std::vector<std::vector<std::shared_ptr<Wall> > > wall_at;
 
-    void update(float deltaTime);
+        int _lives_left = 3;
 
-    bool intersects(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) const;
+    public:
+        void setWallsTypes() const;
 
-    bool wouldCollide(float nextX, float nextY) const;
+        void parseMap();
 
-    bool collides(const EntityModel* a, const EntityModel* b, double horizontalDistance, double verticalDistance) const;
+        void startGhosts();
 
-    void coinEaten(std::shared_ptr<Coin> coin);
+        explicit World(const std::shared_ptr<AbstractFactory> &factory);
 
-    bool isWall(Direction direction) const;
-};
+        void movePacMan(Direction direction);
+
+        void collect();
+
+        void update();
+
+        [[nodiscard]] bool intersects(float ax, float ay, float aw, float ah, float bx, float by, float bw,
+                                      float bh) const;
+
+
+        void eat(const std::shared_ptr<Collectable> &collectable);
+
+
+        [[nodiscard]] Score *getScore() const { return _score.get(); }
+
+        bool canSnapVertically(float pacX, float pacY, float &snappedX) const;
+
+        [[nodiscard]] int colFromX(float x) const;
+
+        [[nodiscard]] float tileLeftX(int col) const;
+
+        [[nodiscard]] bool shouldSnapToColumn(float nextX, int col, float pacW) const;
+
+        [[nodiscard]] bool isWallCell(int r, int c) const;
+
+        [[nodiscard]] bool collides(const EntityModel *m1, const EntityModel *m2) const;
+    };
 } // namespace logic
 
 #endif // PACMANPROJECT_WORLD_H

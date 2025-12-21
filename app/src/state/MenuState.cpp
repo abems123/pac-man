@@ -8,6 +8,7 @@
 #include "game/Game.h"
 #include "state/LevelState.h"
 #include "utils/ResourceManager.h"
+#include "score/Score.h"
 
 namespace representation {
     MenuState::MenuState(StateManager &manager, Game &game)

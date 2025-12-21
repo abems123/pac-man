@@ -39,10 +39,6 @@ namespace representation {
     }
 
     void EntityView::update(float dt) {
-        if (const auto var = _model.lock()) {
-            auto [x,y] = Camera::instance().worldToScreen(var->getPosition().first, var->getPosition().second);
-            _sprite.setPosition(x, y);
-        }
     }
 
 
