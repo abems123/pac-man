@@ -126,7 +126,7 @@ std::set<Direction> World::getAvailableDirectionsAt(int row, int col) const {
     return dirs;
 }
 
-void World::handleCollision(float dt) {
+void World::handleCollision(const float dt) const {
     auto isHorizontal = [](Direction d) { return d == Direction::Left || d == Direction::Right; };
     auto isVertical = [](Direction d) { return d == Direction::Up || d == Direction::Down; };
 

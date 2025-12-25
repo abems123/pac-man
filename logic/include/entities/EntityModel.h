@@ -11,7 +11,7 @@ enum class GhostMode { Center, Chase, Fear, Dead };
 
 enum class Direction { Up, Down, Right, Left, None };
 
-enum class EntityType { Pacman, Wall, Coin, Fruit, LockedGhost, PredictiveGhost, FollowerGhost };
+enum class EntityType { Pacman, Wall, Coin, Fruit, LockedGhost, FollowerGhost, LookaheadChaseGhost };
 
 class EntityModel : public Subject {
 protected:

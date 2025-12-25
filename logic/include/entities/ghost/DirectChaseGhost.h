@@ -2,23 +2,15 @@
 // Created by abdellah on 12/11/25.
 //
 
-#ifndef PACMANPROJECT_DIRECTCHASEGHOST_H
-#define PACMANPROJECT_DIRECTCHASEGHOST_H
+#pragma once
+
 #include "Ghost.h"
+#include "LookaheadChaseGhost.h"
 
 namespace logic {
-    class DirectChaseGhost : public Ghost {
+    class DirectChaseGhost final : public LookaheadChaseGhost {
     public:
-        DirectChaseGhost(float x, float y): Ghost(x,y,EntityType::FollowerGhost) {}
-
-        void computeTarget() override;
-
-        void stepTowardTarget() override;
-
-        void decideDirection() override;
-
-
+        DirectChaseGhost(float x, float y);
     };
 }
 
-#endif //PACMANPROJECT_DIRECTCHASEGHOST_H

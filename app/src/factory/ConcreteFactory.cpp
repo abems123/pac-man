@@ -15,7 +15,6 @@
 #include "entities/ghost/DirectChaseGhost.h"
 #include "entities/ghost/Ghost.h"
 #include "entities/ghost/LockedGhost.h"
-#include "entities/ghost/PredictiveGhost.h"
 #include "patterns/AbstractFactory.h"
 #include "utils/ResourceManager.h"
 #include "view/Coin.h"
@@ -38,26 +37,40 @@ std::shared_ptr<logic::PacMan> ConcreteFactory::createPacMan(float x, float y) {
 }
 
 std::shared_ptr<logic::Ghost> ConcreteFactory::createGhost(float x, float y) {
-    std::shared_ptr<logic::Ghost> model = nullptr;
+    using logic::GhostMode;
 
-    if (_created_ghosts == 0) {
-        // Locked Ghost
+    std::shared_ptr<logic::Ghost> model;
+
+    switch (_created_ghosts) {
+    case 0:
         model = std::make_shared<logic::LockedGhost>(x, y);
-        model->setMode(logic::GhostMode::Chase);
-    } else if (_created_ghosts == 1 || _created_ghosts == 2) {
-        model = std::make_shared<logic::PredictiveGhost>(x, y);
-        // if (_created_ghosts == 1)
-        // model->setMode(logic::GhostMode::Chase);
-    } else if (_created_ghosts == 3) {
+        model->setMode(GhostMode::Chase);
+        break;
+
+    case 1:
+        model = std::make_shared<logic::LookaheadChaseGhost>(x, y);
+        model->setMode(GhostMode::Chase);
+        break;
+
+    case 2:
+        model = std::make_shared<logic::LookaheadChaseGhost>(x, y);
+        model->setMode(GhostMode::Center);
+        break;
+
+    case 3:
         model = std::make_shared<logic::DirectChaseGhost>(x, y);
+        model->setMode(GhostMode::Center);
+        break;
+
+    default:
+        throw std::runtime_error("Too many ghosts spawned (unexpected '@' in map).");
     }
 
     const auto view = std::make_shared<Ghost>(model, _created_ghosts);
     model->attach(view);
     _views->push_back(view);
 
-    _created_ghosts++;
-
+    ++_created_ghosts;
     return model;
 }
 

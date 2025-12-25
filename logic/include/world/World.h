@@ -2,8 +2,8 @@
 // Created by abdellah on 12/11/25.
 //
 
-#ifndef PACMANPROJECT_WORLD_H
-#define PACMANPROJECT_WORLD_H
+#pragma once
+
 #include <memory>
 #include <vector>
 
@@ -217,7 +217,7 @@ public:
      *
      * @param dt Time elapsed since the previous update.
      */
-    void handleCollision(float dt);
+    void handleCollision(float dt) const;
 
 
 
@@ -275,4 +275,3 @@ public:
 };
 } // namespace logic
 
-#endif // PACMANPROJECT_WORLD_H

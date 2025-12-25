@@ -60,6 +60,7 @@ void LockedGhost::decideDirection() {
     const float epsX  = std::max(tileW * 0.05f, step);
     const float epsY  = std::max(tileH * 0.05f, step);
 
+
     // only switch directions close to the center of the tile
     if (!isAtTileCenter(row, col, epsX, epsY))
         return;
