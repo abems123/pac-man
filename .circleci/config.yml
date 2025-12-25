@@ -1,43 +1,103 @@
 version: 2.1
 
+executors:
+  ubuntu_24_04_frozen:
+    docker:
+      - image: cimg/base:24.04@sha256:e68f8ab4be6fa7717b998e4d1dfbc0a5e44527a3aa3cf450dceb053ec76c0fd4
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+      # Freeze Ubuntu packages to a snapshot close to the 24.04.3 timeframe.
+      UBUNTU_SNAPSHOT_ID: "20250807T000000Z"
+
 jobs:
   build:
-    docker:
-      - image: cimg/base:24.04
-
+    executor: ubuntu_24_04_frozen
+    parameters:
+      toolchain:
+        type: enum
+        enum: ["gcc", "clang"]
     steps:
       - checkout
 
       - run:
-          name: Install build dependencies
+          name: Freeze APT to the lab-era Ubuntu snapshot
           command: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              build-essential \
-              cmake \
-              g++-13 \
-              clang-18 \
-              libsfml-dev
+            echo "APT::Snapshot \"${UBUNTU_SNAPSHOT_ID}\";" | sudo tee /etc/apt/apt.conf.d/50snapshot
+            sudo apt-get update -y
 
       - run:
-          name: Verify toolchain versions
+          name: Install CMake + SFML + build tooling (Ubuntu snapshot)
           command: |
-            cmake --version
-            g++ --version
-            clang++-18 --version
-            dpkg -l | grep libsfml
+            sudo apt-get install -y --no-install-recommends \
+              ca-certificates \
+              ninja-build \
+              pkg-config \
+              cmake \
+              libsfml-dev \
+              gcc-13 g++-13
+
+            # Make sure "gcc/g++" points to GCC 13
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
+            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+            sudo update-alternatives --set gcc /usr/bin/gcc-13
+            sudo update-alternatives --set g++ /usr/bin/g++-13
+
+      - when:
+          condition:
+            equal: [clang, << parameters.toolchain >>]
+          steps:
+            - run:
+                name: Install Clang 18 (apt.llvm.org) and require 18.0.0
+                command: |
+                  sudo apt-get install -y --no-install-recommends wget gnupg lsb-release
+                  wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 18
+                  clang++-18 --version | head -n1
+                  # Hard requirement: 18.0.0 exactly (fail CI if different)
+                  clang++-18 --version | head -n1 | grep -E '^clang version 18\.0\.0\b'
+
+      - run:
+          name: Verify exact required versions (fail if mismatch)
+          command: |
+            echo "OS:"; cat /etc/os-release | sed -n '1,6p'
+
+            echo "CMake:"; cmake --version | head -n1
+            cmake --version | head -n1 | grep -F "3.28.3"
+
+            echo "G++:"; g++ --version | head -n1
+            g++ --version | head -n1 | grep -F "13.2.0"
+
+            echo "SFML:"; dpkg-query -W -f='${Package} ${Version}\n' libsfml-dev
+            dpkg-query -W -f='${Version}\n' libsfml-dev | grep -E '^2\.6\.1'
+
+            if [ "<< parameters.toolchain >>" = "clang" ]; then
+              echo "Clang:"; clang++-18 --version | head -n1
+            fi
 
       - run:
           name: Configure (CMake)
           command: |
-            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+            if [ "<< parameters.toolchain >>" = "clang" ]; then
+              cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
+            else
+              cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13
+            fi
 
       - run:
           name: Build
           command: |
             cmake --build build --parallel
 
+      - run:
+          name: Run tests (if any)
+          command: |
+            ctest --test-dir build --output-on-failure
+
 workflows:
   build_and_test:
     jobs:
-      - build
+      - build:
+          matrix:
+            parameters:
+              toolchain: ["gcc", "clang"]
