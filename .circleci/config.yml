@@ -6,7 +6,11 @@ executors:
       - image: cimg/base:24.04
     environment:
       DEBIAN_FRONTEND: noninteractive
+
       UBUNTU_SNAPSHOT_ID: "20250807T000000Z"
+
+      GCC_SNAPSHOT_ID: "20241001T000000Z"
+
       STRICT_CLANG_PATCH: "false"
 
 jobs:
@@ -15,81 +19,103 @@ jobs:
     parameters:
       toolchain:
         type: enum
-        enum: ["gcc", "clang"]
+        enum: [ "gcc", "clang" ]
+
     steps:
       - checkout
 
       - run:
-          name: Freeze Ubuntu APT repos to snapshot (disable third-party repos first)
+          name: Freeze APT repos to Ubuntu snapshots (remove third-party repos)
           command: |
             set -eux
-
             sudo rm -f /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources || true
 
-            SNAP="${UBUNTU_SNAPSHOT_ID}"
+            write_sources() {
+              local SNAP="$1"
+              printf '%s\n' \
+                "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble main universe multiverse restricted" \
+                "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-updates main universe multiverse restricted" \
+                "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-security main universe multiverse restricted" \
+                "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-backports main universe multiverse restricted" \
+                | sudo tee /etc/apt/sources.list >/dev/null
+              sudo apt-get update -y
+            }
 
-            printf '%s\n' \
-              "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble main universe multiverse restricted" \
-              "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-updates main universe multiverse restricted" \
-              "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-security main universe multiverse restricted" \
-              "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-backports main universe multiverse restricted" \
-              | sudo tee /etc/apt/sources.list > /dev/null
+            write_sources "${UBUNTU_SNAPSHOT_ID}"
 
-            sudo apt-get update -y
-      
+            # Persist helper for later steps
+            echo 'export -f write_sources' >> "$BASH_ENV"
+            echo "export UBUNTU_SNAPSHOT_ID=${UBUNTU_SNAPSHOT_ID}" >> "$BASH_ENV"
+            echo "export GCC_SNAPSHOT_ID=${GCC_SNAPSHOT_ID}" >> "$BASH_ENV"
 
       - run:
-          name: Install build dependencies (from snapshot)
+          name: Install CMake + SFML + build tools (main snapshot)
           command: |
             set -eux
+            source "$BASH_ENV"
             sudo apt-get install -y --no-install-recommends \
               ca-certificates \
-              build-essential \
               ninja-build \
               pkg-config \
               cmake \
-              libsfml-dev \
-              gcc-13 g++-13
+              libsfml-dev
 
-            # Make sure "gcc/g++" points to GCC 13
+      - run:
+          name: Install GCC/G++ 13.2.0 exactly (from older snapshot)
+          command: |
+            set -eux
+            source "$BASH_ENV"
+
+            # Switch to snapshot that still has 13.2.0 packages
+            write_sources "${GCC_SNAPSHOT_ID}"
+
+            GCC_VER="$(apt-cache madison gcc-13 | awk '{print $3}' | grep -E '^13\.2\.0' | head -n1)"
+            GPP_VER="$(apt-cache madison g++-13 | awk '{print $3}' | grep -E '^13\.2\.0' | head -n1)"
+            test -n "${GCC_VER}" && test -n "${GPP_VER}"
+
+            sudo apt-get install -y --no-install-recommends --allow-downgrades \
+              "gcc-13=${GCC_VER}" \
+              "g++-13=${GPP_VER}"
+
+            # Ensure gcc/g++ point to GCC 13
             sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
             sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
             sudo update-alternatives --set gcc /usr/bin/gcc-13
             sudo update-alternatives --set g++ /usr/bin/g++-13
 
+            # Switch back to main snapshot for everything else
+            write_sources "${UBUNTU_SNAPSHOT_ID}"
+
       - when:
           condition:
-            equal: [clang, << parameters.toolchain >>]
+            equal: [ clang, << parameters.toolchain >> ]
           steps:
             - run:
-                name: Install Clang 18
+                name: Install Clang 18 (main snapshot)
                 command: |
                   set -eux
-                  # Install clang-18 from Ubuntu snapshot (reproducible).
-                  # Note: on Noble this is typically 18.1.x, not 18.0.0.
                   sudo apt-get install -y --no-install-recommends clang-18
 
       - run:
           name: Verify required versions (fail if mismatch)
           command: |
             set -eux
-            echo "OS:"; cat /etc/os-release | sed -n '1,6p'
 
-            echo "CMake:"; cmake --version | head -n1
             cmake --version | head -n1 | grep -F "3.28.3"
 
-            echo "G++:"; g++ --version | head -n1
+            g++ --version | head -n1
             g++ --version | head -n1 | grep -F "13.2.0"
 
-            echo "SFML:"; dpkg-query -W -f='${Package} ${Version}\n' libsfml-dev
+            dpkg-query -W -f='${Package} ${Version}\n' libsfml-dev
             dpkg-query -W -f='${Version}\n' libsfml-dev | grep -E '^2\.6\.1'
 
             if [ "<< parameters.toolchain >>" = "clang" ]; then
-              echo "Clang:"; clang++-18 --version | head -n1
+              # Ubuntu's clang often prints: "Ubuntu clang version 18.x.y ..."
+              clang++-18 --version | head -n1
               if [ "${STRICT_CLANG_PATCH}" = "true" ]; then
-                clang++-18 --version | head -n1 | grep -E '^clang version 18\.0\.0\b'
+                clang++-18 --version | head -n1 | grep -E '^(Ubuntu )?clang version 18\.0\.0\b'
               else
-                clang++-18 --version | head -n1 | grep -E '^clang version 18\.'
+                clang++-18 --version | head -n1 | grep -E '^(Ubuntu )?clang version 18\.'
               fi
             fi
 
@@ -115,7 +141,7 @@ jobs:
           name: Run tests (if any)
           command: |
             set -eux
-            ctest --test-dir build --output-on-failure || true
+            ctest --test-dir build --output-on-failure
 
 workflows:
   build_and_test:
@@ -123,4 +149,4 @@ workflows:
       - build:
           matrix:
             parameters:
-              toolchain: ["gcc", "clang"]
+              toolchain: [ "gcc", "clang" ]
