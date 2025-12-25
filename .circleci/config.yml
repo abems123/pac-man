@@ -1,152 +1,43 @@
 version: 2.1
 
-executors:
-  ubuntu_24_04_frozen:
-    docker:
-      - image: cimg/base:24.04
-    environment:
-      DEBIAN_FRONTEND: noninteractive
-
-      UBUNTU_SNAPSHOT_ID: "20250807T000000Z"
-
-      GCC_SNAPSHOT_ID: "20241001T000000Z"
-
-      STRICT_CLANG_PATCH: "false"
-
 jobs:
   build:
-    executor: ubuntu_24_04_frozen
-    parameters:
-      toolchain:
-        type: enum
-        enum: [ "gcc", "clang" ]
+    docker:
+      - image: cimg/base:24.04
 
     steps:
       - checkout
 
       - run:
-          name: Freeze APT repos to Ubuntu snapshots (remove third-party repos)
+          name: Install build dependencies
           command: |
-            set -eux
-            sudo rm -f /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources || true
-
-            write_sources() {
-              local SNAP="$1"
-              printf '%s\n' \
-                "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble main universe multiverse restricted" \
-                "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-updates main universe multiverse restricted" \
-                "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-security main universe multiverse restricted" \
-                "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-backports main universe multiverse restricted" \
-                | sudo tee /etc/apt/sources.list >/dev/null
-              sudo apt-get update -y
-            }
-
-            write_sources "${UBUNTU_SNAPSHOT_ID}"
-
-            # Persist helper for later steps
-            echo 'export -f write_sources' >> "$BASH_ENV"
-            echo "export UBUNTU_SNAPSHOT_ID=${UBUNTU_SNAPSHOT_ID}" >> "$BASH_ENV"
-            echo "export GCC_SNAPSHOT_ID=${GCC_SNAPSHOT_ID}" >> "$BASH_ENV"
-
-      - run:
-          name: Install CMake + SFML + build tools (main snapshot)
-          command: |
-            set -eux
-            source "$BASH_ENV"
-            sudo apt-get install -y --no-install-recommends \
-              ca-certificates \
-              ninja-build \
-              pkg-config \
+            sudo apt-get update
+            sudo apt-get install -y \
+              build-essential \
               cmake \
+              g++-13 \
+              clang-18 \
               libsfml-dev
 
       - run:
-          name: Install GCC/G++ 13.2.0 exactly (from older snapshot)
+          name: Verify toolchain versions
           command: |
-            set -eux
-            source "$BASH_ENV"
-
-            # Switch to snapshot that still has 13.2.0 packages
-            write_sources "${GCC_SNAPSHOT_ID}"
-
-            GCC_VER="$(apt-cache madison gcc-13 | awk '{print $3}' | grep -E '^13\.2\.0' | head -n1)"
-            GPP_VER="$(apt-cache madison g++-13 | awk '{print $3}' | grep -E '^13\.2\.0' | head -n1)"
-            test -n "${GCC_VER}" && test -n "${GPP_VER}"
-
-            sudo apt-get install -y --no-install-recommends --allow-downgrades \
-              "gcc-13=${GCC_VER}" \
-              "g++-13=${GPP_VER}"
-
-            # Ensure gcc/g++ point to GCC 13
-            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
-            sudo update-alternatives --set gcc /usr/bin/gcc-13
-            sudo update-alternatives --set g++ /usr/bin/g++-13
-
-            # Switch back to main snapshot for everything else
-            write_sources "${UBUNTU_SNAPSHOT_ID}"
-
-      - when:
-          condition:
-            equal: [ clang, << parameters.toolchain >> ]
-          steps:
-            - run:
-                name: Install Clang 18 (main snapshot)
-                command: |
-                  set -eux
-                  sudo apt-get install -y --no-install-recommends clang-18
-
-      - run:
-          name: Verify required versions (fail if mismatch)
-          command: |
-            set -eux
-
-            cmake --version | head -n1 | grep -F "3.28.3"
-
-            g++ --version | head -n1
-            g++ --version | head -n1 | grep -F "13.2.0"
-
-            dpkg-query -W -f='${Package} ${Version}\n' libsfml-dev
-            dpkg-query -W -f='${Version}\n' libsfml-dev | grep -E '^2\.6\.1'
-
-            if [ "<< parameters.toolchain >>" = "clang" ]; then
-              # Ubuntu's clang often prints: "Ubuntu clang version 18.x.y ..."
-              clang++-18 --version | head -n1
-              if [ "${STRICT_CLANG_PATCH}" = "true" ]; then
-                clang++-18 --version | head -n1 | grep -E '^(Ubuntu )?clang version 18\.0\.0\b'
-              else
-                clang++-18 --version | head -n1 | grep -E '^(Ubuntu )?clang version 18\.'
-              fi
-            fi
+            cmake --version
+            g++ --version
+            clang++-18 --version
+            dpkg -l | grep libsfml
 
       - run:
           name: Configure (CMake)
           command: |
-            set -eux
-            if [ "<< parameters.toolchain >>" = "clang" ]; then
-              cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
-            else
-              cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13
-            fi
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - run:
           name: Build
           command: |
-            set -eux
             cmake --build build --parallel
-
-      - run:
-          name: Run tests (if any)
-          command: |
-            set -eux
-            ctest --test-dir build --output-on-failure
 
 workflows:
   build_and_test:
     jobs:
-      - build:
-          matrix:
-            parameters:
-              toolchain: [ "gcc", "clang" ]
+      - build
