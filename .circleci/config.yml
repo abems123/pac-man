@@ -24,18 +24,19 @@ jobs:
           command: |
             set -eux
 
-            # Remove any pre-enabled third-party repositories in the convenience image
             sudo rm -f /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources || true
 
             SNAP="${UBUNTU_SNAPSHOT_ID}"
-            sudo tee /etc/apt/sources.list >/dev/null <<EOF
-            deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble main universe multiverse restricted
-            deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-updates main universe multiverse restricted
-            deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-security main universe multiverse restricted
-            deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-backports main universe multiverse restricted
-            EOF
+
+            printf '%s\n' \
+              "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble main universe multiverse restricted" \
+              "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-updates main universe multiverse restricted" \
+              "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-security main universe multiverse restricted" \
+              "deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-backports main universe multiverse restricted" \
+              | sudo tee /etc/apt/sources.list > /dev/null
 
             sudo apt-get update -y
+      
 
       - run:
           name: Install build dependencies (from snapshot)
