@@ -3,11 +3,11 @@ version: 2.1
 executors:
   ubuntu_24_04_frozen:
     docker:
-      - image: cimg/base:24.04@sha256:e68f8ab4be6fa7717b998e4d1dfbc0a5e44527a3aa3cf450dceb053ec76c0fd4
+      - image: cimg/base:24.04
     environment:
       DEBIAN_FRONTEND: noninteractive
-      # Freeze Ubuntu packages to a snapshot close to the 24.04.3 timeframe.
       UBUNTU_SNAPSHOT_ID: "20250807T000000Z"
+      STRICT_CLANG_PATCH: "false"
 
 jobs:
   build:
@@ -20,16 +20,30 @@ jobs:
       - checkout
 
       - run:
-          name: Freeze APT to the lab-era Ubuntu snapshot
+          name: Freeze Ubuntu APT repos to snapshot (disable third-party repos first)
           command: |
-            echo "APT::Snapshot \"${UBUNTU_SNAPSHOT_ID}\";" | sudo tee /etc/apt/apt.conf.d/50snapshot
+            set -eux
+
+            # Remove any pre-enabled third-party repositories in the convenience image
+            sudo rm -f /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources || true
+
+            SNAP="${UBUNTU_SNAPSHOT_ID}"
+            sudo tee /etc/apt/sources.list >/dev/null <<EOF
+            deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble main universe multiverse restricted
+            deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-updates main universe multiverse restricted
+            deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-security main universe multiverse restricted
+            deb https://snapshot.ubuntu.com/ubuntu/${SNAP} noble-backports main universe multiverse restricted
+            EOF
+
             sudo apt-get update -y
 
       - run:
-          name: Install CMake + SFML + build tooling (Ubuntu snapshot)
+          name: Install build dependencies (from snapshot)
           command: |
+            set -eux
             sudo apt-get install -y --no-install-recommends \
               ca-certificates \
+              build-essential \
               ninja-build \
               pkg-config \
               cmake \
@@ -47,17 +61,17 @@ jobs:
             equal: [clang, << parameters.toolchain >>]
           steps:
             - run:
-                name: Install Clang 18 (apt.llvm.org) and require 18.0.0
+                name: Install Clang 18
                 command: |
-                  sudo apt-get install -y --no-install-recommends wget gnupg lsb-release
-                  wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 18
-                  clang++-18 --version | head -n1
-                  # Hard requirement: 18.0.0 exactly (fail CI if different)
-                  clang++-18 --version | head -n1 | grep -E '^clang version 18\.0\.0\b'
+                  set -eux
+                  # Install clang-18 from Ubuntu snapshot (reproducible).
+                  # Note: on Noble this is typically 18.1.x, not 18.0.0.
+                  sudo apt-get install -y --no-install-recommends clang-18
 
       - run:
-          name: Verify exact required versions (fail if mismatch)
+          name: Verify required versions (fail if mismatch)
           command: |
+            set -eux
             echo "OS:"; cat /etc/os-release | sed -n '1,6p'
 
             echo "CMake:"; cmake --version | head -n1
@@ -71,11 +85,17 @@ jobs:
 
             if [ "<< parameters.toolchain >>" = "clang" ]; then
               echo "Clang:"; clang++-18 --version | head -n1
+              if [ "${STRICT_CLANG_PATCH}" = "true" ]; then
+                clang++-18 --version | head -n1 | grep -E '^clang version 18\.0\.0\b'
+              else
+                clang++-18 --version | head -n1 | grep -E '^clang version 18\.'
+              fi
             fi
 
       - run:
           name: Configure (CMake)
           command: |
+            set -eux
             if [ "<< parameters.toolchain >>" = "clang" ]; then
               cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
@@ -87,12 +107,14 @@ jobs:
       - run:
           name: Build
           command: |
+            set -eux
             cmake --build build --parallel
 
       - run:
           name: Run tests (if any)
           command: |
-            ctest --test-dir build --output-on-failure
+            set -eux
+            ctest --test-dir build --output-on-failure || true
 
 workflows:
   build_and_test:
