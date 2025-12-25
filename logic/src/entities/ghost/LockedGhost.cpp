@@ -20,24 +20,11 @@ LockedGhost::LockedGhost(const float x, const float y) : Ghost(x, y, EntityType:
 static bool isHorizontal(Direction d) { return d == Direction::Left || d == Direction::Right; }
 static bool isVertical(Direction d)   { return d == Direction::Up   || d == Direction::Down; }
 
-bool LockedGhost::isAtTileCenter(int row, int col, float epsX, float epsY) const {
-    // work with the entity center to avoid jitter at tile borders
-    const auto [cx, cy] = _world->getCenter(this);
-
-    const float halfW = (_world->xFromCol(1) - _world->xFromCol(0)) * 0.5f;
-    const float halfH = (_world->yFromRow(1) - _world->yFromRow(0)) * 0.5f;
-
-    const float cellLeft = _world->xFromCol(col);
-    const float cellTop  = _world->yFromRow(row);
-
-    const float cellCx = cellLeft + halfW;
-    const float cellCy = cellTop  + halfH;
-
-    return std::fabs(cx - cellCx) <= epsX && std::fabs(cy - cellCy) <= epsY;
-}
 
 void LockedGhost::decideDirection() {
     if (_world == nullptr) return;
+
+    if (_mode != GhostMode::Chase && _mode != GhostMode::Fear) return;
 
     auto [cx, cy] = _world->getCenter(this);
     const float tiny = 1e-4f;
@@ -57,15 +44,15 @@ void LockedGhost::decideDirection() {
     const float tileW = _world->xFromCol(1) - _world->xFromCol(0);
     const float tileH = _world->yFromRow(1) - _world->yFromRow(0);
     const float step  = Stopwatch::getInstance().dt() * getSpeed();
-    const float epsX  = std::max(tileW * 0.05f, step);
-    const float epsY  = std::max(tileH * 0.05f, step);
+    const float eps_x   = std::max(tileW * 0.02f, step);
+    const float eps_y  = std::max(tileH * 0.02f, step);
 
 
     // only switch directions close to the center of the tile
-    if (!isAtTileCenter(row, col, epsX, epsY))
+    if (!atTileCenter(row, col, eps_x , eps_y))
         return;
 
-    const auto viableSet = _world->getAvailableDirectionsAt(row, col);
+    const auto viableSet = _world->getAvailableGhostDirectionsAt(row, col, this);
 
     auto toVec = [&](const std::set<Direction>& s) {
         return std::vector<Direction>(s.begin(), s.end());

@@ -52,7 +52,7 @@ void LookaheadChaseGhost::decideDirection() {
     if (!_world) return;
 
     // Only chase logic in Chase/Fear modes
-    // if (_mode != GhostMode::Chase && _mode != GhostMode::Fear) return;
+    if (_mode != GhostMode::Chase && _mode != GhostMode::Fear) return;
 
     // Only decide at (roughly) the center of the current tile
     const auto [cur_row, cur_col] = ghostCellFromCenterBias();
@@ -60,16 +60,16 @@ void LookaheadChaseGhost::decideDirection() {
     const float tileW = _world->xFromCol(1) - _world->xFromCol(0);
     const float tileH = _world->yFromRow(1) - _world->yFromRow(0);
 
-    const float epsX = tileW * 0.06f;
-    const float epsY = tileH * 0.06f;
+    const float eps_x = tileW * 0.02f;
+    const float eps_y = tileH * 0.02f;
 
-    if (!atTileCenter(cur_row, cur_col, epsX, epsY))
+    if (!atTileCenter(cur_row, cur_col, eps_x, eps_y))
         return;
 
     computeTarget();
 
     // Check viable moves from this tile (walls filtered out by World)
-    const auto viable_dirs = _world->getAvailableDirectionsAt(cur_row, cur_col);
+    const auto viable_dirs = _world->getAvailableGhostDirectionsAt(cur_row, cur_col, this);
     if (viable_dirs.empty())
         return;
 

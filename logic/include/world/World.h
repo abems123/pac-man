@@ -34,6 +34,24 @@ class Ghost;
 class Wall;
 
 class World {
+    /** @brief True for tiles that are ghost-house gates ('&'). */
+    std::vector<std::vector<bool>> gate_at;
+
+    /** @brief True for tiles that belong to the ghost house interior. */
+    std::vector<std::vector<bool>> house_at;
+
+    /** @brief All gate tile coordinates ('&') in the map. Used for house-exit logic. */
+    std::vector<std::pair<int,int>> _gate_cells;
+
+    /** @brief Ghost spawn cells (used to find the house interior). */
+    std::vector<std::pair<int, int>> ghost_spawns;
+
+    /** @brief Marks all house tiles by flood-filling from ghost spawn tiles. */
+    void computeHouseRegion();
+
+    /** @brief Pac-Man cannot enter gate or house; this is the "blocked for Pac-Man" rule. */
+    [[nodiscard]] bool isBlockedForPacman(int r, int c) const;
+
     /** @brief All wall entities present in the world. */
     std::vector<std::shared_ptr<Wall>> _walls{};
 
@@ -98,6 +116,17 @@ class World {
     /** @brief Number of remaining lives for the player. */
     int _lives_left = 3;
 
+    /** @brief Seconds since the level started */
+    float _level_time = 0.f;
+    bool _released_ghost_3 = false; // ghost index 2
+    bool _released_ghost_4 = false; // ghost index 3
+
+    /**
+     * @brief Releases the delayed ghosts: after 5s and 10s they switch to Chase.
+     * @param dt Time step in seconds.
+     */
+    void updateGhostRelease(float dt);
+
 public:
     /**
      * @brief Constructs the game world and initializes all entities.
@@ -107,13 +136,13 @@ public:
      */
     explicit World(const std::shared_ptr<AbstractFactory>& factory);
 
+    /** @brief Returns all gate tile positions ('&'). */
+    [[nodiscard]] const std::vector<std::pair<int,int>>& getGateCells() const { return _gate_cells; }
+
     /**
      * @brief Returns Pac-Man (nullptr if not spawned).
      */
-    [[nodiscard]] const PacMan* getPacMan() const {return _pacman.get();};
-
-
-
+    [[nodiscard]] const PacMan* getPacMan() const { return _pacman.get(); };
 
     /**
      * @brief Directions a ghost may take from (row,col), taking walls + gate rules into account.
@@ -219,8 +248,6 @@ public:
      */
     void handleCollision(float dt) const;
 
-
-
     /**
      * @brief Updates the game world for the current frame.
      *
@@ -266,12 +293,15 @@ public:
      */
     bool collides(const EntityModel* m1, const EntityModel* m2) const;
 
-
-
     [[nodiscard]] Score* getScore() const { return _score.get(); }
+
+    /** @brief True if (r,c) is a gate tile. */
+    [[nodiscard]] bool isGateCell(int r, int c) const;
+
+    /** @brief True if (r,c) is inside the ghost house (not gate). */
+    [[nodiscard]] bool isHouseCell(int r, int c) const;
 
     int getRows() const { return _rows; }
     int getCols() const { return _cols; }
 };
 } // namespace logic
-

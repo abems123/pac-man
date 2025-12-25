@@ -19,8 +19,6 @@ namespace logic {
 
         void decideDirection() override;
 
-        bool isAtTileCenter(int row, int col, float epsX, float epsY) const;
-
         ~LockedGhost() override;
 
 

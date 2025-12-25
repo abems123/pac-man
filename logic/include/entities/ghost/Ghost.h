@@ -12,6 +12,9 @@ class World;
 
 class Ghost : public MovableEntityModel {
 protected:
+    /** @brief Time left (seconds) before switching from Center to Chase. 0 = already released. */
+    float _release_left = 0.f;
+
     /** Target position in world coords (used by chase logic). */
     double _target_x = 0.0;
 
@@ -28,7 +31,12 @@ protected:
     GhostMode _mode = GhostMode::Center;
 
     /** Remaining frightened time in seconds (0 = not frightened). */
-    float frightenedTimer = 0.f;
+    float _frightened_timer = 0.f;
+
+    float _base_speed = 0.f;
+
+    GhostMode _mode_before_fear = GhostMode::Chase;
+
 
     /** Cached possible directions from the current tile (optional helper). */
     std::vector<Direction> available_directions;
@@ -80,6 +88,7 @@ protected:
      */
     [[nodiscard]] std::pair<int, int> pacmanCellFromCenter() const;
 
+
     /** Computes the current target for this ghost (depends on ghost type). */
     virtual void computeTarget() = 0;
 
@@ -103,13 +112,13 @@ public:
     void enterFrightened(float duration);
 
     /** @return true if frightenedTimer > 0. */
-    [[nodiscard]] bool isFrightened() const { return frightenedTimer > 0.f; }
+    [[nodiscard]] bool isFrightened() const { return _frightened_timer > 0.f; }
 
     /**
      * Sets the current behavior mode.
      * @param mode New mode.
      */
-    void setMode(GhostMode mode) { _mode = mode; }
+    void setMode(const GhostMode mode) { _mode = mode; }
 
     /**
      * @return Current ghost mode.
@@ -121,6 +130,12 @@ public:
 
     /** Clears available_directions. */
     void clearDirections() { available_directions.clear(); }
+
+    /**
+     * @brief Sets how long this ghost stays in Center mode before it starts chasing.
+     * @param seconds Delay in seconds (0 means chase immediately).
+     */
+    void setReleaseDelay(float seconds) { _release_left = std::max(0.f, seconds); }
 
     /**
      * Updates frightened timer, calls decideDirection(), then moves.

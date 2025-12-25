@@ -24,21 +24,41 @@
 
 namespace logic {
 
+void World::updateGhostRelease(float dt) {
+    _level_time += dt;
+
+    if (!_released_ghost_3 && _level_time >= 5.f && _ghosts.size() > 2) {
+        _ghosts[2]->setMode(GhostMode::Chase);
+        _released_ghost_3 = true;
+    }
+
+    if (!_released_ghost_4 && _level_time >= 10.f && _ghosts.size() > 3) {
+        _ghosts[3]->setMode(GhostMode::Chase);
+        _released_ghost_4 = true;
+    }
+}
+
+
 World::World(const std::shared_ptr<AbstractFactory>& factory)
     : _score(std::make_unique<Score>()), _factory(factory), _map(ResourceManager::getMap()),
       _rows(static_cast<int>(_map.size())), _cols(static_cast<int>(_map.front().size())), _model_width(2.0f / _cols),
       _model_height(2.0f / _rows) {
 
     parseMap();
+    computeHouseRegion();
     setWallsTypes();
 }
 
 void World::parseMap() {
     // =========== Parsing assets/map.txt to generate the world [START] ===========
     for (int i = 0; i < _rows; ++i) {
-        wall_at.emplace_back(); wall_at.back().resize(_cols, nullptr);
-        collectable_at.emplace_back(); collectable_at.back().resize(_cols, nullptr);
+        wall_at.emplace_back();
+        wall_at.back().resize(_cols, nullptr);
+        collectable_at.emplace_back();
+        collectable_at.back().resize(_cols, nullptr);
 
+        gate_at.emplace_back(_cols, false);
+        house_at.emplace_back(_cols, false);
 
         for (int j = 0; j < _cols; ++j) {
             const float current_x = xFromCol(j);
@@ -55,8 +75,9 @@ void World::parseMap() {
                 collectable_at[i][j] = coin;
                 _collectables.push_back(coin);
             } else if (current_c == '&') {
-                // auto barrier = _factory->createBarrier(current_x, current_y);
-                // _barriers.push_back(barrier);
+                // auto gate = _factory->createGate(current_x, current_y);
+                gate_at[i][j] = true;
+                _gate_cells.emplace_back(i, j);
             } else if (current_c == 'P') {
                 _pacman = _factory->createPacMan(current_x, current_y);
             } else if (current_c == '$') {
@@ -64,6 +85,7 @@ void World::parseMap() {
                 collectable_at[i][j] = fruit;
                 _collectables.push_back(fruit);
             } else if (current_c == '@') {
+                ghost_spawns.emplace_back(i, j);
                 auto ghost = _factory->createGhost(current_x, current_y);
                 _ghosts.push_back(ghost);
             } else if (current_c == 'E') {
@@ -74,7 +96,49 @@ void World::parseMap() {
     // =========== Parsing assets/map.txt to generate the world [END] ===========
 }
 
+bool World::isGateCell(int r, int c) const {
+    if (r < 0 || r >= _rows || c < 0 || c >= _cols) return false;
+    return gate_at[r][c];
+}
+
+bool World::isHouseCell(int r, int c) const {
+    if (r < 0 || r >= _rows || c < 0 || c >= _cols) return false;
+    return house_at[r][c];
+}
+
+bool World::isBlockedForPacman(int r, int c) const {
+    return isWallCell(r, c) || isGateCell(r, c) || isHouseCell(r, c);
+}
+
 void World::changePacmanDirection(Direction d) { _current_dir = d; }
+
+void World::computeHouseRegion() {
+    for (int r = 0; r < _rows; ++r)
+        std::fill(house_at[r].begin(), house_at[r].end(), false);
+
+    std::queue<std::pair<int,int>> q;
+
+    auto push = [&](int r, int c) {
+        if (r < 0 || r >= _rows || c < 0 || c >= _cols) return;
+        if (house_at[r][c]) return;
+        if (isWallCell(r, c)) return;
+        if (isGateCell(r, c)) return;   // gate is NOT interior
+        house_at[r][c] = true;
+        q.emplace(r, c);
+    };
+
+    for (auto [sr, sc] : ghost_spawns)
+        push(sr, sc);
+
+    while (!q.empty()) {
+        auto [r, c] = q.front();
+        q.pop();
+        push(r - 1, c);
+        push(r + 1, c);
+        push(r, c - 1);
+        push(r, c + 1);
+    }
+    }
 
 void World::collect() {
     if (!_pacman)
@@ -115,16 +179,15 @@ bool World::isWallCell(int r, int c) const {
 
 std::set<Direction> World::getAvailableDirectionsAt(int row, int col) const {
     std::set<Direction> dirs;
-    if (!isWallCell(row - 1, col))
-        dirs.insert(Direction::Up);
-    if (!isWallCell(row + 1, col))
-        dirs.insert(Direction::Down);
-    if (!isWallCell(row, col - 1))
-        dirs.insert(Direction::Left);
-    if (!isWallCell(row, col + 1))
-        dirs.insert(Direction::Right);
+
+    if (!isBlockedForPacman(row - 1, col)) dirs.insert(Direction::Up);
+    if (!isBlockedForPacman(row + 1, col)) dirs.insert(Direction::Down);
+    if (!isBlockedForPacman(row, col - 1)) dirs.insert(Direction::Left);
+    if (!isBlockedForPacman(row, col + 1)) dirs.insert(Direction::Right);
+
     return dirs;
 }
+
 
 void World::handleCollision(const float dt) const {
     auto isHorizontal = [](Direction d) { return d == Direction::Left || d == Direction::Right; };
@@ -227,33 +290,34 @@ void World::handleCollision(const float dt) const {
     const float step = dt * _pacman->getSpeed();
 
     // Allow moves by default
-    _pacman->setMove(Direction::Left, !isWallCell(row, col - 1) || (realCx - halfW) > left);
-    _pacman->setMove(Direction::Right, !isWallCell(row, col + 1) || (realCx + halfW) < right);
-    _pacman->setMove(Direction::Up, !isWallCell(row - 1, col) || (realCy - halfH) > top);
-    _pacman->setMove(Direction::Down, !isWallCell(row + 1, col) || (realCy + halfH) < bottom);
+    _pacman->setMove(Direction::Left,  !isBlockedForPacman(row, col - 1) || (realCx - halfW) > left);
+    _pacman->setMove(Direction::Right, !isBlockedForPacman(row, col + 1) || (realCx + halfW) < right);
+    _pacman->setMove(Direction::Up,    !isBlockedForPacman(row - 1, col) || (realCy - halfH) > top);
+    _pacman->setMove(Direction::Down,  !isBlockedForPacman(row + 1, col) || (realCy + halfH) < bottom);
+
 
     // Enforce only for the current direction using the *next* position
     if (dir == Direction::Left) {
         const float nextCx = realCx - step;
-        if (isWallCell(row, col - 1) && (nextCx - halfW) < left) {
+        if (isBlockedForPacman(row, col - 1) && (nextCx - halfW) < left) {
             _pacman->setMove(Direction::Left, false);
             _pacman->setPosition(left, _pacman->getPosition().second); // clamp top-left X
         }
     } else if (dir == Direction::Right) {
         const float nextCx = realCx + step;
-        if (isWallCell(row, col + 1) && (nextCx + halfW) > right) {
+        if (isBlockedForPacman(row, col + 1) && (nextCx + halfW) > right) {
             _pacman->setMove(Direction::Right, false);
             _pacman->setPosition(right - _model_width, _pacman->getPosition().second);
         }
     } else if (dir == Direction::Up) {
         const float nextCy = realCy - step;
-        if (isWallCell(row - 1, col) && (nextCy - halfH) < top) {
+        if (isBlockedForPacman(row - 1, col) && (nextCy - halfH) < top) {
             _pacman->setMove(Direction::Up, false);
             _pacman->setPosition(_pacman->getPosition().first, top);
         }
     } else if (dir == Direction::Down) {
         const float nextCy = realCy + step;
-        if (isWallCell(row + 1, col) && (nextCy + halfH) > bottom) {
+        if (isBlockedForPacman(row + 1, col) && (nextCy + halfH) > bottom) {
             _pacman->setMove(Direction::Down, false);
             _pacman->setPosition(_pacman->getPosition().first, bottom - _model_height);
         }
@@ -267,21 +331,18 @@ int World::colFromX(float x) const { return static_cast<int>((x + 1.0f) / _model
 int World::rowFromY(float y) const { return static_cast<int>((y + 1.0f) / _model_height); }
 
 void World::update(float dt) {
+    updateGhostRelease(dt);
 
-    // Update ghosts
     for (const auto& g : _ghosts)
         g->update(this, dt);
-
 
     if (_current_dir == Direction::None) return;
 
     handleCollision(dt);
-
     _pacman->update(dt);
-
-    // Check for collectables
     collect();
 }
+
 
 void World::eat(const std::shared_ptr<Collectable>& collectable) {
     // Clear grid entry as well
@@ -298,8 +359,11 @@ void World::eat(const std::shared_ptr<Collectable>& collectable) {
 
     if (collectable->getScore() == Constants::COIN_SCORE)
         _score->onNotify(EventType::CoinEaten);
-    else if (collectable->getScore() == Constants::FRUIT_SCORE)
+    else if (collectable->getScore() == Constants::FRUIT_SCORE) {
         _score->onNotify(EventType::FruitEaten);
+        // for (auto g : _ghosts)
+        //     g->notify(EventType::Fri);
+    }
 }
 
 bool World::collides(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) const {
@@ -390,7 +454,39 @@ void World::setWallsTypes() const {
 }
 
 std::set<Direction> World::getAvailableGhostDirectionsAt(int row, int col, const Ghost* ghost) const {
+    std::set<Direction> dirs;
+    if (!ghost) return dirs;
+
+    auto can_step = [&](int fr, int fc, int tr, int tc) {
+        if (isWallCell(tr, tc)) return false;
+
+        const bool from_house_side = isHouseCell(fr, fc) || isGateCell(fr, fc);
+        const bool to_house_side   = isHouseCell(tr, tc) || isGateCell(tr, tc);
+
+        // outside -> (house/gate) : never
+        if (!from_house_side && to_house_side) return false;
+
+        // (house/gate) -> outside : only if allowed AND only from the gate tile itself
+        if (from_house_side && !to_house_side) {
+            if (ghost->getMode() == GhostMode::Center) return false;
+            if (!isGateCell(fr, fc)) return false; // <-- key: must be standing on the gate to exit
+        }
+
+        // gate -> house : don't go back in once released
+        if (isGateCell(fr, fc) && isHouseCell(tr, tc) && ghost->getMode() != GhostMode::Center)
+            return false;
+
+        return true;
+    };
+
+    if (can_step(row, col, row - 1, col)) dirs.insert(Direction::Up);
+    if (can_step(row, col, row + 1, col)) dirs.insert(Direction::Down);
+    if (can_step(row, col, row, col - 1)) dirs.insert(Direction::Left);
+    if (can_step(row, col, row, col + 1)) dirs.insert(Direction::Right);
+
+    return dirs;
 }
+
 
 float World::xFromCol(int c) const { return -1.f + c * _model_width; }
 float World::yFromRow(int r) const { return -1.f + r * _model_height; }

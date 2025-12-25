@@ -45,21 +45,25 @@ std::shared_ptr<logic::Ghost> ConcreteFactory::createGhost(float x, float y) {
     case 0:
         model = std::make_shared<logic::LockedGhost>(x, y);
         model->setMode(GhostMode::Chase);
+        model->setReleaseDelay(0.f);
         break;
 
     case 1:
         model = std::make_shared<logic::LookaheadChaseGhost>(x, y);
         model->setMode(GhostMode::Chase);
+        model->setReleaseDelay(0.f);
         break;
 
     case 2:
         model = std::make_shared<logic::LookaheadChaseGhost>(x, y);
         model->setMode(GhostMode::Center);
+        model->setReleaseDelay(5.f);
         break;
 
     case 3:
         model = std::make_shared<logic::DirectChaseGhost>(x, y);
         model->setMode(GhostMode::Center);
+        model->setReleaseDelay(10.f);
         break;
 
     default:
