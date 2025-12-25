@@ -14,23 +14,18 @@
 #include "utils/AnimationManager.h"
 #include "utils/Constants.h"
 
-
 namespace representation {
-    void PacMan::update(const float dt) {
-        representation::MovableEntityView::update(dt);
-    }
+void PacMan::update(const float dt) { representation::MovableEntityView::update(dt); }
 
+PacMan::PacMan(const std::shared_ptr<logic::PacMan>& model)
+    : MovableEntityView(model, {17, 17, 17, 17}, {1, 4, 7, 10}, {2, 2, 2, 2}) {
 
-    PacMan::PacMan(const std::shared_ptr<logic::PacMan> &model)
-        : MovableEntityView(model, {17, 17, 17, 17}, {1, 4, 7, 10}, {2, 2, 2, 2}) {
-    }
-
-
-    void PacMan::onNotify(const logic::EventType &event) {
-        MovableEntityView::onNotify(event);
-    }
-
-    void PacMan::render(sf::RenderWindow &window) const {
-        representation::MovableEntityView::render(window);
-    }
+    std::vector<sf::IntRect> defaultFrame;
+    AnimationManager::setFrames(17, 0, 1, defaultFrame);
+    _sprite.setTextureRect(defaultFrame.front());
 }
+
+void PacMan::onNotify(const logic::EventType& event) { MovableEntityView::onNotify(event); }
+
+void PacMan::render(sf::RenderWindow& window) const { representation::MovableEntityView::render(window); }
+} // namespace representation

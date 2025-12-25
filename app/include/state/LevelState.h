@@ -25,6 +25,9 @@ namespace representation {
         // Score text
         sf::Text score;
 
+        sf::Text _pac_loc;
+
+
     public:
         LevelState(StateManager &manager, Game &game, int level);
 

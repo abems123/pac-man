@@ -13,7 +13,6 @@ namespace logic {
 
 namespace representation {
     class PacMan : public MovableEntityView {
-        bool is_moving = false;
 
     public:
         explicit PacMan(const std::shared_ptr<logic::PacMan> &model);

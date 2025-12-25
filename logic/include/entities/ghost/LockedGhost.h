@@ -13,13 +13,15 @@ namespace logic {
 
         LockedGhost(float x, float y);
 
-        void computeTarget(World *world, PacMan *pac_man) override;
+        void computeTarget() override {}
 
-        void stepTowardTarget(World *world) override;
-
-        ~LockedGhost() override;
+        void stepTowardTarget() override {}
 
         void decideDirection() override;
+
+        bool isAtTileCenter(int row, int col, float epsX, float epsY) const;
+
+        ~LockedGhost() override;
 
 
     };

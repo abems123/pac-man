@@ -4,27 +4,40 @@
 
 #include "../../../include/entities/ghost/Ghost.h"
 
-#include "utils/Stopwatch.h"
+#include <cmath>
 
+namespace logic {
 
-void logic::Ghost::move() {
-    const float dt = Stopwatch::getInstance().dt();
-    const float dist = _speed * dt;
-
-    float dx = (_direction == Direction::Left ? -1.f : _direction == Direction::Right ? 1.f : 0.f) * dist;
-
-    float dy = (_direction == Direction::Up ? -1.f : _direction == Direction::Down ? 1.f : 0.f) * dist;
-
-
-    float nextX = getPosition().first + dx;
-    float nextY = getPosition().second + dy;
-
-    setPosition(nextX, nextY);
-    notify(EventType::Moved);
+int logic::Ghost::manhattan(int r1, int c1, int r2, int c2) {
+    return std::abs(r1 - r2) + std::abs(c1 - c2);
+}
+int Ghost::dr(Direction d) {
+    return (d == Direction::Up) ? -1 : (d == Direction::Down) ? 1 : 0;
+}
+int Ghost::dc(Direction d) {
+    return (d == Direction::Left) ? -1 : (d == Direction::Right) ? 1 : 0;
 }
 
-void logic::Ghost::update() {
-    // decideDirection();
-    if (_mode == GhostMode::Chase)
-        move();
+Direction Ghost::opposite(Direction d) {
+    switch (d) {
+    case Direction::Left:  return Direction::Right;
+    case Direction::Right: return Direction::Left;
+    case Direction::Up:    return Direction::Down;
+    case Direction::Down:  return Direction::Up;
+    case Direction::None:  return Direction::None;
+    }
+    return Direction::None;
+}
+
+void Ghost::update(World* world, float dt) {
+    if (!_world && world) _world = world;
+    if (!_world) return;
+
+    if (frightenedTimer > 0.f) frightenedTimer = std::max(0.f, frightenedTimer - dt);
+
+    decideDirection();
+    MovableEntityModel::update(dt);
+}
+
+
 }

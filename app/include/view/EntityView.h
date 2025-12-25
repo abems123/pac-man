@@ -51,6 +51,7 @@ namespace representation {
         EntityView(const std::shared_ptr<logic::EntityModel> &model, int column, int row, int number_of_frames);
 
         virtual void update(float dt);
+        void updatePosition();
 
         virtual void render(sf::RenderWindow &window) const;
 

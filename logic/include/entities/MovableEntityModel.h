@@ -8,27 +8,34 @@
 #include "events/Event.h"
 
 namespace logic {
-    class MovableEntityModel : public EntityModel {
-    protected:
-        float _speed = 0.2f;
-        Direction _direction = Direction::Right;
+class World;
+class MovableEntityModel : public EntityModel {
+protected:
+    float _speed = 0.2f;
+    Direction _direction = Direction::Right;
 
-    public:
-        using EntityModel::EntityModel;
+    // We need an instance of World to handle
+    World* _world = nullptr;
 
-        MovableEntityModel(const MovableEntityModel &that);
-        MovableEntityModel& operator=(const MovableEntityModel &that);
+    bool _is_moving = false;
 
-        [[nodiscard]] float getSpeed() const { return _speed; }
-        void setSpeed(const float speed) { this->_speed = speed; }
+public:
+    using EntityModel::EntityModel;
 
-        [[nodiscard]] Direction getDirection() const { return _direction; };
+    MovableEntityModel(const MovableEntityModel& that);
+    MovableEntityModel& operator=(const MovableEntityModel& that);
 
-        void setDirection(Direction direction);
+    [[nodiscard]] float getSpeed() const { return _speed; }
+    void setSpeed(const float speed) { this->_speed = speed; }
 
+    [[nodiscard]] Direction getDirection() const { return _direction; };
 
-        // void move(const float dx, const float dy);;
-    };
-}
+    void setDirection(Direction direction);
+    void setMoving(const bool moving) { _is_moving = moving; }
 
-#endif //PACMANPROJECT_MOVABLEENTITYMODAL_H
+    virtual void update(float dt);
+    void move(float dt);
+};
+} // namespace logic
+
+#endif // PACMANPROJECT_MOVABLEENTITYMODAL_H

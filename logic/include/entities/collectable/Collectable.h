@@ -6,19 +6,16 @@
 #define PACMANPROJECT_COLLECTABLE_H
 #include "entities/EntityModel.h"
 
-
 class Collectable : public logic::EntityModel {
     int score;
 
 public:
     Collectable(const float x, const float y, const int score, logic::EntityType type)
-        : EntityModel(x, y, type), score(score) {
-    }
+        : EntityModel(x, y,  type), score(score) {}
 
     [[nodiscard]] int getScore() const { return score; }
 
 private:
 };
 
-
-#endif //PACMANPROJECT_COLLECTABLE_H
+#endif // PACMANPROJECT_COLLECTABLE_H

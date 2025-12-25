@@ -7,32 +7,30 @@
 #include "patterns/Subject.h"
 
 namespace logic {
-    enum class GhostMode { Center, Chase, Fear, Dead };
+enum class GhostMode { Center, Chase, Fear, Dead };
 
-    enum class Direction { Up, Down, Right, Left };
+enum class Direction { Up, Down, Right, Left, None };
 
-    enum class EntityType { Pacman, Wall, Coin, Fruit, LockedGhost, PredictiveGhost, FollowerGhost };
+enum class EntityType { Pacman, Wall, Coin, Fruit, LockedGhost, PredictiveGhost, FollowerGhost };
 
-    class EntityModel : public Subject {
-    protected:
-        float _x, _y;
-        EntityType _type;
+class EntityModel : public Subject {
+protected:
+    EntityType _type;
+    float _x, _y;
 
-    public:
-        EntityModel(const float x, const float y, EntityType type) : _x(x), _y(y), _type(type) {
-        }
+public:
+    EntityModel(const float x, const float y, const EntityType type) : _type(type), _x(x), _y(y) {}
 
-        EntityModel(const EntityModel &that);
+    EntityModel(const EntityModel& that);
 
-        EntityModel &operator=(const EntityModel &that);
+    EntityModel& operator=(const EntityModel& that);
 
-        void setPosition(float x, float y);
+    void setPosition(float x, float y);
 
-        [[nodiscard]] std::pair<float, float> getPosition() const;
+    std::pair<float, float> getPosition() const { return {_x, _y}; };
 
-        [[nodiscard]] virtual EntityType getType() const { return _type; };
-    };
-}
+    [[nodiscard]] virtual EntityType getType() const { return _type; };
+};
+} // namespace logic
 
-
-#endif //PACMANPROJECT_ENTITYMODEL_H
+#endif // PACMANPROJECT_ENTITYMODEL_H

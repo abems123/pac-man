@@ -20,7 +20,7 @@ namespace representation {
     }
 
     float Camera::getTileWidth() const {
-        return (float) _window_width / ResourceManager::getMap().front().size();
+        return static_cast<float>(_window_width) / ResourceManager::getMap().front().size();
     }
 
     float Camera::getTileHeight() const {

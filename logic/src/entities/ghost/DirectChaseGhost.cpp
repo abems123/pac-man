@@ -5,10 +5,10 @@
 #include "../../../include/entities/ghost/DirectChaseGhost.h"
 
 namespace logic {
-    void DirectChaseGhost::computeTarget(World *world, PacMan *pac_man) {
+    void DirectChaseGhost::computeTarget() {
     }
 
-    void DirectChaseGhost::stepTowardTarget(World *world) {
+    void DirectChaseGhost::stepTowardTarget() {
     }
 
     void DirectChaseGhost::decideDirection() {
