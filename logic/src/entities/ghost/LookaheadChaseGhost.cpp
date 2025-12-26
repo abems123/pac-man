@@ -4,7 +4,6 @@
 
 #include "../../../include/entities/ghost/LookaheadChaseGhost.h"
 
-#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <vector>
@@ -56,15 +55,6 @@ void LookaheadChaseGhost::decideDirection() {
 
     // Only decide at (roughly) the center of the current tile
     const auto [cur_row, cur_col] = ghostCellFromCenterBias();
-
-    const float tileW = _world->xFromCol(1) - _world->xFromCol(0);
-    const float tileH = _world->yFromRow(1) - _world->yFromRow(0);
-
-    const float eps_x = tileW * 0.02f;
-    const float eps_y = tileH * 0.02f;
-
-    if (!atTileCenter(cur_row, cur_col, eps_x, eps_y))
-        return;
 
     computeTarget();
 

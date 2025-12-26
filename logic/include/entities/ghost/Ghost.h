@@ -117,7 +117,7 @@ public:
      * Sets the current behavior mode.
      * @param mode New mode.
      */
-    void setMode(const GhostMode mode) { _mode = mode; }
+    void setMode(const GhostMode mode);
 
     /**
      * @return Current ghost mode.

@@ -106,13 +106,21 @@ Direction Ghost::opposite(Direction d) {
     }
 }
 
-
 static constexpr float kFlashSeconds = 2.f; // last seconds -> white flashing
 
 bool Ghost::isFrightened() const {
     // =========== One source of truth: world timer [START] ===========
     return _world && _world->getFrightenedLeft() > 0.f;
     // =========== One source of truth: world timer [END] ===========
+}
+void Ghost::setMode(const GhostMode mode) {
+    // =========== If we’re frightened, just remember what to return to [START] ===========
+    if (_mode == GhostMode::Fear) {
+        _mode_before_fear = mode;
+        return;
+    }
+    // =========== If we’re not frightened, apply normally [END] ===========
+    _mode = mode;
 }
 
 void Ghost::enterFrightened(float /*duration*/) {
