@@ -12,6 +12,9 @@ class World;
 
 class Ghost : public MovableEntityModel {
 protected:
+    /** @brief Cached world pointer (set once). */
+    World* _world = nullptr;
+
     /** @brief Time left (seconds) before switching from Center to Chase. 0 = already released. */
     float _release_left = 0.f;
 
@@ -30,13 +33,9 @@ protected:
     /** Current ghost mode (center/chase/fear/dead). */
     GhostMode _mode = GhostMode::Center;
 
-    /** Remaining frightened time in seconds (0 = not frightened). */
-    float _frightened_timer = 0.f;
-
     float _base_speed = 0.f;
 
     GhostMode _mode_before_fear = GhostMode::Chase;
-
 
     /** Cached possible directions from the current tile (optional helper). */
     std::vector<Direction> available_directions;
@@ -88,7 +87,6 @@ protected:
      */
     [[nodiscard]] std::pair<int, int> pacmanCellFromCenter() const;
 
-
     /** Computes the current target for this ghost (depends on ghost type). */
     virtual void computeTarget() = 0;
 
@@ -101,18 +99,19 @@ protected:
 public:
     using MovableEntityModel::MovableEntityModel;
 
-    Ghost(float x, float y, EntityType type) : MovableEntityModel(x, y, type) {
-        _speed = 0.2f;
-    }
+    Ghost(float x, float y, EntityType type) : MovableEntityModel(x, y, type) { _speed = 0.2f; }
 
     /**
-     * Puts the ghost in frightened state for a duration.
-     * @param duration Seconds to stay frightened.
+     * @brief Enter frightened mode locally (world owns the timer).
+     * @param duration Seconds of frightened remaining (used for sync if needed).
      */
     void enterFrightened(float duration);
 
-    /** @return true if frightenedTimer > 0. */
-    [[nodiscard]] bool isFrightened() const { return _frightened_timer > 0.f; }
+    /**
+     * @brief Check if frightened is active (global timer).
+     * @return True if the world frightened timer is > 0.
+     */
+    bool isFrightened() const;
 
     /**
      * Sets the current behavior mode.
@@ -143,7 +142,21 @@ public:
      * @param dt Delta time (seconds).
      */
     void update(World* world, float dt);
+
+private:
+    /**
+     * @brief Sync local mode/speed + send flashing/end events based on world timer.
+     */
+    void syncFrightenedFromWorld();
+
+    /** @brief Seconds at the end of frightened where ghosts flash white. */
+    static constexpr float kFlashSeconds = 2.f;
+
+    /** @brief True while this ghost is considered in fear mode locally. */
+    bool _fear_active = false;
+
+    /** @brief True once we already told the view to start flashing this cycle. */
+    bool _flash_sent = false;
 };
 
 } // namespace logic
-

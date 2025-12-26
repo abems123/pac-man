@@ -2,38 +2,79 @@
 // Created by abdellah on 12/20/25.
 //
 
-#ifndef PACMANPROJECT_MOVABLEENTITYVIEW_H
-#define PACMANPROJECT_MOVABLEENTITYVIEW_H
-#include "EntityView.h"
+#pragma once
+
+#include "view/EntityView.h"
+#include <SFML/Graphics/Rect.hpp>
+#include <memory>
+#include <vector>
 
 namespace representation {
-    class MovableEntityView : public EntityView {
-    protected:
-        bool is_moving = false;
+/**
+ * @brief Base view for entities that move and have directional animations.
+ */
+class MovableEntityView : public EntityView {
+protected:
+    /**
+     * @brief Switch active animation frames.
+     * @param frames New frame list to use.
+     * @param reset If true, restart from frame 0.
+     */
+    void setAnimation(const std::vector<sf::IntRect>& frames, bool reset = true);
 
-        std::vector<sf::IntRect> _up_frames;
-        std::vector<sf::IntRect> _down_frames;
-        std::vector<sf::IntRect> _right_frames;
-        std::vector<sf::IntRect> _left_frames;
+    /** @brief Directional frames (right). */
+    std::vector<sf::IntRect> _right_frames;
+    /** @brief Directional frames (down). */
+    std::vector<sf::IntRect> _down_frames;
+    /** @brief Directional frames (left). */
+    std::vector<sf::IntRect> _left_frames;
+    /** @brief Directional frames (up). */
+    std::vector<sf::IntRect> _up_frames;
 
-        float _animation_timer = 0.f;
-        float _frame_duration = 0.05f;
-        int _current_frame = 0;
+    /** @brief Current frame index in _frames. */
+    std::size_t _current_frame = 0;
 
-    public:
-        MovableEntityView(const std::shared_ptr<logic::MovableEntityModel> &model, const std::vector<int> &columns,
-                          const std::vector<int> &rows, const std::vector<int> &frames_number);
+    /** @brief Accumulated time for switching frames. */
+    float _animation_timer = 0.f;
 
-        void updatePosition();
+    /** @brief Duration per frame in seconds. */
+    float _frame_duration = 0.12f;
 
-        void onNotify(const logic::EventType &event) override;
+    /** @brief True when we should advance the animation this tick. */
+    bool is_moving = false;
 
-        void update(float dt) override;
+public:
+    /**
+     * @brief Construct a movable view with directional sprite frames.
+     * @param model Model to observe.
+     * @param columns Texture atlas columns for {right,down,left,up}.
+     * @param rows Texture atlas rows for {right,down,left,up}.
+     * @param frames_number Number of frames for each direction.
+     */
+    MovableEntityView(const std::shared_ptr<logic::MovableEntityModel>& model, const std::vector<int>& columns,
+                      const std::vector<int>& rows, const std::vector<int>& frames_number);
 
-        void render(sf::RenderWindow &window) const override;
+    /**
+     * @brief Handle model events (movement + direction changes).
+     * @param event Event type from the model.
+     */
+    void onNotify(const logic::EventType& event) override;
 
-        ~MovableEntityView() override;
-    };
-} // representation
+    /**
+     * @brief Update animation timers.
+     * @param dt Delta time in seconds.
+     */
+    void update(float dt) override;
 
-#endif //PACMANPROJECT_MOVABLEENTITYVIEW_H
+    /**
+     * @brief Render the entity.
+     * @param window Render target.
+     */
+    void render(sf::RenderWindow& window) const override;
+
+    /**
+     * @brief Destructor.
+     */
+    ~MovableEntityView() override;
+};
+} // namespace representation

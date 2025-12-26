@@ -2,8 +2,7 @@
 // Created by abdellah on 12/11/25.
 //
 
-#ifndef PACMANPROJECT_EVENT_H
-#define PACMANPROJECT_EVENT_H
+#pragma once
 
 namespace logic {
     enum class EventType {
@@ -29,8 +28,11 @@ namespace logic {
         FearModeEnding,
         FearModeEnded,
 
-        DirectionChangedLeft, DirectionChangedUp, DirectionChangedDown, DirectionChangedRight
-    };
+        DirectionChangedLeft, DirectionChangedUp, DirectionChangedDown, DirectionChangedRight,
+    FrightenedFlashingStarted,
+    FrightenedEnded,
+    FrightenedStarted
+};
 
 
     class Event {
@@ -38,4 +40,3 @@ namespace logic {
 }
 
 
-#endif //PACMANPROJECT_EVENT_H
