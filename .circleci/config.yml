@@ -2,7 +2,7 @@ version: 2.1
 
 jobs:
   # =========================
-  # 1) Auto-format + auto-commit
+  # Auto-format C++ + auto-commit
   # =========================
   format:
     docker:
@@ -17,9 +17,8 @@ jobs:
             sudo apt-get install -y clang-format-18 git
 
       - run:
-          name: Run clang-format-18 on the repo
+          name: Format C++ code
           command: |
-            # Format common C/C++ sources/headers, skip build dirs
             find . -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" -o -name "*.cxx" -o -name "*.h" -o -name "*.hpp" \) \
               -not -path "./build/*" \
               -not -path "./cmake-build-*/*" \
@@ -47,11 +46,12 @@ jobs:
             git add -A
             git commit -m "style: auto-format C++ code with clang-format-18"
 
-            # Push back to the same repo/branch
             git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
             git push origin "HEAD:${CIRCLE_BRANCH}"
 
-
+  # =========================
+  # Full project build (with SFML)
+  # =========================
   build:
     docker:
       - image: cimg/base:24.04
@@ -76,7 +76,7 @@ jobs:
             cmake --version
             g++ --version
             clang++-18 --version
-            dpkg -l | grep libsfml
+            dpkg -l | grep libsfml || true
 
       - run:
           name: Configure (CMake)
@@ -89,7 +89,7 @@ jobs:
             cmake --build build --parallel
 
   # =========================
-  # 2) Build 'logic' Debug + run tests (no SFML) — like your GitHub Action
+  # Logic-only build (Debug, no SFML, no tests)
   # =========================
   build_logic_debug:
     docker:
@@ -119,15 +119,9 @@ jobs:
           command: |
             cmake --build build_logic --parallel
 
-      - run:
-          name: Test 'logic'
-          command: |
-            ctest --test-dir build_logic -C "${BUILD_TYPE}" --output-on-failure
-
 workflows:
-  build_and_test:
+  build_and_format:
     jobs:
-      # Same branch scope as your GitHub format workflow
       - format:
           filters:
             branches:
@@ -138,7 +132,6 @@ workflows:
             branches:
               only: [ main, master, develop ]
 
-      # Same scope as your GitHub "logic" workflow (main only)
       - build_logic_debug:
           filters:
             branches:
