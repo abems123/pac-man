@@ -1,6 +1,57 @@
 version: 2.1
 
 jobs:
+  # =========================
+  # 1) Auto-format + auto-commit
+  # =========================
+  format:
+    docker:
+      - image: cimg/base:24.04
+    steps:
+      - checkout
+
+      - run:
+          name: Install clang-format 18
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y clang-format-18 git
+
+      - run:
+          name: Run clang-format-18 on the repo
+          command: |
+            # Format common C/C++ sources/headers, skip build dirs
+            find . -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" -o -name "*.cxx" -o -name "*.h" -o -name "*.hpp" \) \
+              -not -path "./build/*" \
+              -not -path "./cmake-build-*/*" \
+              -not -path "./.git/*" \
+              -print0 | xargs -0 clang-format-18 -i
+
+      - run:
+          name: Auto-commit formatting changes (if any)
+          command: |
+            if git diff --quiet; then
+              echo "No formatting changes."
+              exit 0
+            fi
+
+            if [ -z "${GITHUB_TOKEN:-}" ]; then
+              echo "clang-format produced changes, but GITHUB_TOKEN is not set in CircleCI."
+              echo "Set a GitHub token with write access as GITHUB_TOKEN to enable auto-commit."
+              git --no-pager diff
+              exit 1
+            fi
+
+            git config user.name "circleci"
+            git config user.email "circleci@users.noreply.github.com"
+
+            git add -A
+            git commit -m "style: auto-format C++ code with clang-format-18"
+
+            # Push back to the same repo/branch
+            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
+            git push origin "HEAD:${CIRCLE_BRANCH}"
+
+
   build:
     docker:
       - image: cimg/base:24.04
@@ -37,7 +88,58 @@ jobs:
           command: |
             cmake --build build --parallel
 
+  # =========================
+  # 2) Build 'logic' Debug + run tests (no SFML) — like your GitHub Action
+  # =========================
+  build_logic_debug:
+    docker:
+      - image: cimg/base:24.04
+    environment:
+      BUILD_TYPE: Debug
+      SOURCE_DIR: logic
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies (no SFML)
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              build-essential \
+              cmake \
+              g++-13
+
+      - run:
+          name: Configure CMake for 'logic'
+          command: |
+            cmake -S "${SOURCE_DIR}" -B build_logic -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
+
+      - run:
+          name: Build 'logic'
+          command: |
+            cmake --build build_logic --parallel
+
+      - run:
+          name: Test 'logic'
+          command: |
+            ctest --test-dir build_logic -C "${BUILD_TYPE}" --output-on-failure
+
 workflows:
   build_and_test:
     jobs:
-      - build
+      # Same branch scope as your GitHub format workflow
+      - format:
+          filters:
+            branches:
+              only: [ main, master, develop ]
+
+      - build:
+          filters:
+            branches:
+              only: [ main, master, develop ]
+
+      # Same scope as your GitHub "logic" workflow (main only)
+      - build_logic_debug:
+          filters:
+            branches:
+              only: [ main ]
