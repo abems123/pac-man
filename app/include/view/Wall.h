@@ -11,7 +11,7 @@
 #include <cmath>
 
 namespace logic {
-    class Wall;
+class Wall;
 }
 
 namespace representation {
@@ -69,7 +69,6 @@ public:
      * @brief Default virtual destructor.
      */
     ~Wall() override = default;
-
 };
 } // namespace representation
 

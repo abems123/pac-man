@@ -3,7 +3,6 @@
 #include "entities/PacMan.h"
 #include "world/World.h"
 
-
 TEST(WorldTest, PacManMovesRight) {
     auto* pacman = new logic::PacMan;
     pacman->setPosition(0.f, 0.f);

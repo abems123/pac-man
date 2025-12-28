@@ -11,7 +11,7 @@ class Collectable : public logic::EntityModel {
 
 public:
     Collectable(const float x, const float y, const int score, logic::EntityType type)
-        : EntityModel(x, y,  type), score(score) {}
+        : EntityModel(x, y, type), score(score) {}
 
     [[nodiscard]] int getScore() const { return score; }
 

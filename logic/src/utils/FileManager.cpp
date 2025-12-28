@@ -8,7 +8,6 @@
 #include <sstream>
 #include <vector>
 
-
 std::vector<std::string> FileReader::getFileLines(const std::string& filename, const bool make) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -40,7 +39,7 @@ std::vector<std::string> FileReader::getFileLines(const std::string& filename, c
     return lines;
 }
 
-void FileWriter::writeFile(const std::string &filename, const std::string &content) {
+void FileWriter::writeFile(const std::string& filename, const std::string& content) {
     std::ofstream file(filename);
     file << content;
     file.close();

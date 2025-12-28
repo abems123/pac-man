@@ -10,8 +10,7 @@
 namespace logic {
 class Fruit final : public Collectable {
 public:
-    Fruit(const float x, const float y)
-        : Collectable(x, y, Constants::FRUIT_SCORE, EntityType::Fruit) {};
+    Fruit(const float x, const float y) : Collectable(x, y, Constants::FRUIT_SCORE, EntityType::Fruit) {};
 };
 } // namespace logic
 

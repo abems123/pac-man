@@ -6,7 +6,6 @@
 
 #include "utils/Stopwatch.h"
 
-
 int main() {
     auto& sw = logic::Stopwatch::getInstance();
 
