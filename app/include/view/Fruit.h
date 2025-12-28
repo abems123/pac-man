@@ -6,19 +6,17 @@
 #define PACMANPROJECT_FRUIT_VIEW_H
 #include "EntityView.h"
 
-
 namespace representation {
-    class Fruit : public EntityView {
-    public:
-        explicit Fruit(const std::shared_ptr<logic::EntityModel> &model);
+class Fruit : public EntityView {
+public:
+    explicit Fruit(const std::shared_ptr<logic::EntityModel>& model);
 
-        void onNotify(const logic::EventType &event) override;
+    void onNotify(const logic::EventType& event) override;
 
-        void update(float dt) override;
+    void update(float dt) override;
 
-        void render(sf::RenderWindow &window) const override;
-    };
-}
+    void render(sf::RenderWindow& window) const override;
+};
+} // namespace representation
 
-
-#endif //PACMANPROJECT_FRUIT_VIEW_H
+#endif // PACMANPROJECT_FRUIT_VIEW_H

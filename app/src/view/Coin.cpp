@@ -16,7 +16,7 @@ Coin::Coin(const std::shared_ptr<logic::Coin>& model) : EntityView(model) {
     auto [screen_x, screen_y] = Camera::instance().worldToScreen(x, y);
 
     _shape.setOrigin(Constants::COIN_RADIUS / 2.0f, Constants::COIN_RADIUS / 2.0f);
-    _shape.setPosition(screen_x + Constants::SPRITE_SIZE, screen_y+ Constants::SPRITE_SIZE);
+    _shape.setPosition(screen_x + Constants::SPRITE_SIZE, screen_y + Constants::SPRITE_SIZE);
 }
 
 void Coin::onNotify(const logic::EventType& event) {}

@@ -9,29 +9,27 @@
 
 #include "State.h"
 
-
 namespace sf {
-    class RenderWindow;
+class RenderWindow;
 }
 
 namespace representation {
-    class StateManager {
-        std::stack<std::unique_ptr<State> > states;
+class StateManager {
+    std::stack<std::unique_ptr<State>> states;
 
-    public:
-        StateManager();
+public:
+    StateManager();
 
-        void handleInput();
+    void handleInput();
 
-        void pushState(std::unique_ptr<State> state) { states.push(std::move(state)); }
+    void pushState(std::unique_ptr<State> state) { states.push(std::move(state)); }
 
-        void popState() { states.pop(); };
+    void popState() { states.pop(); };
 
-        void update(float dt);
+    void update(float dt);
 
-        void render(sf::RenderWindow &window);
-    };
-}
+    void render(sf::RenderWindow& window);
+};
+} // namespace representation
 
-
-#endif //PACMANPROJECT_STATEMANAGER_H
+#endif // PACMANPROJECT_STATEMANAGER_H

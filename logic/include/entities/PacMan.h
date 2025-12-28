@@ -17,15 +17,11 @@ class PacMan final : public MovableEntityModel {
 public:
     using MovableEntityModel::MovableEntityModel;
 
-    PacMan(float x, float y) : MovableEntityModel(x, y, EntityType::Pacman) {
-        _speed = 0.5f;
-    }
+    PacMan(float x, float y) : MovableEntityModel(x, y, EntityType::Pacman) { _speed = 0.5f; }
 
     void setMove(Direction dir, bool can_move);
 
     void update(float dt) override;
-
-
 };
 } // namespace logic
 

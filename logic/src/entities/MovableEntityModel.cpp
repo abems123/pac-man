@@ -41,9 +41,7 @@ void MovableEntityModel::setDirection(const Direction direction) {
     }
 }
 
-void MovableEntityModel::update(const float dt) {
-    move(dt);
-}
+void MovableEntityModel::update(const float dt) { move(dt); }
 void MovableEntityModel::move(const float dt) {
     const float dist = _speed * dt;
 

@@ -6,11 +6,8 @@
 #define PACMANPROJECT_VICTORYSTATE_H
 #include "State.h"
 
-
 namespace representation {
-    class VictoryState : public State {
-    };
-}
+class VictoryState : public State {};
+} // namespace representation
 
-
-#endif //PACMANPROJECT_VICTORYSTATE_H
+#endif // PACMANPROJECT_VICTORYSTATE_H

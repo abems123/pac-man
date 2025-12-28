@@ -4,19 +4,17 @@
 
 #ifndef PACMANPROJECT_ANIMATIONMANAGER_H
 #define PACMANPROJECT_ANIMATIONMANAGER_H
-#include <vector>
 #include <SFML/Graphics/Rect.hpp>
-
+#include <vector>
 
 namespace representation {
-    class AnimationManager {
-    public:
-        AnimationManager() = default;
+class AnimationManager {
+public:
+    AnimationManager() = default;
 
-        static void setFrames(int column, int row, int frames_number, std::vector<sf::IntRect>& frames);
-        static void setFrames(int column, int row, sf::IntRect& frame);
-    };
-}
+    static void setFrames(int column, int row, int frames_number, std::vector<sf::IntRect>& frames);
+    static void setFrames(int column, int row, sf::IntRect& frame);
+};
+} // namespace representation
 
-
-#endif //PACMANPROJECT_ANIMATIONMANAGER_H
+#endif // PACMANPROJECT_ANIMATIONMANAGER_H

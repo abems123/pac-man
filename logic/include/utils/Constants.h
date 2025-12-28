@@ -6,9 +6,9 @@
 #define MODEL_CONSTANTS_H
 
 namespace logic {
-    struct Constants {
-        static constexpr int COIN_SCORE = 10;
-        static constexpr int FRUIT_SCORE = 100;
-    };
-}
-#endif //MODEL_CONSTANTS_H
+struct Constants {
+    static constexpr int COIN_SCORE = 10;
+    static constexpr int FRUIT_SCORE = 100;
+};
+} // namespace logic
+#endif // MODEL_CONSTANTS_H

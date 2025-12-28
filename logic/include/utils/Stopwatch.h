@@ -6,22 +6,20 @@
 #define PACMANPROJECT_STOPWATCH_H
 #include <chrono>
 
-
 namespace logic {
-    class Stopwatch {
-        std::chrono::steady_clock::time_point _last;
-        float _delta_time = 0;
+class Stopwatch {
+    std::chrono::steady_clock::time_point _last;
+    float _delta_time = 0;
 
-        Stopwatch() = default;
+    Stopwatch() = default;
 
-    public:
-        static Stopwatch &getInstance();
+public:
+    static Stopwatch& getInstance();
 
-        void tick();
+    void tick();
 
-        [[nodiscard]] float dt() const { return _delta_time; }
-    };
-}
+    [[nodiscard]] float dt() const { return _delta_time; }
+};
+} // namespace logic
 
-
-#endif //PACMANPROJECT_STOPWATCH_H
+#endif // PACMANPROJECT_STOPWATCH_H

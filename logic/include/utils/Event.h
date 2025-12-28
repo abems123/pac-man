@@ -5,9 +5,6 @@
 #ifndef PACMANPROJECT_EVEN_H
 #define PACMANPROJECT_EVEN_H
 
+class Event {};
 
-class Event {
-};
-
-
-#endif //PACMANPROJECT_EVEN_H
+#endif // PACMANPROJECT_EVEN_H

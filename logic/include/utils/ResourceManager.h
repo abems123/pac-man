@@ -6,18 +6,14 @@
 #define RESOURCEMANAGER_MODEL_H
 
 #include <string>
-#include <vector>
 #include <utils/FileReader.h>
+#include <vector>
 
-
-namespace logic{
+namespace logic {
 class ResourceManager {
 public:
     static std::vector<std::string> getMap();
 };
-}
+} // namespace logic
 
-
-
-
-#endif //RESOURCEMANAGER_MODEL_H
+#endif // RESOURCEMANAGER_MODEL_H

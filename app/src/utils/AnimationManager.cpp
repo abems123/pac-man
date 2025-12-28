@@ -24,4 +24,4 @@ void AnimationManager::setFrames(const int column, const int row, sf::IntRect& f
              Constants::START_TOP_SPACE + row * (Constants::SPRITE_SIZE + Constants::SPACE_BETWEEN_SPRITES),
              Constants::SPRITE_SIZE, Constants::SPRITE_SIZE};
 }
-}
+} // namespace representation

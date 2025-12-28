@@ -11,45 +11,42 @@
 #include "utils/Stopwatch.h"
 
 namespace logic {
-    class Score : public Observer {
-    public:
-        explicit Score(std::string filePath = "leaderboard.txt");
+class Score : public Observer {
+public:
+    explicit Score(std::string filePath = "leaderboard.txt");
 
+    void onNotify(const EventType& event) override;
 
-        void onNotify(const EventType &event) override;
+    [[nodiscard]] int getScore() const;
 
-        [[nodiscard]] int getScore() const;
+    void update(float dt);
 
-        void update(float dt);
+    void saveHighScores() const;
 
-        void saveHighScores() const;
+    void loadHighScores();
 
-        void loadHighScores();
+    void updateHighScores();
 
-        void updateHighScores();
+    [[nodiscard]] const std::set<int>& getHighScores() const;
 
-        [[nodiscard]] const std::set<int> &getHighScores() const;
+    int getScore() { return _current_score; }
 
-        int getScore() { return _current_score; }
+private:
+    int _current_score = 0;
+    float _time_since_last_coin = 0.f;
 
-    private:
-        int _current_score = 0;
-        float _time_since_last_coin = 0.f;
+    bool _new_score_added = false;
 
-        bool _new_score_added = false;
+    std::set<int> _high_scores;
 
-        std::set<int> _high_scores;
+    std::string _score_file_path;
 
-        std::string _score_file_path;
+    void increaseScore(int amount);
 
-        void increaseScore(int amount);
+    [[nodiscard]] int computeCoinBonus() const;
 
-        [[nodiscard]] int computeCoinBonus() const;
+    [[nodiscard]] std::string getScoreFormat() const;
+};
+} // namespace logic
 
-        [[nodiscard]] std::string getScoreFormat() const;
-
-    };
-}
-
-
-#endif //PACMANPROJECT_SCORE_H
+#endif // PACMANPROJECT_SCORE_H

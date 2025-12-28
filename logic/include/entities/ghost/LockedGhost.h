@@ -7,23 +7,20 @@
 #include "Ghost.h"
 
 namespace logic {
-    class LockedGhost : public Ghost {
-    public:
-        using Ghost::Ghost;
+class LockedGhost : public Ghost {
+public:
+    using Ghost::Ghost;
 
-        LockedGhost(float x, float y);
+    LockedGhost(float x, float y);
 
-        void computeTarget() override {}
+    void computeTarget() override {}
 
-        void stepTowardTarget() override {}
+    void stepTowardTarget() override {}
 
-        void decideDirection() override;
+    void decideDirection() override;
 
-        ~LockedGhost() override;
+    ~LockedGhost() override;
+};
+} // namespace logic
 
-
-    };
-}
-
-
-#endif //PACMANPROJECT_LOCKEDGHOST_H
+#endif // PACMANPROJECT_LOCKEDGHOST_H

@@ -180,8 +180,7 @@ public:
      * @param bh Rect B h.
      * @return True if overlap.
      */
-    bool collides(float ax, float ay, float aw, float ah,
-                  float bx, float by, float bw, float bh) const;
+    bool collides(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) const;
 
     /**
      * @brief AABB overlap check for two models using tile-sized hitboxes.

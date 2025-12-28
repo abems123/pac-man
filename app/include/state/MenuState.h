@@ -9,32 +9,31 @@
 
 #include "State.h"
 
-
 namespace representation {
-    class Game;
+class Game;
 
-    class MenuState : public State {
-        sf::Font font;
-        sf::Text titleText;
-        sf::Text instructionText;
+class MenuState : public State {
+    sf::Font font;
+    sf::Text titleText;
+    sf::Text instructionText;
 
-        float blinkTimer = 0.f;
-        bool visible = true;
+    float blinkTimer = 0.f;
+    bool visible = true;
 
-    public:
-        MenuState();
+public:
+    MenuState();
 
-        MenuState(StateManager &manager, Game &game);
+    MenuState(StateManager& manager, Game& game);
 
-        void handleInput() override;
+    void handleInput() override;
 
-        void update(float dt) override;
+    void update(float dt) override;
 
-        void render(sf::RenderWindow &window) override;
+    void render(sf::RenderWindow& window) override;
 
-        void onEnter() override;
+    void onEnter() override;
 
-        void onExit() override;
-    };
-}
-#endif //PACMANPROJECT_MENUSTATE_H
+    void onExit() override;
+};
+} // namespace representation
+#endif // PACMANPROJECT_MENUSTATE_H

@@ -7,44 +7,41 @@
 #ifndef PACMANPROJECT_RANDOM_H
 #define PACMANPROJECT_RANDOM_H
 
-
-#include <random>
 #include <cstdint>
-
+#include <random>
 
 namespace logic {
-    class Random final {
-    public:
-        // Access the singleton instance
-        static Random &instance();
+class Random final {
+public:
+    // Access the singleton instance
+    static Random& instance();
 
-        // Delete copy & move semantics
-        Random(const Random &) = delete;
+    // Delete copy & move semantics
+    Random(const Random&) = delete;
 
-        Random &operator=(const Random &) = delete;
+    Random& operator=(const Random&) = delete;
 
-        Random(Random &&) = delete;
+    Random(Random&&) = delete;
 
-        Random &operator=(Random &&) = delete;
+    Random& operator=(Random&&) = delete;
 
-        // Uniform real in [min, max)
-        double uniformReal(double min, double max);
+    // Uniform real in [min, max)
+    double uniformReal(double min, double max);
 
-        // Uniform integer in [min, max]
-        int uniformInt(int min, int max);
+    // Uniform integer in [min, max]
+    int uniformInt(int min, int max);
 
-        // Bernoulli trial (true with probability p)
-        bool probability(double p);
+    // Bernoulli trial (true with probability p)
+    bool probability(double p);
 
-        // Reseed (useful for tests or reproducibility)
-        void reseed(std::uint32_t seed);
+    // Reseed (useful for tests or reproducibility)
+    void reseed(std::uint32_t seed);
 
-    private:
-        Random(); // private constructor
+private:
+    Random(); // private constructor
 
-        std::mt19937 _engine;
-    };
+    std::mt19937 _engine;
+};
 } // namespace logic
 
-
-#endif //PACMANPROJECT_RANDOM_H
+#endif // PACMANPROJECT_RANDOM_H

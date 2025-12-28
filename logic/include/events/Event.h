@@ -5,38 +5,37 @@
 #pragma once
 
 namespace logic {
-    enum class EventType {
-        Moved,
-        DirectionChanged,
+enum class EventType {
+    Moved,
+    DirectionChanged,
 
-        Spawned,
-        Died,
-        Respawned,
+    Spawned,
+    Died,
+    Respawned,
 
-        CoinEaten,
-        FruitEaten,
-        GhostEaten,
+    CoinEaten,
+    FruitEaten,
+    GhostEaten,
 
-        LevelCleared,
+    LevelCleared,
 
-        GhostStateChanged,
+    GhostStateChanged,
 
-        LivesChanged,
-        LevelChanged,
+    LivesChanged,
+    LevelChanged,
 
-        FearModeStarted,
-        FearModeEnding,
-        FearModeEnded,
+    FearModeStarted,
+    FearModeEnding,
+    FearModeEnded,
 
-        DirectionChangedLeft, DirectionChangedUp, DirectionChangedDown, DirectionChangedRight,
+    DirectionChangedLeft,
+    DirectionChangedUp,
+    DirectionChangedDown,
+    DirectionChangedRight,
     FrightenedFlashingStarted,
     FrightenedEnded,
     FrightenedStarted
 };
 
-
-    class Event {
-    };
-}
-
-
+class Event {};
+} // namespace logic

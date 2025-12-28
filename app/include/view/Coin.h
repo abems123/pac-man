@@ -7,22 +7,22 @@
 #include "EntityView.h"
 
 namespace logic {
-    class Coin;
+class Coin;
 }
 
 namespace representation {
-    class Coin : public EntityView {
-        sf::CircleShape _shape;
-    public:
-        Coin(const std::shared_ptr<logic::Coin> &model);
+class Coin : public EntityView {
+    sf::CircleShape _shape;
 
-        void onNotify(const logic::EventType &event) override;
+public:
+    Coin(const std::shared_ptr<logic::Coin>& model);
 
-        void render(sf::RenderWindow &window) const override;
+    void onNotify(const logic::EventType& event) override;
 
-        void update(float dt) override;
-    };
-}
+    void render(sf::RenderWindow& window) const override;
 
+    void update(float dt) override;
+};
+} // namespace representation
 
-#endif //PACMANPROJECT_COIN_VIEW_H
+#endif // PACMANPROJECT_COIN_VIEW_H

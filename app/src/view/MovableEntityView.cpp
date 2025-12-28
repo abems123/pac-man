@@ -42,15 +42,22 @@ void MovableEntityView::onNotify(const logic::EventType& event) {
         updatePosition();
         break;
 
-    case logic::EventType::DirectionChangedLeft:  setAnimation(_left_frames,  true); break;
-    case logic::EventType::DirectionChangedUp:    setAnimation(_up_frames,    true); break;
-    case logic::EventType::DirectionChangedDown:  setAnimation(_down_frames,  true); break;
-    case logic::EventType::DirectionChangedRight: setAnimation(_right_frames, true); break;
+    case logic::EventType::DirectionChangedLeft:
+        setAnimation(_left_frames, true);
+        break;
+    case logic::EventType::DirectionChangedUp:
+        setAnimation(_up_frames, true);
+        break;
+    case logic::EventType::DirectionChangedDown:
+        setAnimation(_down_frames, true);
+        break;
+    case logic::EventType::DirectionChangedRight:
+        setAnimation(_right_frames, true);
+        break;
 
     default:
         break;
     }
-
 }
 
 void MovableEntityView::update(float dt) {

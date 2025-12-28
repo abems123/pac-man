@@ -9,21 +9,19 @@
 #include "entities/EntityModel.h"
 
 namespace representation {
-    sf::Vector2f Camera::worldToScreen(float x, float y) const {
+sf::Vector2f Camera::worldToScreen(float x, float y) const {
 
-        float screenX = (x + 1.f) * 0.5f * _window_width;
-        float screenY = game_play_start_y + (y + 1.f) * (game_play_end_y - game_play_start_y) * .5f;
+    float screenX = (x + 1.f) * 0.5f * _window_width;
+    float screenY = game_play_start_y + (y + 1.f) * (game_play_end_y - game_play_start_y) * .5f;
 
-        // std::cout << "width: " << width << " height: " << height << std::endl;
+    // std::cout << "width: " << width << " height: " << height << std::endl;
 
-        return {screenX, screenY};
-    }
-
-    float Camera::getTileWidth() const {
-        return static_cast<float>(_window_width) / ResourceManager::getMap().front().size();
-    }
-
-    float Camera::getTileHeight() const {
-        return (game_play_end_y - game_play_start_y) / ResourceManager::getMap().size();
-    }
+    return {screenX, screenY};
 }
+
+float Camera::getTileWidth() const {
+    return static_cast<float>(_window_width) / ResourceManager::getMap().front().size();
+}
+
+float Camera::getTileHeight() const { return (game_play_end_y - game_play_start_y) / ResourceManager::getMap().size(); }
+} // namespace representation

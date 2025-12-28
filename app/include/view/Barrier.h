@@ -6,11 +6,8 @@
 #define PACMANPROJECT_BARRIER_H
 #include "EntityView.h"
 
-
 namespace representation {
-    class Barrier : public EntityView {
-    };
-}
+class Barrier : public EntityView {};
+} // namespace representation
 
-
-#endif //PACMANPROJECT_BARRIER_H
+#endif // PACMANPROJECT_BARRIER_H

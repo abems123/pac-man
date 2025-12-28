@@ -9,32 +9,30 @@
 
 #include "patterns/AbstractFactory.h"
 
-
 namespace representation {
-    class EntityView;
-    class ResourceManager;
+class EntityView;
+class ResourceManager;
 
+class ConcreteFactory : public logic::AbstractFactory {
 
-    class ConcreteFactory : public logic::AbstractFactory {
+    std::vector<std::shared_ptr<EntityView>>* _views;
+    int _created_ghosts = 0;
 
-        std::vector<std::shared_ptr<EntityView>>* _views;
-        int _created_ghosts = 0;
+public:
+    explicit ConcreteFactory(std::vector<std::shared_ptr<EntityView>>* views);
 
-    public:
-        explicit ConcreteFactory(std::vector<std::shared_ptr<EntityView> > *views);
+    ~ConcreteFactory() override;
 
-        ~ConcreteFactory() override;
+    std::shared_ptr<logic::PacMan> createPacMan(float x, float y) override;
 
-        std::shared_ptr<logic::PacMan> createPacMan(float x, float y) override;
+    std::shared_ptr<logic::Ghost> createGhost(float x, float y) override;
 
-        std::shared_ptr<logic::Ghost> createGhost(float x, float y) override;
+    std::shared_ptr<logic::Coin> createCoin(float x, float y) override;
 
-        std::shared_ptr<logic::Coin> createCoin(float x, float y) override;
+    std::shared_ptr<logic::Fruit> createFruit(float x, float y) override;
 
-        std::shared_ptr<logic::Fruit> createFruit(float x, float y) override;
+    std::shared_ptr<logic::Wall> createWall(float x, float y) override;
+};
+} // namespace representation
 
-        std::shared_ptr<logic::Wall> createWall(float x, float y) override;
-    };
-}
-
-#endif //PACMANPROJECT_CONCRETEFACTORY_H
+#endif // PACMANPROJECT_CONCRETEFACTORY_H

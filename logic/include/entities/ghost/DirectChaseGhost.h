@@ -8,9 +8,8 @@
 #include "LookaheadChaseGhost.h"
 
 namespace logic {
-    class DirectChaseGhost final : public LookaheadChaseGhost {
-    public:
-        DirectChaseGhost(float x, float y);
-    };
-}
-
+class DirectChaseGhost final : public LookaheadChaseGhost {
+public:
+    DirectChaseGhost(float x, float y);
+};
+} // namespace logic

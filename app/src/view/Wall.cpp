@@ -16,7 +16,6 @@
 namespace representation {
 Wall::Wall(const std::shared_ptr<logic::EntityModel>& model) : EntityView(model, 0, 8, 2) {
 
-
     AnimationManager::setFrames(17, 16, 2, _normal_wall_frames);
     AnimationManager::setFrames(17, 12, 4, _edge_wall_frames);
     AnimationManager::setFrames(18, 12, 4, _t_kruispunt_frames);
@@ -25,8 +24,8 @@ Wall::Wall(const std::shared_ptr<logic::EntityModel>& model) : EntityView(model,
     auto _model_width = 2.0 / ResourceManager::getMap().front().size();
     auto _model_height = 2.0 / ResourceManager::getMap().size();
 
-    // _shape = sf::RectangleShape(sf::Vector2f(Camera::instance().getTileWidth()-2, Camera::instance().getTileHeight()-2));
-    // _shape.setFillColor(sf::Color::Blue);
+    // _shape = sf::RectangleShape(sf::Vector2f(Camera::instance().getTileWidth()-2,
+    // Camera::instance().getTileHeight()-2)); _shape.setFillColor(sf::Color::Blue);
     // _shape.setPosition(Camera::instance().worldToScreen(model->getPosition().first,model->getPosition().second));
 
     bool most_left_wall = Constants::compareFloats(model->getPosition().first, -1.0f);

@@ -6,33 +6,30 @@
 #define PACMANPROJECT_PACMAN_H
 #include "MovableEntityView.h"
 
-
 namespace logic {
-    class PacMan;
+class PacMan;
 }
 
 namespace representation {
-    class PacMan : public MovableEntityView {
+class PacMan : public MovableEntityView {
 
-    public:
-        explicit PacMan(const std::shared_ptr<logic::PacMan> &model);
+public:
+    explicit PacMan(const std::shared_ptr<logic::PacMan>& model);
 
-        void updateDirectionFrames();
+    void updateDirectionFrames();
 
-        void onNotify(const logic::EventType &event) override;
+    void onNotify(const logic::EventType& event) override;
 
-        void render(sf::RenderWindow &window) const override;
+    void render(sf::RenderWindow& window) const override;
 
-        void update(float dt) override;
+    void update(float dt) override;
 
-        ~PacMan() override = default;
+    ~PacMan() override = default;
 
+    // void updateAnimation(float dt) override;
 
-        // void updateAnimation(float dt) override;
+    // void updateDirection() override;
+};
+} // namespace representation
 
-        // void updateDirection() override;
-    };
-}
-
-
-#endif //PACMANPROJECT_PACMAN_H
+#endif // PACMANPROJECT_PACMAN_H

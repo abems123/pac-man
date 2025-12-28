@@ -41,8 +41,6 @@ protected:
      * @brief Tiles in front of Pac-Man
      */
     int LOOKAHEAD = 1;
-
 };
 
 } // namespace logic
-

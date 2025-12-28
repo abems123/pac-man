@@ -7,16 +7,14 @@
 #include <string>
 #include <vector>
 
-class FileManager {
-};
+class FileManager {};
 
 struct FileReader : public FileManager {
-    [[nodiscard]] static std::vector<std::string> getFileLines(const std::string &filename, bool make=false);
+    [[nodiscard]] static std::vector<std::string> getFileLines(const std::string& filename, bool make = false);
 };
 
 struct FileWriter : public FileManager {
-    static void writeFile(const std::string &filename, const std::string &content);
+    static void writeFile(const std::string& filename, const std::string& content);
 };
 
-
-#endif //PACMANPROJECT_FILEREADER_H
+#endif // PACMANPROJECT_FILEREADER_H

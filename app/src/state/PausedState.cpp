@@ -5,20 +5,13 @@
 #include "../../include/state/PausedState.h"
 
 namespace representation {
-    void PausedState::handleInput() {
-    }
+void PausedState::handleInput() {}
 
-    void PausedState::update(float dt) {
-    }
+void PausedState::update(float dt) {}
 
-    void PausedState::render(sf::RenderWindow &window) {
-    }
+void PausedState::render(sf::RenderWindow& window) {}
 
-    void PausedState::onEnter() {
-        State::onEnter();
-    }
+void PausedState::onEnter() { State::onEnter(); }
 
-    void PausedState::onExit() {
-        State::onExit();
-    }
-}
+void PausedState::onExit() { State::onExit(); }
+} // namespace representation

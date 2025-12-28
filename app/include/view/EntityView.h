@@ -4,11 +4,11 @@
 
 #ifndef PACMANPROJECT_ENTITYVIEW_H
 #define PACMANPROJECT_ENTITYVIEW_H
-#include <memory>
-#include <vector>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <memory>
+#include <vector>
 
 #include "camera/Camera.h"
 #include "entities/MovableEntityModel.h"
@@ -16,48 +16,46 @@
 #include "utils/Constants.h"
 #include "utils/ResourceManager.h"
 
-
 namespace sf {
-    class RenderWindow;
+class RenderWindow;
 }
 
 namespace logic {
-    class EntityModel;
+class EntityModel;
 }
 
 namespace representation {
-    class Sprite;
-    class Camera;
+class Sprite;
+class Camera;
 
-    class EntityView : public logic::Observer {
-    protected:
-        // Pointer to logic entity → for position, direction, state.
-        // It is a shared_ptr because it is owned by both logic::World
-        // and logic::EntityView
-        const std::weak_ptr<logic::EntityModel> _model;
+class EntityView : public logic::Observer {
+protected:
+    // Pointer to logic entity → for position, direction, state.
+    // It is a shared_ptr because it is owned by both logic::World
+    // and logic::EntityView
+    const std::weak_ptr<logic::EntityModel> _model;
 
-        // Object that is drawn on screen.
-        sf::Sprite _sprite;
+    // Object that is drawn on screen.
+    sf::Sprite _sprite;
 
-        std::vector<sf::Vector2i> _sprites_sizes;
+    std::vector<sf::Vector2i> _sprites_sizes;
 
-        sf::Vector2f _position;
+    sf::Vector2f _position;
 
-        std::vector<sf::IntRect> _frames;
+    std::vector<sf::IntRect> _frames;
 
-    public:
-        explicit EntityView(const std::shared_ptr<logic::EntityModel> &model);
+public:
+    explicit EntityView(const std::shared_ptr<logic::EntityModel>& model);
 
-        EntityView(const std::shared_ptr<logic::EntityModel> &model, int column, int row, int number_of_frames);
+    EntityView(const std::shared_ptr<logic::EntityModel>& model, int column, int row, int number_of_frames);
 
-        virtual void update(float dt);
-        virtual void updatePosition();
+    virtual void update(float dt);
+    virtual void updatePosition();
 
-        virtual void render(sf::RenderWindow &window) const;
+    virtual void render(sf::RenderWindow& window) const;
 
-        bool modelExpired() const { return _model.expired(); }
-    };
-}
+    bool modelExpired() const { return _model.expired(); }
+};
+} // namespace representation
 
-
-#endif //PACMANPROJECT_ENTITYVIEW_H
+#endif // PACMANPROJECT_ENTITYVIEW_H

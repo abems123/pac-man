@@ -11,7 +11,7 @@
 #include <cmath>
 
 namespace logic {
-    class Wall;
+class Wall;
 }
 
 namespace representation {
@@ -26,7 +26,6 @@ class Wall : public EntityView {
 
     bool updated = false;
 
-
 public:
     explicit Wall(const std::shared_ptr<logic::EntityModel>& model);
 
@@ -38,7 +37,6 @@ public:
     void render(sf::RenderWindow& window) const override;
 
     ~Wall() override = default;
-
 };
 } // namespace representation
 
