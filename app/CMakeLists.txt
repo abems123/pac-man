@@ -1,6 +1,7 @@
 # SFML 2.6.1 detection
-find_package(SFML 2.6.1 COMPONENTS graphics window system REQUIRED)
+#set(SFML_DIR "C:/Libraries/SFML-2.6.1/lib/cmake/SFML")
 
+find_package(SFML 2.6.1 COMPONENTS graphics window system audio REQUIRED)
 
 # Collect all .cpp files in the app/src directory
 file(GLOB_RECURSE APP_SOURCES
@@ -19,6 +20,7 @@ target_link_libraries(pacman_app
         sfml-graphics
         sfml-window
         sfml-system
+        sfml-audio
 )
 
 # Include path for app headers

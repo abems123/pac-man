@@ -1,138 +1,73 @@
 version: 2.1
 
 jobs:
-  # =========================
-  # Auto-format C++ + auto-commit
-  # =========================
-  format:
+  build_logic_only:
     docker:
       - image: cimg/base:24.04
     steps:
       - checkout
 
       - run:
-          name: Install clang-format 18
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y clang-format-18 git
-
-      - run:
-          name: Format C++ code
-          command: |
-            find . -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" -o -name "*.cxx" -o -name "*.h" -o -name "*.hpp" \) \
-              -not -path "./build/*" \
-              -not -path "./cmake-build-*/*" \
-              -not -path "./.git/*" \
-              -print0 | xargs -0 clang-format-18 -i
-
-      - run:
-          name: Auto-commit formatting changes (if any)
-          command: |
-            if git diff --quiet; then
-              echo "No formatting changes."
-              exit 0
-            fi
-
-            if [ -z "${GITHUB_TOKEN:-}" ]; then
-              echo "clang-format produced changes, but GITHUB_TOKEN is not set in CircleCI."
-              echo "Set a GitHub token with write access as GITHUB_TOKEN to enable auto-commit."
-              git --no-pager diff
-              exit 1
-            fi
-
-            git config user.name "circleci"
-            git config user.email "circleci@users.noreply.github.com"
-
-            git add -A
-            git commit -m "style: auto-format C++ code with clang-format-18"
-
-            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
-            git push origin "HEAD:${CIRCLE_BRANCH}"
-
-  # =========================
-  # Full project build (with SFML)
-  # =========================
-  build:
-    docker:
-      - image: cimg/base:24.04
-
-    steps:
-      - checkout
-
-      - run:
-          name: Install build dependencies
+          name: Install dependencies (logic only)
           command: |
             sudo apt-get update
             sudo apt-get install -y \
               build-essential \
               cmake \
-              g++-13 \
-              clang-18 \
-              libsfml-dev
-
-      - run:
-          name: Verify toolchain versions
-          command: |
-            cmake --version
-            g++ --version
-            clang++-18 --version
-            dpkg -l | grep libsfml || true
-
-      - run:
-          name: Configure (CMake)
-          command: |
-            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-      - run:
-          name: Build
-          command: |
-            cmake --build build --parallel
-
-  # =========================
-  # Logic-only build (Debug, no SFML, no tests)
-  # =========================
-  build_logic_debug:
-    docker:
-      - image: cimg/base:24.04
-    environment:
-      BUILD_TYPE: Debug
-      SOURCE_DIR: logic
-    steps:
-      - checkout
-
-      - run:
-          name: Install dependencies (no SFML)
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              build-essential \
-              cmake \
+              gcc-13 \
               g++-13
 
       - run:
-          name: Configure CMake for 'logic'
+          name: Configure (logic only) — GCC 13 + C++20
           command: |
-            cmake -S "${SOURCE_DIR}" -B build_logic -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
+            cmake -S logic -B build_logic \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_C_COMPILER=gcc-13 \
+              -DCMAKE_CXX_COMPILER=g++-13 \
+              -DCMAKE_CXX_STANDARD=20 \
+              -DCMAKE_CXX_STANDARD_REQUIRED=ON
 
       - run:
-          name: Build 'logic'
+          name: Build (logic only)
           command: |
             cmake --build build_logic --parallel
 
+  build_full_project:
+    docker:
+      - image: cimg/base:24.04
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies (full project)
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              build-essential \
+              cmake \
+              gcc-13 \
+              g++-13 \
+              libsfml-dev
+
+      - run:
+          name: Configure (full project) — GCC 13 + C++20
+          command: |
+            cmake -S . -B build_full \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_C_COMPILER=gcc-13 \
+              -DCMAKE_CXX_COMPILER=g++-13 \
+              -DCMAKE_CXX_STANDARD=20 \
+              -DCMAKE_CXX_STANDARD_REQUIRED=ON
+
+      - run:
+          name: Build (full project)
+          command: |
+            cmake --build build_full --parallel
+
 workflows:
-  build_and_format:
+  build_logic_then_full:
     jobs:
-      - format:
-          filters:
-            branches:
-              only: [ main, master, develop ]
-
-      - build:
-          filters:
-            branches:
-              only: [ main, master, develop ]
-
-      - build_logic_debug:
-          filters:
-            branches:
-              only: [ main ]
+      - build_logic_only
+      - build_full_project:
+          requires:
+            - build_logic_only
