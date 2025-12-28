@@ -73,7 +73,7 @@ pac-man/
 │  └─ src/
 ├─ app/                   # SFML application + rendering layer
 │  ├─ include/
-│  └─ src/
+│  ├─ src/
 │  └─ main.cpp
 ├─ assets/                # Sprites, audio, fonts, map(s)
 └─ CMakeLists.txt
