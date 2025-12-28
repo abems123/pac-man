@@ -4,7 +4,6 @@
 
 #ifndef PACMANPROJECT_SUBJECT_H
 #define PACMANPROJECT_SUBJECT_H
-#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -43,12 +42,6 @@ public:
     void attach(const std::weak_ptr<Observer>& obs) {
         if (const auto var = obs.lock())
             observers.push_back(var);
-    }
-
-    void detach(const std::weak_ptr<Observer>& obs) {
-        observers.erase(
-            std::ranges::remove_if(observers, [](const std::weak_ptr<Observer>& w) { return w.expired(); }).begin(),
-            observers.end());
     }
 
     void notify(const EventType& e) const;
