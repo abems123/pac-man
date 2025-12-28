@@ -25,10 +25,20 @@ class Subject {
     std::vector<std::weak_ptr<Observer>> observers;
 
 public:
+    Subject() = default;
     virtual ~Subject() = default;
 
-    Subject() = default;
-    Subject(const Subject& that);
+    /** Copying a Subject is disabled to avoid duplicating observer subscriptions. */
+    Subject(const Subject&) = delete;
+
+    /** Copy assignment is disabled for the same reason. */
+    Subject& operator=(const Subject&) = delete;
+
+    /** Moving is allowed; the moved-to subject keeps the observer list. */
+    Subject(Subject&&) noexcept = default;
+
+    /** Move assignment is allowed; the moved-to subject keeps the observer list. */
+    Subject& operator=(Subject&&) noexcept = default;
 
     void attach(const std::weak_ptr<Observer>& obs) {
         if (const auto var = obs.lock())

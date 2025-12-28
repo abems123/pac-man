@@ -9,29 +9,72 @@
 
 #include "State.h"
 
+#include <vector>
 
 namespace sf {
-    class RenderWindow;
+class RenderWindow;
 }
 
 namespace representation {
-    class StateManager {
-        std::stack<std::unique_ptr<State> > states;
+class StateManager {
+    /** Stack of states; top() is the active state. */
+    std::stack<std::unique_ptr<State>> _states;
 
-    public:
-        StateManager();
+    /** True while a state callback is running (handleInput/update/render). */
+    bool _dispatching{false};
 
-        void handleInput();
+    /** Pops requested during dispatching; applied afterwards. */
+    int _pending_pops{0};
 
-        void pushState(std::unique_ptr<State> state) { states.push(std::move(state)); }
+    /** If true, pop-to-menu is requested during dispatching; applied afterwards. */
+    bool _pending_pop_to_menu{false};
 
-        void popState() { states.pop(); };
+    /** Pushes requested during dispatching; applied afterwards. */
+    std::vector<std::unique_ptr<State>> _pending_push;
 
-        void update(float dt);
+    /** Applies queued stack changes after the current state call finishes.
+     *  @return Nothing.
+     */
+    void applyPending();
 
-        void render(sf::RenderWindow &window);
-    };
-}
+public:
+    StateManager() = default;
 
+    /**
+     * @brief Notify all states that the window was resized.
+     * @param width New window width in pixels.
+     * @param height New window height in pixels.
+     */
+    void notifyResize(unsigned width, unsigned height);
 
-#endif //PACMANPROJECT_STATEMANAGER_H
+    /** Pushes a state on top of the stack.
+     *  @param state State to push (ownership transferred).
+     */
+    void pushState(std::unique_ptr<State> state);
+
+    /** Pops the top state. */
+    void popState();
+
+    /** Pops until only the bottom state remains (MenuState). */
+    void popToMenu();
+
+    /** Only the top state handles input.
+     *  @return Nothing.
+     */
+    void handleInput();
+
+    /** Updates states respecting pause/settings overlay blocking.
+     *  @param dt Delta time in seconds.
+     *  @return Nothing.
+     */
+    void update(float dt);
+
+    /** Renders states respecting overlay transparency.
+     *  @param window Render target.
+     *  @return Nothing.
+     */
+    void render(sf::RenderWindow& window);
+};
+} // namespace representation
+
+#endif // PACMANPROJECT_STATEMANAGER_H

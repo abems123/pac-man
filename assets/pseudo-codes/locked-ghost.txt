@@ -1,6 +1,0 @@
-current_direction=random(right, left)
-
-while chasing mode:
-move()
-if intersection or wall:
-    current_direction = random(availableDirections)

@@ -7,6 +7,8 @@
 #include "entities/ghost/LockedGhost.h"
 #include "utils/AnimationManager.h"
 
+#include <events/EventType.h>
+
 namespace representation {
 Ghost::Ghost(const std::shared_ptr<logic::Ghost>& model, int ghost_col)
     : MovableEntityView(model, {ghost_col, ghost_col, ghost_col, ghost_col}, {0, 2, 4, 6}, {2, 2, 2, 2}) {
@@ -16,8 +18,8 @@ Ghost::Ghost(const std::shared_ptr<logic::Ghost>& model, int ghost_col)
     // =========== Tiny scale tweak so it fits nicer [END] ===========
 
     // =========== Load frightened visuals [START] ===========
-    AnimationManager::setFrames(0, 11, 8, _frightened_frames); // blue
-    AnimationManager::setFrames(1, 11, 8, _returning_frames);  // white flashing
+    AnimationManager::setFrames(0, 11, 8, _frightened_frames);
+    AnimationManager::setFrames(1, 11, 8, _frightened_flash_frames);
     // =========== Load frightened visuals [END] ===========
 }
 
@@ -31,7 +33,7 @@ void Ghost::onNotify(const logic::EventType& event) {
 
     if (event == logic::EventType::FrightenedFlashingStarted) {
         _in_frightened = true;
-        setAnimation(_returning_frames, true);
+        setAnimation(_frightened_flash_frames, true);
         return;
     }
 

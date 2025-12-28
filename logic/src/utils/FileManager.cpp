@@ -2,7 +2,7 @@
 // Created by abdellah on 12/11/25.
 //
 
-#include "../../include/utils/FileReader.h"
+#include "../../include/utils/FileManager.h"
 
 #include <fstream>
 #include <sstream>
@@ -15,7 +15,6 @@ std::vector<std::string> FileReader::getFileLines(const std::string& filename, c
         if (!make) {
             throw std::runtime_error("Failed to open map file: " + filename);
         }
-
         // create empty file
         std::ofstream createFile(filename);
         if (!createFile.is_open()) {

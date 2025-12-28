@@ -6,19 +6,27 @@
 #define PACMANPROJECT_FRUIT_VIEW_H
 #include "EntityView.h"
 
-
 namespace representation {
-    class Fruit : public EntityView {
-    public:
-        explicit Fruit(const std::shared_ptr<logic::EntityModel> &model);
+class Fruit final : public EntityView {
+public:
+    /**
+     * @brief Constructs a fruit view observing the given model.
+     * @param model Model to observe; non-owning (owned by the World).
+     */
+    explicit Fruit(const std::shared_ptr<logic::EntityModel>& model);
 
-        void onNotify(const logic::EventType &event) override;
+    /**
+     * @brief Receives model events (unused for Fruit).
+     * @param event Event emitted by the observed model.
+     */
+    void onNotify(const logic::EventType& event) override {}
 
-        void update(float dt) override;
+    /**
+     * @brief Draws the fruit to the window.
+     * @param window Render target to draw to.
+     */
+    void render(sf::RenderWindow& window) const override;
+};
+} // namespace representation
 
-        void render(sf::RenderWindow &window) const override;
-    };
-}
-
-
-#endif //PACMANPROJECT_FRUIT_VIEW_H
+#endif // PACMANPROJECT_FRUIT_VIEW_H

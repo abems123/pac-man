@@ -4,13 +4,16 @@
 
 #pragma once
 
-#include "Ghost.h"
 #include "LookaheadChaseGhost.h"
 
 namespace logic {
-    class DirectChaseGhost final : public LookaheadChaseGhost {
-    public:
-        DirectChaseGhost(float x, float y);
-    };
-}
-
+class DirectChaseGhost final : public LookaheadChaseGhost {
+public:
+    /**
+     * @brief Constructs a direct-chase ghost at the given world position.
+     * @param x Initial x position in world coordinates.
+     * @param y Initial y position in world coordinates.
+     */
+    DirectChaseGhost(float x, float y);
+};
+} // namespace logic

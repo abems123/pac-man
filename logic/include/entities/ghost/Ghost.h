@@ -90,22 +90,21 @@ protected:
     /** Computes the current target for this ghost (depends on ghost type). */
     virtual void computeTarget() = 0;
 
-    /** Performs one "AI step" toward the target (often just chooses direction). */
-    virtual void stepTowardTarget() = 0;
-
     /** Chooses a direction when appropriate (usually only at tile center). */
     virtual void decideDirection() = 0;
 
 public:
-    using MovableEntityModel::MovableEntityModel;
+    Ghost(float x, float y, EntityType type);
 
-    Ghost(float x, float y, EntityType type) : MovableEntityModel(x, y, type) { _speed = 0.2f; }
+    /** Resets this ghost back to its spawn position and starting mode.
+     *  @param start The mode the ghost should start in after the reset.
+     */
+    void resetToSpawn(GhostMode start);
 
     /**
      * @brief Enter frightened mode locally (world owns the timer).
-     * @param duration Seconds of frightened remaining (used for sync if needed).
      */
-    void enterFrightened(float duration);
+    void enterFrightened();
 
     /**
      * @brief Check if frightened is active (global timer).
@@ -117,7 +116,7 @@ public:
      * Sets the current behavior mode.
      * @param mode New mode.
      */
-    void setMode(const GhostMode mode);
+    void setMode(GhostMode mode);
 
     /**
      * @return Current ghost mode.
@@ -143,14 +142,41 @@ public:
      */
     void update(World* world, float dt);
 
+    /** Respawn the ghost after Pac-Man eats it. */
+    void eaten();
+
+    /** Sets the normal (non-frightened) speed used as base for fear slowdowns.
+     *  @param speed New base speed.
+     */
+    void setBaseSpeed(float speed);
+
+    /**
+     * @brief Force the ghost out of frightened visuals immediately.
+     *
+     * Used when Pac-Man dies and the level resets, so ghosts do not keep frightened frames
+     * while chasing during the hit cooldown.
+     *
+     * @param newMode Mode to apply after clearing frightened state.
+     */
+    void forceEndFrightened(GhostMode newMode);
+
 private:
+    /** True once the spawn position has been stored from the initial placement. */
+    bool _spawn_set{false};
+
+    /** When true, this ghost ignores frightened mode until the world's frightened timer reaches 0. */
+    bool _fear_locked_out{false};
+
+    /** Store the current position as spawn point if it has not been stored yet. */
+    void ensureSpawnStored();
+
     /**
      * @brief Sync local mode/speed + send flashing/end events based on world timer.
      */
     void syncFrightenedFromWorld();
 
     /** @brief Seconds at the end of frightened where ghosts flash white. */
-    static constexpr float kFlashSeconds = 2.f;
+    float k_flash_seconds;
 
     /** @brief True while this ghost is considered in fear mode locally. */
     bool _fear_active = false;

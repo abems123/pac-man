@@ -8,7 +8,7 @@
 #include "Collectable.h"
 
 namespace logic {
-class Fruit : public Collectable {
+class Fruit final : public Collectable {
 public:
     Fruit(const float x, const float y)
         : Collectable(x, y, Constants::FRUIT_SCORE, EntityType::Fruit) {};

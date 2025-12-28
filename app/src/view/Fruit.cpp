@@ -4,18 +4,17 @@
 
 #include "../../include/view/Fruit.h"
 
+#include <utils/AnimationManager.h>
+#include <utils/Random.h>
+
 namespace representation {
-    representation::Fruit::Fruit(const std::shared_ptr<logic::EntityModel> &model): EntityView(model, 12, 0, 1) {
-    }
-    void Fruit::onNotify(const logic::EventType &event) {
-    }
+Fruit::Fruit(const std::shared_ptr<logic::EntityModel>& model) : EntityView(model) {
+    AnimationManager::setFrames(12, 0, 4, _frames);
+    _sprite.setTextureRect(_frames[logic::Random::instance().uniformInt(0, 3)]);
 
-    void Fruit::update(float dt) {
-        EntityView::update(dt);
-    }
-
-    void Fruit::render(sf::RenderWindow &window) const {
-        EntityView::render(window);
-    }
+    auto [x, y] = Camera::instance().worldToScreen(model->getPosition().first, model->getPosition().second);
+    _sprite.setPosition(x, y);
 }
 
+void Fruit::render(sf::RenderWindow& window) const { EntityView::render(window); }
+} // namespace representation

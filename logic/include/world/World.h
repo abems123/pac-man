@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "entities/PacMan.h"
+#include "score/Score.h"
 
 class Collectable;
 
@@ -19,7 +20,6 @@ namespace logic {
 class AbstractFactory;
 class EntityModel;
 class Ghost;
-class Score;
 class Wall;
 
 /**
@@ -30,11 +30,18 @@ class Wall;
  */
 class World {
 public:
-    /**
-     * @brief Construct the world and spawn everything from the map.
-     * @param factory Factory used to create all entities.
+    /** Builds a world for a level.
+     *  @param factory Factory used to create entities.
+     *  @param carryScore Score carried from previous level.
+     *  @param carryLives Lives carried from previous level.
+     *  @param level Current level number.
      */
-    explicit World(const std::shared_ptr<AbstractFactory>& factory);
+    explicit World(const std::shared_ptr<AbstractFactory>& factory, int level, int carryScore, int carryLives);
+
+    /**
+     * @brief Computes the per-level frightened duration.
+     */
+    void applyFrightenedDifficulty();
 
     /**
      * @brief Update the world for one frame.
@@ -54,11 +61,6 @@ public:
     void parseMap();
 
     /**
-     * @brief Recompute ghost house interior using flood fill from spawn points.
-     */
-    void computeHouseRegion();
-
-    /**
      * @brief Assign wall types based on neighboring walls (for visuals).
      */
     void setWallsTypes() const;
@@ -73,6 +75,30 @@ public:
      * @param collectable The eaten collectable.
      */
     void eat(const std::shared_ptr<Collectable>& collectable);
+
+    /**
+     * @brief Eat a frightened ghost: respawn it and apply effects (score / return to spawn).
+     */
+    void ghostInteractions();
+
+    void loseLife();
+
+    void eatGhost(const std::shared_ptr<Ghost>& ghost);
+
+    /** Returns how many lives Pac-Man still has.
+     *  @return Number of lives left.
+     */
+    int getLivesLeft() const { return _lives_left; }
+
+    /** Returns how many coins are still on the map.
+     *  @return Number of coins not yet collected.
+     */
+    int getCoinsLeft() const { return _coins_left; }
+
+    /** Returns how many fruits are still on the map.
+     *  @return Number of fruits not yet collected.
+     */
+    int getFruitsLeft() const { return _fruits_left; }
 
     /**
      * @brief Handle turning + predictive wall blocking for Pac-Man.
@@ -126,28 +152,28 @@ public:
      * @param x World x coordinate.
      * @return Column index.
      */
-    [[nodiscard]] int colFromX(float x) const;
+    [[nodiscard]] int colFromX(float x) const { return static_cast<int>((x + 1.0f) / _model_width); }
 
     /**
      * @brief Convert world Y to row index.
      * @param y World y coordinate.
      * @return Row index.
      */
-    [[nodiscard]] int rowFromY(float y) const;
+    [[nodiscard]] int rowFromY(float y) const { return static_cast<int>((y + 1.0f) / _model_height); }
 
     /**
      * @brief Convert column index to tile top-left world X.
      * @param c Column index.
      * @return World X.
      */
-    [[nodiscard]] float xFromCol(int c) const;
+    [[nodiscard]] float xFromCol(int c) const { return -1.f + c * _model_width; }
 
     /**
      * @brief Convert row index to tile top-left world Y.
      * @param r Row index.
      * @return World Y.
      */
-    [[nodiscard]] float yFromRow(int r) const;
+    [[nodiscard]] float yFromRow(int r) const { return -1.f + r * _model_height; }
 
     /**
      * @brief Get model center (top-left + half tile).
@@ -158,15 +184,15 @@ public:
 
     /**
      * @brief Snap Pac-Man's X to a column (used for clean turns).
-     * @param col Column index.
+     * @param x Column index.
      */
-    void snapVertically(int col) const;
+    void snapVertically(int x) const;
 
     /**
      * @brief Snap Pac-Man's Y to a row (used for clean turns).
-     * @param row Row index.
+     * @param y Row index.
      */
-    void snapHorizontally(int row) const;
+    void snapHorizontally(int y) const;
 
     /**
      * @brief AABB overlap check for two rectangles.
@@ -178,16 +204,15 @@ public:
      * @param by Rect B y.
      * @param bw Rect B w.
      * @param bh Rect B h.
-     * @return True if overlap.
+     * @return True if overlapped.
      */
-    bool collides(float ax, float ay, float aw, float ah,
-                  float bx, float by, float bw, float bh) const;
+    bool collides(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) const;
 
     /**
      * @brief AABB overlap check for two models using tile-sized hitboxes.
      * @param m1 First model.
      * @param m2 Second model.
-     * @return True if overlap.
+     * @return True if overlapped.
      */
     bool collides(const EntityModel* m1, const EntityModel* m2) const;
 
@@ -198,48 +223,55 @@ public:
     void startFrightened(float duration);
 
     /**
-     * @brief Remaining frightened seconds (global).
+     * @brief Remaining frightened seconds.
      * @return Seconds left (0 if inactive).
      */
-    [[nodiscard]] float getFrightenedLeft() const;
+    [[nodiscard]] float getFrightenedLeft() const { return _frightened_left; }
 
     /**
      * @brief Get Pac-Man pointer (can be null if not spawned).
      * @return Pac-Man pointer.
      */
-    [[nodiscard]] const PacMan* getPacMan() const;
+    [[nodiscard]] const PacMan* getPacMan() const { return _pacman.get(); }
 
     /**
      * @brief Get score system.
      * @return Score pointer.
      */
-    [[nodiscard]] Score* getScore() const;
+    [[nodiscard]] Score* getScore() const { return _score.get(); }
 
     /**
      * @brief Get ghosts list.
      * @return Reference to ghosts vector.
      */
-    [[nodiscard]] const std::vector<std::shared_ptr<Ghost>>& getGhosts() const;
+    [[nodiscard]] const std::vector<std::shared_ptr<Ghost>>& getGhosts() const { return _ghosts; }
 
     /**
      * @brief Get gate cells list.
      * @return Gate coordinates.
      */
-    [[nodiscard]] const std::vector<std::pair<int, int>>& getGateCells() const;
+    [[nodiscard]] const std::vector<std::pair<int, int>>& getGateCells() const { return _gate_cells; }
 
     /**
      * @brief Get map rows.
      * @return Number of rows.
      */
-    [[nodiscard]] int getRows() const;
+    [[nodiscard]] int getRows() const { return _rows; }
 
     /**
      * @brief Get map cols.
      * @return Number of cols.
      */
-    [[nodiscard]] int getCols() const;
+    [[nodiscard]] int getCols() const { return _cols; }
+
+    int getGhostsEatenTotal() const { return _ghosts_eaten_total; }
 
 private:
+    int _ghosts_eaten_total{0};
+
+    /** Applies level-based speed scaling to all ghosts. */
+    void applyGhostDifficulty();
+
     /**
      * @brief Update delayed release logic for some ghosts.
      * @param dt Delta time in seconds.
@@ -254,7 +286,10 @@ private:
      */
     [[nodiscard]] bool isBlockedForPacman(int r, int c) const;
 
-private:
+    float _hit_cooldown{0.f};
+    int _lives_left{3};
+    float _pac_spawn_x{0.f}, _pac_spawn_y{0.f};
+
     /** @brief Score manager. */
     std::unique_ptr<Score> _score;
 
@@ -280,7 +315,7 @@ private:
     float _frightened_left = 0.f;
 
     /** @brief Default frightened duration used when fruit is eaten. */
-    float _frightened_duration = 7.f;
+    float _frightened_duration;
 
     /** @brief Next movement direction requested by the player. */
     Direction _current_dir = Direction::None;
@@ -312,9 +347,6 @@ private:
     /** @brief Gate tile coordinates. */
     std::vector<std::pair<int, int>> _gate_cells;
 
-    /** @brief Ghost spawn coordinates (also used as flood-fill seeds). */
-    std::vector<std::pair<int, int>> ghost_spawns;
-
     /** @brief Seconds since level start. */
     float _level_time = 0.f;
 
@@ -323,6 +355,12 @@ private:
 
     /** @brief Release guard for ghost index 3. */
     bool _released_ghost_4 = false;
+
+    int _coins_left = 0;
+
+    int _fruits_left = 0;
+
+    int _level{1};
 };
 
 } // namespace logic

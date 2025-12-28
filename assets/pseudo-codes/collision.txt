@@ -1,7 +1,0 @@
-while moving:
-    make a copy of pacman
-    copy move()
-    if copy inside a wall:
-        is_moving = false
-    else
-        is_moving = true;

@@ -4,20 +4,13 @@
 
 #include "../../include/entities/MovableEntityModel.h"
 
+#include <cmath>
 #include <utils/Stopwatch.h>
+#include <events/EventType.h>
 
 namespace logic {
-MovableEntityModel::MovableEntityModel(const MovableEntityModel& that) : EntityModel(that) {}
-
-MovableEntityModel& MovableEntityModel::operator=(const MovableEntityModel& that) {
-    if (this != &that) {
-        _direction = that._direction;
-        _speed = that._speed;
-        _x = that._x;
-        _y = that._y;
-    }
-    return *this;
-}
+MovableEntityModel::MovableEntityModel(const float x, const float y, const EntityType type, const float speed)
+    : EntityModel(x, y, type), _speed(speed) {}
 
 void MovableEntityModel::setDirection(const Direction direction) {
     if (this->_direction == direction)
@@ -40,11 +33,22 @@ void MovableEntityModel::setDirection(const Direction direction) {
         break;
     }
 }
-
-void MovableEntityModel::update(const float dt) {
-    move(dt);
+void MovableEntityModel::setMove(const Direction dir, const bool can_move) {
+    if (dir == Direction::Right) {
+        _can_move_right = can_move;
+    } else if (dir == Direction::Left) {
+        _can_move_left = can_move;
+    } else if (dir == Direction::Up) {
+        _can_move_up = can_move;
+    } else if (dir == Direction::Down) {
+        _can_move_down = can_move;
+    }
 }
-void MovableEntityModel::move(const float dt) {
+void MovableEntityModel::update(const float dt) {
+    // =========== Move and notify only if we actually moved [START] ===========
+    const float oldX = getPosition().first;
+    const float oldY = getPosition().second;
+
     const float dist = _speed * dt;
 
     float dx = (_direction == Direction::Left ? -1.f : _direction == Direction::Right ? 1.f : 0.f) * dist;
@@ -55,6 +59,15 @@ void MovableEntityModel::move(const float dt) {
     float nextY = getPosition().second + dy;
 
     setPosition(nextX, nextY);
-    notify(EventType::Moved);
+
+    const float newX = getPosition().first;
+    const float newY = getPosition().second;
+
+    constexpr float eps = 1e-6f;
+    if (std::fabs(newX - oldX) > eps || std::fabs(newY - oldY) > eps) {
+        notify(EventType::Moved);
+    }
+    // =========== Move and notify only if we actually moved [END] ===========
 }
+
 } // namespace logic

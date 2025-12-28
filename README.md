@@ -1,148 +1,107 @@
-# Pac-Man — Advanced Programming Project
 
-This repository contains my implementation of the Pac-Man game for the course **Gevorderd Programmeren** at the University of Antwerp.  
-The project follows the official specification and focuses on modular architecture, clear separation of concerns, correct use of design patterns, and maintainable C++ code.
+# Pac-Man (SFML / C++20) — Advanced Programming Project
 
+A Pac-Man inspired game implemented in modern C++ (C++20) with SFML for graphics/audio.  
+The codebase is split into a **logic** library (game rules, no SFML dependency) and an **app/representation** layer (SFML rendering + input), connected through a small factory and observer-style notifications.
+
+---
 ## Author
 
 Name:           Abdellah El Moussaoui  
 Student Number: S20246031
 
-Advanced Programming — University of Antwerp
+## Features (what’s implemented)
 
-## UML Diagram
+### Core gameplay
+- Maze loaded from a text map (`assets/maps/map.txt`)
+- Smooth (continuous) movement with wall collisions
+- Collectables:
+  - **Coins** (`*`) — score depends on time since last coin
+  - **Fruits** (`$`) — triggers frightened mode for ghosts
+- Lives system: start with **3 lives**
+- Score system:
+  - Score decreases over time
+  - Coins increase score (more if collected quickly)
+  - Extra points for fruit / eating ghosts / finishing a level
+- Level progression:
+  - When all coins are collected, a new level starts
+  - Difficulty scales per level (ghost speed up, frightened duration down)
 
-[View Full UML Diagram](https://miro.com/app/live-embed/uXjVGdQWha8=/?embedMode=view_only_without_ui&moveToViewport=-2014%2C-210%2C5044%2C2679&embedId=27473108072)
+### Ghosts (4 total)
+- **1 direct chase ghost**: targets Pac-Man’s current position
+- **2 lookahead chase ghosts**: target a point in front of Pac-Man (direction-based prediction)
+- **1 “locked” ghost**:
+  - stays in a more constrained mode
+  - relocks with probability **0.5** at intersections
 
-## Project Structure
+### Ghost release + frightened mode
+- Release timing:
+  - **2 ghosts** chase from the start
+  - the other **2** start in the center and switch to chase after **5s** and **10s**
+- Frightened mode (after eating fruit):
+  - ghosts reverse direction on activation
+  - ghosts slow down
+  - at intersections they choose moves that maximize Manhattan distance from Pac-Man
+  - Pac-Man can eat frightened ghosts → ghost respawns in the center
 
+---
+
+## Controls
+- Move: **WASD** and/or **Arrow keys** (depending on build/settings)
+- Start game from menu: **Enter**
+- Close window: standard window close / Escape (if enabled)
+
+---
+
+## Map legend (`assets/maps/map.txt`)
+- `#` wall
+- `*` coin
+- `$` fruit
+- `@` ghost spawn / center area
+- `P` Pac-Man spawn
+- `&` gate
+
+Fruits are placed in the **upper-left** and **bottom-right** of the maze.
+
+---
+
+## Project structure
 ```
-pacman/
-│
-├── logic/                  # Pure game logic (NO SFML)
-│   ├── include/             
-│   ├── src/
-│   └── CMakeLists.txt
-│
-├── app/                    # SFML representation layer
-│   ├── include/             
-│   ├── src/
-│   └── CMakeLists.txt
-│
-├── assets/                  # Sprites, fonts, maps
-│
-├── CMakeLists.txt           # Root build file
-└── README.md
+pac-man/
+├─ logic/                 # Game rules, entities, world simulation (no SFML)
+│  ├─ include/
+│  └─ src/
+├─ app/                   # SFML application + rendering layer
+│  ├─ include/
+│  └─ src/
+├─ assets/                # Sprites, audio, fonts, map(s)
+└─ CMakeLists.txt
 ```
-## Maze Representation
 
-The maze is represented in a plain-text grid, where each character corresponds to a tile in the game world.
+### Architecture overview (high level)
+- **State system** (menu / level / overlays) driven by a `StateManager`
+- **AbstractFactory** bridges logic ↔ representation creation (models + views)
+- **Observer/Subject** style notifications used for view updates
+- **Camera** maps world coordinates to screen coordinates and handles resizing
 
+---
 
-### Legend
-| Symbol | Meaning                                               |
-|--------|-------------------------------------------------------|
-| `#`    | Wall                                                  |
-| `*`    | Coin                                                  |
-| `&`    | Barrier preventing ghosts from leaving the spawn area |
-| `P`    | Pac-Man starting position                             |
-| `$`    | Fruit                                                 |
-| `@`    | Ghost starting positions                              |
-| `E`    | Empty                                                  |
+## Build & Run
 
+### Dependencies
+- **CMake** (3.16+ recommended)
+- **C++20** compiler (GCC/Clang/MSVC)
+- **SFML 2.6+** (graphics, window, system, audio)
 
-Each character is read by the logic module and mapped to the corresponding entity when the level is loaded.
-
-The playable map is designed with an aspect ratio of approximately **16:7.2**, assuming a 16:9 window. The remaining vertical space is reserved for UI elements such as the score and remaining lives, ensuring consistent tile proportions in the gameplay area.
-
-## Features
-
-### Logic Module (`libpaclogic`)
-- Tile-based world model  
-- Pac-Man movement and collision handling  
-- Coin and fruit collection  
-- Score system with time-based modifiers  
-- Four ghosts with three AI behaviors:
-  - Locked movement ghost (50% relock at intersections)
-  - Two predictive ghosts (chase the tile in front of Pac-Man)
-  - Direct chaser ghost (minimizes Manhattan distance)
-- Observer pattern for event-driven updates
-- Stopwatch singleton for deltaTime computation  
-- Random singleton (Mersenne Twister) for AI randomness
-
-### App Module (SFML)
-- Rendering of maze, Pac-Man, ghosts, and items  
-- Input handling  
-- Frame-rate-independent movement  
-- Game states:
-  - Menu  
-  - Level  
-  - Paused  
-  - Victory  
-
-## Design Patterns
-
-### Observer Pattern
-Used between logic models (Subjects) and observers such as Score and entity views.
-
-### Singleton Pattern
-- `Stopwatch` — deltaTime timing using `std::chrono::steady_clock`
-- `Random` — random number generation for ghost AI
-
-### State Pattern
-Used to manage:
-- MenuState  
-- LevelState  
-- PausedState  
-- VictoryState  
-
-## Build Instructions
-
-### Requirements
-- C++20  
-- CMake ≥ 3.16  
-- SFML ≥ 2.6.1  
-
-Install SFML on Ubuntu:
-
+### Build (generic CMake)
+From the project root:
 ```bash
-sudo apt install libsfml-dev
+mkdir build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
 ```
 
-### Build
-
-```bash
-cmake -B build
-cmake --build build
-```
-
-### Run
-
+Run the executable from the build output (name depends on your target setup):
 ```bash
 ./build/app/pacman_app
 ```
-
-## Code Quality Notes
-
-- `.clang-format` ensures consistent formatting  
-- Logic and representation fully separated  
-- No global variables  
-- No SFML code inside the logic module  
-- No logic code inside the app module  
-- DeltaTime used everywhere (no busy waiting)
-
-
-## TODO
-- [X] Add the wall sprite variants to the main wall
-- [X] Implement Fruit and make pac man eat it
-- [X] Implement Score and update it when needed
-- [X] Show score on the top of screen
-- [ ] Add ghosts and their AI
-- [ ] Add lives and manage them
-- [ ] Add animations when fruits are eaten
-- [ ] Make pacman move when in edges
-- [ ] Add the available fruits for each level on bottom right of the screen and spawn them randomly during gameplay
-- [ ] Perfect small details
-
-## Deadline
-I will be done with project before **monday 22nd dec 2025** in sha Allah

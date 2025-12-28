@@ -6,6 +6,8 @@
 
 #include "utils/AnimationManager.h"
 
+#include <events/EventType.h>
+
 namespace representation {
 MovableEntityView::MovableEntityView(const std::shared_ptr<logic::MovableEntityModel>& model,
                                      const std::vector<int>& columns, const std::vector<int>& rows,
@@ -41,16 +43,28 @@ void MovableEntityView::onNotify(const logic::EventType& event) {
         is_moving = true;
         updatePosition();
         break;
-
-    case logic::EventType::DirectionChangedLeft:  setAnimation(_left_frames,  true); break;
-    case logic::EventType::DirectionChangedUp:    setAnimation(_up_frames,    true); break;
-    case logic::EventType::DirectionChangedDown:  setAnimation(_down_frames,  true); break;
-    case logic::EventType::DirectionChangedRight: setAnimation(_right_frames, true); break;
+    case logic::EventType::PositionChanged:
+        // =========== Teleport/snap without movement animation [START] ===========
+        is_moving = false;
+        updatePosition();
+        // =========== Teleport/snap without movement animation [END] ===========
+        break;
+    case logic::EventType::DirectionChangedLeft:
+        setAnimation(_left_frames, true);
+        break;
+    case logic::EventType::DirectionChangedUp:
+        setAnimation(_up_frames, true);
+        break;
+    case logic::EventType::DirectionChangedDown:
+        setAnimation(_down_frames, true);
+        break;
+    case logic::EventType::DirectionChangedRight:
+        setAnimation(_right_frames, true);
+        break;
 
     default:
         break;
     }
-
 }
 
 void MovableEntityView::update(float dt) {

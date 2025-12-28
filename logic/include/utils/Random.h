@@ -7,44 +7,58 @@
 #ifndef PACMANPROJECT_RANDOM_H
 #define PACMANPROJECT_RANDOM_H
 
-
-#include <random>
 #include <cstdint>
-
+#include <random>
 
 namespace logic {
-    class Random final {
-    public:
-        // Access the singleton instance
-        static Random &instance();
 
-        // Delete copy & move semantics
-        Random(const Random &) = delete;
+/**
+ * @brief Singleton random number generator used by the game.
+ */
+class Random final {
+public:
+    /**
+     * @brief Returns the global Random instance.
+     * @return Reference to the singleton instance.
+     */
+    static Random& instance();
 
-        Random &operator=(const Random &) = delete;
+    /** @brief Copy construction is disabled. */
+    Random(const Random&) = delete;
 
-        Random(Random &&) = delete;
+    /** @brief Copy assignment is disabled. */
+    Random& operator=(const Random&) = delete;
 
-        Random &operator=(Random &&) = delete;
+    /** @brief Move construction is disabled. */
+    Random(Random&&) = delete;
 
-        // Uniform real in [min, max)
-        double uniformReal(double min, double max);
+    /** @brief Move assignment is disabled. */
+    Random& operator=(Random&&) = delete;
 
-        // Uniform integer in [min, max]
-        int uniformInt(int min, int max);
 
-        // Bernoulli trial (true with probability p)
-        bool probability(double p);
+    /**
+     * @brief Generates a uniform integer value in the range [min, max].
+     * @param min Inclusive lower bound.
+     * @param max Inclusive upper bound.
+     * @return Random integer in [min, max].
+     */
+    int uniformInt(int min, int max);
 
-        // Reseed (useful for tests or reproducibility)
-        void reseed(std::uint32_t seed);
+    /**
+     * @brief Returns true with probability p.
+     * @param p Probability in range [0, 1].
+     * @return True with probability p, otherwise false.
+     */
+    bool probability(double p);
 
-    private:
-        Random(); // private constructor
+private:
+    /** @brief Constructs the RNG with an initial seed. */
+    Random();
 
-        std::mt19937 _engine;
-    };
+    /** @brief Mersenne Twister engine used to generate randomness. */
+    std::mt19937 _engine;
+};
+
 } // namespace logic
 
-
-#endif //PACMANPROJECT_RANDOM_H
+#endif // PACMANPROJECT_RANDOM_H

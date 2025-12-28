@@ -4,19 +4,28 @@
 
 #include "game/Game.h"
 
-#include <SFML/Window/Event.hpp>
-#include <iostream>
-#include <utility>
-
 #include "state/MenuState.h"
 
+#include <algorithm>
+#include <utils/Stopwatch.h>
+
 namespace representation {
+
+namespace {
+constexpr auto kMusicMenu  = "../../assets/soundeffects/music_menu.wav";
+constexpr auto kMusicLevel = "../../assets/soundeffects/music_level.wav";
+
+constexpr auto kSfxCoin   = "../../assets/soundeffects/sfx_turn_corner.wav";
+constexpr auto kSfxFruit  = "../../assets/soundeffects/sfx_fruit.wav";
+constexpr auto kSfxGhost  = "../../assets/soundeffects/sfx_ghost_eaten.wav";
+constexpr auto kSfxDie    = "../../assets/soundeffects/sfx_pacman_die.wav";
+constexpr auto kSfxFright = "../../assets/soundeffects/sfx_frightened_start.wav";
+} // namespace
 
 Game::Game() {
     checkMapConsistent();
 
-    _window.create(sf::VideoMode(sf::VideoMode::getDesktopMode().width - 200, sf::VideoMode::getDesktopMode().height),
-                   "Pac Man");
+    _window.create(sf::VideoMode::getDesktopMode(), "Pac Man");
     _window.setFramerateLimit(60);
 
     // initial menu
@@ -26,19 +35,179 @@ Game::Game() {
     Camera::instance().init(_window.getSize().x, _window.getSize().y);
     _windowSize = _window.getSize();
     // ======== Camera Singleton initializing [END] ========
+
+    loadAudioAssets();
+
+    // Default volumes
+    setMasterVolume(1.0f);
+    setSfxVolume(1.0f);
+}
+
+void Game::setMusicEnabled(const bool enabled) {
+    _music_enabled = enabled;
+
+    if (!_music_enabled) {
+        stopMusic();
+    }
+
+    applyAudioVolumes();
+}
+
+bool Game::isMusicEnabled() const {
+    return _music_enabled;
+}
+
+void Game::setMasterVolume(float volume) {
+    _master_volume = std::clamp(volume, 0.f, 1.f);
+    applyAudioVolumes();
+}
+
+float Game::getMasterVolume() const {
+    return _master_volume;
+}
+
+void Game::setMusicVolume(float volume01) {
+    // Keep old name used by LevelState, but treat it as MASTER volume.
+    setMasterVolume(volume01);
+}
+
+float Game::getMusicVolume() const {
+    // For UI compatibility: return MASTER volume.
+    return _master_volume;
+}
+
+void Game::setSfxVolume(const float volume01) {
+    _sfx_volume01 = std::clamp(volume01, 0.f, 1.f);
+    applyAudioVolumes();
+}
+
+float Game::getSfxVolume() const {
+    return _sfx_volume01;
+}
+
+void Game::applyAudioVolumes() {
+    // =========== Apply audio volumes [START] ===========
+    const float musicVol = (_music_enabled ? _master_volume : 0.f) * 100.f;
+    _music.setVolume(musicVol);
+
+    const float sfxVol = (_master_volume * _sfx_volume01) * 100.f;
+
+    // Keep pool sounds consistent (playing or not)
+    for (auto& s : _sfx_pool) {
+        s.setVolume(sfxVol);
+    }
+    // =========== Apply audio volumes [END] ===========
+}
+
+void Game::loadAudioAssets() {
+    // =========== Load audio assets [START] ===========
+    _sfx_pool.clear();
+    _sfx_pool.resize(12); // allow overlapping SFX
+
+    auto loadBuf = [&](Sfx id, const char* path) {
+        sf::SoundBuffer buf;
+        if (buf.loadFromFile(path)) {
+            _sfx_buffers.emplace(id, std::move(buf));
+        }
+    };
+
+    loadBuf(Sfx::Coin,            kSfxCoin);
+    loadBuf(Sfx::Fruit,           kSfxFruit);
+    loadBuf(Sfx::GhostEaten,      kSfxGhost);
+    loadBuf(Sfx::PacmanDied,      kSfxDie);
+    loadBuf(Sfx::FrightenedStart, kSfxFright);
+    // =========== Load audio assets [END] ===========
+}
+
+void Game::playMusic(const MusicTrack track, const bool loop) {
+    // =========== Play music [START] ===========
+    if (!_music_enabled) {
+        stopMusic();
+        return;
+    }
+
+    if (track == _active_music && _music.getStatus() == sf::SoundSource::Playing) {
+        _music.setLoop(loop);
+        return;
+    }
+
+    const char* path = nullptr;
+    switch (track) {
+        case MusicTrack::Menu:  path = kMusicMenu;  break;
+        case MusicTrack::Level: path = kMusicLevel; break;
+        default: break;
+    }
+
+    _music.stop();
+    _active_music = MusicTrack::None;
+
+    if (!path)
+        return;
+    if (!_music.openFromFile(path))
+        return;
+
+    _active_music = track;
+
+    _music.setLoop(loop);
+    applyAudioVolumes();
+    _music.play();
+    // =========== Play music [END] ===========
+}
+
+void Game::stopMusic() {
+    // =========== Stop music [START] ===========
+    _music.stop();
+    _active_music = MusicTrack::None;
+    // =========== Stop music [END] ===========
+}
+
+void Game::playSfx(const Sfx id) {
+    const auto it = _sfx_buffers.find(id);
+    if (it == _sfx_buffers.end())
+        return;
+
+    // Find a free sound in the pool
+    auto freeIt = std::find_if(_sfx_pool.begin(), _sfx_pool.end(),
+        [](const sf::Sound& s) { return s.getStatus() != sf::SoundSource::Playing; });
+
+    sf::Sound* s = (freeIt != _sfx_pool.end()) ? &(*freeIt) : &_sfx_pool.front();
+
+    s->setBuffer(it->second);
+
+    // Effective SFX volume = MASTER * SFX_MULT
+    const float sfxVol = (_master_volume * _sfx_volume01) * 100.f;
+    s->setVolume(sfxVol);
+
+    s->play();
+}
+
+void Game::applyResizeIfNeeded() {
+    const auto sz = _window.getSize();
+    if (sz == _windowSize)
+        return;
+
+    _windowSize = sz;
+
+    // Keep pixel coordinate view consistent everywhere.
+    _window.setView(sf::View(sf::FloatRect(0.f, 0.f, static_cast<float>(sz.x), static_cast<float>(sz.y))));
+
+    // One global source of truth for map rect.
+    Camera::instance().init(sz.x, sz.y);
+
+    // Make every state fix its layout immediately (even those not currently active).
+    _stateManager.notifyResize(sz.x, sz.y);
 }
 
 void Game::run() {
     while (_window.isOpen()) {
         logic::Stopwatch::getInstance().tick();
+        const auto dt = logic::Stopwatch::getInstance().dt();
 
-        // Let the active state process input
+        applyResizeIfNeeded();
+
         _stateManager.handleInput();
+        _stateManager.update(dt);
 
-        // Let the active state update logic
-        _stateManager.update(logic::Stopwatch::getInstance().dt());
-
-        // Draw everything
         _window.clear(sf::Color::Black);
         _stateManager.render(_window);
         _window.display();
@@ -46,7 +215,6 @@ void Game::run() {
 }
 
 void Game::checkMapConsistent() {
-    // Check if the map is consistent, it must be of ratio 16:7.2, throw an error if it's not
     auto map = ResourceManager::getMap();
 
     int _first_line_len = map.front().size();
@@ -54,10 +222,9 @@ void Game::checkMapConsistent() {
     const bool inconsistent_lines_lengths =
         std::ranges::any_of(map, [_first_line_len](const auto& line) { return line.size() != _first_line_len; });
 
-    if (const bool _correct_ratio = 2.1 <= static_cast<float>(_first_line_len) / map.size() &&
-                                    static_cast<float>(_first_line_len) / map.size() <= 2.3;
-        inconsistent_lines_lengths /*|| !_correct_ratio*/) {
+    if (inconsistent_lines_lengths) {
         throw std::runtime_error("Invalid map: some row has different number of elements than other rows");
     }
 }
+
 } // namespace representation

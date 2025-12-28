@@ -18,7 +18,6 @@ LockedGhost::LockedGhost(const float x, const float y) : Ghost(x, y, EntityType:
 }
 
 static bool isHorizontal(Direction d) { return d == Direction::Left || d == Direction::Right; }
-static bool isVertical(Direction d)   { return d == Direction::Up   || d == Direction::Down; }
 
 
 void LockedGhost::decideDirection() {
@@ -27,19 +26,28 @@ void LockedGhost::decideDirection() {
     if (_mode != GhostMode::Chase && _mode != GhostMode::Fear) return;
 
     auto [cx, cy] = _world->getCenter(this);
-    const float tiny = 1e-4f;
+    constexpr float tiny = 1e-4f;
 
     // small bias makes tile indexing stable when exactly on an edge
     switch (getDirection()) {
-    case Direction::Left:  cx -= tiny; break;
-    case Direction::Right: cx += tiny; break;
-    case Direction::Up:    cy -= tiny; break;
-    case Direction::Down:  cy += tiny; break;
-    default: break;
+    case Direction::Left:
+        cx -= tiny;
+        break;
+    case Direction::Right:
+        cx += tiny;
+        break;
+    case Direction::Up:
+        cy -= tiny;
+        break;
+    case Direction::Down:
+        cy += tiny;
+        break;
+    default:
+        break;
     }
 
-    int col = _world->colFromX(cx);
-    int row = _world->rowFromY(cy);
+    const int col = _world->colFromX(cx);
+    const int row = _world->rowFromY(cy);
 
     const float tileW = _world->xFromCol(1) - _world->xFromCol(0);
     const float tileH = _world->yFromRow(1) - _world->yFromRow(0);
@@ -55,7 +63,7 @@ void LockedGhost::decideDirection() {
     const auto viableSet = _world->getAvailableGhostDirectionsAt(row, col, this);
 
     auto toVec = [&](const std::set<Direction>& s) {
-        return std::vector<Direction>(s.begin(), s.end());
+        return std::vector(s.begin(), s.end());
     };
 
     // prefer not to reverse unless forced
@@ -63,7 +71,7 @@ void LockedGhost::decideDirection() {
     const Direction back = opposite(getDirection());
     options.erase(back);
 
-    auto applyTurn = [&](Direction newDir) {
+    auto applyTurn = [&](const Direction newDir) {
         // snap onto the grid before turning (keeps it aligned)
         if (isHorizontal(newDir)) {
             setPosition(getPosition().first, _world->yFromRow(row));
@@ -75,14 +83,14 @@ void LockedGhost::decideDirection() {
 
     // if forward is blocked, pick a new direction
     if (!viableSet.contains(getDirection())) {
-        auto v = toVec(options.empty() ? viableSet : options);
+        const auto v = toVec(options.empty() ? viableSet : options);
         applyTurn(v[Random::instance().uniformInt(0, (int)v.size() - 1)]);
         return;
     }
 
     // at intersections, sometimes change direction randomly
     if (options.size() > 1 && Random::instance().probability(0.5)) {
-        auto v = toVec(options);
+        const auto v = toVec(options);
         applyTurn(v[Random::instance().uniformInt(0, (int)v.size() - 1)]);
     }
 }

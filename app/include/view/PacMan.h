@@ -6,33 +6,27 @@
 #define PACMANPROJECT_PACMAN_H
 #include "MovableEntityView.h"
 
-
 namespace logic {
-    class PacMan;
+class PacMan;
 }
 
 namespace representation {
-    class PacMan : public MovableEntityView {
+class PacMan final : public MovableEntityView {
 
-    public:
-        explicit PacMan(const std::shared_ptr<logic::PacMan> &model);
+    /** Single-frame idle animation (mouth closed). */
+    std::vector<sf::IntRect> _idle_frames;
 
-        void updateDirectionFrames();
+public:
+    /** Builds the Pac-Man view and sets the idle frame (mouth closed). */
+    explicit PacMan(const std::shared_ptr<logic::PacMan>& model);
 
-        void onNotify(const logic::EventType &event) override;
+    /** Reacts to model events to update position and animations.
+     *  @param event The event emitted by the model.
+     */
+    void onNotify(const logic::EventType& event) override;
 
-        void render(sf::RenderWindow &window) const override;
+    ~PacMan() override = default;
+};
+} // namespace representation
 
-        void update(float dt) override;
-
-        ~PacMan() override = default;
-
-
-        // void updateAnimation(float dt) override;
-
-        // void updateDirection() override;
-    };
-}
-
-
-#endif //PACMANPROJECT_PACMAN_H
+#endif // PACMANPROJECT_PACMAN_H

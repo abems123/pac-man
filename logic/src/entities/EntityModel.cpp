@@ -4,23 +4,24 @@
 
 #include "../../include/entities/EntityModel.h"
 
-#include "events/Event.h"
+
+#include <cmath>
+#include <events/EventType.h>
 
 namespace logic {
-EntityModel::EntityModel(const EntityModel& that) : Subject(that) { _type = that._type; }
-
-EntityModel& EntityModel::operator=(const EntityModel& that) {
-    if (this != &that) {
-        _x = that._x;
-        _y = that._y;
-        _type = that._type;
-    }
-    return *this;
-}
 
 void EntityModel::setPosition(float x, float y) {
+    // =========== Apply position change without starting movement animation [START] ===========
+    constexpr float eps = 1e-6f;
+
+    if (std::fabs(_x - x) <= eps && std::fabs(_y - y) <= eps)
+        return;
+
     _x = x;
     _y = y;
+
+    notify(EventType::PositionChanged);
+    // =========== Apply position change without starting movement animation [END] ===========
 }
 
 } // namespace logic

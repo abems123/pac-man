@@ -27,12 +27,28 @@ enum class WallType {
 };
 
 class Wall final : public EntityModel {
+    /** @brief Visual/structural classification of this wall tile in the maze. */
     WallType wall_type = WallType::Isolated;
 
 public:
-    Wall(float x, float y) : EntityModel(x, y, EntityType::Wall) {}
+    /**
+     * @brief Constructs a wall model at the given world position.
+     * @param x Initial x position in world coordinates.
+     * @param y Initial y position in world coordinates.
+     */
+    Wall(const float x, const float y) : EntityModel(x, y, EntityType::Wall) {}
 
-    void setWallType(WallType t) { wall_type = t; }
+    /**
+     * @brief Sets the computed wall type for this tile.
+     * @param t Wall type to assign.
+     * @return void
+     */
+    void setWallType(const WallType t) { wall_type = t; }
+
+    /**
+     * @brief Gets the current wall type for this tile.
+     * @return Current wall type.
+     */
     [[nodiscard]] WallType getWallType() const { return wall_type; }
 };
 } // namespace logic

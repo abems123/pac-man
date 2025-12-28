@@ -4,34 +4,63 @@
 
 #ifndef PACMANPROJECT_RESOURCEMANAGER_H
 #define PACMANPROJECT_RESOURCEMANAGER_H
+#include <SFML/Graphics.hpp>
 #include <list>
 #include <memory>
-#include <SFML/Graphics.hpp>
 #include <unordered_map>
 
-
 namespace representation {
-    enum class Font {
-        Main_Font,
-        Title_Font,
-        Score_Font
-    };
 
-    class ResourceManager {
-        std::unordered_map<Font, sf::Font> _fonts;
-        sf::Texture _texture;
+/** Fonts available in the project (mapped to files in assets/fonts). */
+enum class Font { Crackman, SuperMeatBall, PressStart2P, VT323, PixelifySans };
 
-        ResourceManager();
+/**
+ * @brief Loads and owns shared resources like fonts, textures, and the level map.
+ * Singleton so everything in the app uses the same loaded SFML assets
+ */
+class ResourceManager {
+    /** Loaded fonts indexed by our Font enum. */
+    std::unordered_map<Font, sf::Font> _fonts;
 
-    public:
-        static ResourceManager& instance();
+    /** Main sprite sheet texture (assets/sprites/sprite.png). */
+    sf::Texture _texture;
 
-        const sf::Font &getFont(Font type) const;
+    /** Private constructor: singleton. */
+    ResourceManager();
 
-        const sf::Texture &getTexture() const;
+public:
+    /**
+     * @brief Access the single ResourceManager instance.
+     * @return Global ResourceManager.
+     */
+    static ResourceManager& instance();
 
-        static const std::vector<std::string> getMap();
-    };
-}
+    /**
+     * @brief Load one font from disk and store it under a Font key.
+     * @param font Which enum key to store the font under.
+     * @param path Path to the font file (ttf/otf).
+     */
+    void loadFont(Font font, const std::string& path);
 
-#endif //PACMANPROJECT_RESOURCEMANAGER_H
+    /**
+     * @brief Get a previously loaded font.
+     * @param type Font key.
+     * @return Reference to the SFML font (must have been loaded).
+     */
+    const sf::Font& getFont(Font type) const;
+
+    /**
+     * @brief Get the main sprite sheet texture.
+     * @return Reference to the loaded texture.
+     */
+    const sf::Texture& getTexture() const;
+
+    /**
+     * @brief Load the map text file into a vector of strings (one row per line).
+     * @return The map layout.
+     */
+    static std::vector<std::string> getMap();
+};
+} // namespace representation
+
+#endif // PACMANPROJECT_RESOURCEMANAGER_H

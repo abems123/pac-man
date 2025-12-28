@@ -14,11 +14,7 @@
 namespace logic {
 
 LookaheadChaseGhost::LookaheadChaseGhost(float x, float y)
-    : Ghost(x, y, EntityType::LookaheadChaseGhost) {
-    _is_moving = true;
-    // Start moving immediately (setDirection triggers DirectionChanged* events for the view)
-    setDirection(Random::instance().probability(0.5) ? Direction::Left : Direction::Right);
-}
+    : Ghost(x, y, EntityType::LookaheadChaseGhost) {}
 
 
 void LookaheadChaseGhost::computeTarget() {
@@ -40,11 +36,6 @@ void LookaheadChaseGhost::computeTarget() {
 
     _target_y = tr;
     _target_x = tc;
-}
-
-void LookaheadChaseGhost::stepTowardTarget() {
-    // Direction choice happens here; movement itself is handled by MovableEntityModel::move(dt)
-    decideDirection();
 }
 
 void LookaheadChaseGhost::decideDirection() {

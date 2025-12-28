@@ -9,6 +9,7 @@
 namespace representation {
 void AnimationManager::setFrames(const int column, const int row, const int frames_number,
                                  std::vector<sf::IntRect>& frames) {
+    frames.clear();
     for (int i = row; i < row + frames_number; ++i) {
         sf::IntRect frame = {
             Constants::START_LEFT_SPACE + column * (Constants::SPACE_BETWEEN_SPRITES + Constants::SPRITE_SIZE),
@@ -19,9 +20,4 @@ void AnimationManager::setFrames(const int column, const int row, const int fram
     }
 }
 
-void AnimationManager::setFrames(const int column, const int row, sf::IntRect& frame) {
-    frame = {Constants::START_LEFT_SPACE + column * (Constants::SPACE_BETWEEN_SPRITES + Constants::SPRITE_SIZE),
-             Constants::START_TOP_SPACE + row * (Constants::SPRITE_SIZE + Constants::SPACE_BETWEEN_SPRITES),
-             Constants::SPRITE_SIZE, Constants::SPRITE_SIZE};
-}
-}
+} // namespace representation

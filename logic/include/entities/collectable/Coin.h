@@ -8,10 +8,10 @@
 #include "Collectable.h"
 
 namespace logic {
-class Coin : public Collectable {
+class Coin final : public Collectable {
 public:
     Coin(const float x, const float y)
-        : Collectable(x, y, Constants::COIN_SCORE, EntityType::Coin) {}
+        : Collectable(x, y, Constants::COIN_SCORE_FASTEST, EntityType::Coin) {}
 };
 } // namespace logic
 

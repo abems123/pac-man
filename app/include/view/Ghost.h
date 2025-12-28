@@ -47,7 +47,7 @@ private:
     std::vector<sf::IntRect> _frightened_frames;
 
     /** @brief Frames for flashing/white animation (last seconds). */
-    std::vector<sf::IntRect> _returning_frames;
+    std::vector<sf::IntRect> _frightened_flash_frames;
 
     /** @brief True while we are showing frightened visuals (blue/white). */
     bool _in_frightened = false;
