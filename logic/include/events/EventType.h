@@ -2,7 +2,6 @@
 // Created by Abdellah on 12/28/2025.
 //
 
-
 #pragma once
 
 namespace logic {

@@ -12,13 +12,13 @@
 namespace representation {
 
 namespace {
-constexpr auto kMusicMenu  = "../../assets/soundeffects/music_menu.wav";
+constexpr auto kMusicMenu = "../../assets/soundeffects/music_menu.wav";
 constexpr auto kMusicLevel = "../../assets/soundeffects/music_level.wav";
 
-constexpr auto kSfxCoin   = "../../assets/soundeffects/sfx_turn_corner.wav";
-constexpr auto kSfxFruit  = "../../assets/soundeffects/sfx_fruit.wav";
-constexpr auto kSfxGhost  = "../../assets/soundeffects/sfx_ghost_eaten.wav";
-constexpr auto kSfxDie    = "../../assets/soundeffects/sfx_pacman_die.wav";
+constexpr auto kSfxCoin = "../../assets/soundeffects/sfx_turn_corner.wav";
+constexpr auto kSfxFruit = "../../assets/soundeffects/sfx_fruit.wav";
+constexpr auto kSfxGhost = "../../assets/soundeffects/sfx_ghost_eaten.wav";
+constexpr auto kSfxDie = "../../assets/soundeffects/sfx_pacman_die.wav";
 constexpr auto kSfxFright = "../../assets/soundeffects/sfx_frightened_start.wav";
 } // namespace
 
@@ -53,18 +53,14 @@ void Game::setMusicEnabled(const bool enabled) {
     applyAudioVolumes();
 }
 
-bool Game::isMusicEnabled() const {
-    return _music_enabled;
-}
+bool Game::isMusicEnabled() const { return _music_enabled; }
 
 void Game::setMasterVolume(float volume) {
     _master_volume = std::clamp(volume, 0.f, 1.f);
     applyAudioVolumes();
 }
 
-float Game::getMasterVolume() const {
-    return _master_volume;
-}
+float Game::getMasterVolume() const { return _master_volume; }
 
 void Game::setMusicVolume(float volume01) {
     // Keep old name used by LevelState, but treat it as MASTER volume.
@@ -81,9 +77,7 @@ void Game::setSfxVolume(const float volume01) {
     applyAudioVolumes();
 }
 
-float Game::getSfxVolume() const {
-    return _sfx_volume01;
-}
+float Game::getSfxVolume() const { return _sfx_volume01; }
 
 void Game::applyAudioVolumes() {
     // =========== Apply audio volumes [START] ===========
@@ -111,10 +105,10 @@ void Game::loadAudioAssets() {
         }
     };
 
-    loadBuf(Sfx::Coin,            kSfxCoin);
-    loadBuf(Sfx::Fruit,           kSfxFruit);
-    loadBuf(Sfx::GhostEaten,      kSfxGhost);
-    loadBuf(Sfx::PacmanDied,      kSfxDie);
+    loadBuf(Sfx::Coin, kSfxCoin);
+    loadBuf(Sfx::Fruit, kSfxFruit);
+    loadBuf(Sfx::GhostEaten, kSfxGhost);
+    loadBuf(Sfx::PacmanDied, kSfxDie);
     loadBuf(Sfx::FrightenedStart, kSfxFright);
     // =========== Load audio assets [END] ===========
 }
@@ -133,9 +127,14 @@ void Game::playMusic(const MusicTrack track, const bool loop) {
 
     const char* path = nullptr;
     switch (track) {
-        case MusicTrack::Menu:  path = kMusicMenu;  break;
-        case MusicTrack::Level: path = kMusicLevel; break;
-        default: break;
+    case MusicTrack::Menu:
+        path = kMusicMenu;
+        break;
+    case MusicTrack::Level:
+        path = kMusicLevel;
+        break;
+    default:
+        break;
     }
 
     _music.stop();
@@ -168,7 +167,7 @@ void Game::playSfx(const Sfx id) {
 
     // Find a free sound in the pool
     auto freeIt = std::find_if(_sfx_pool.begin(), _sfx_pool.end(),
-        [](const sf::Sound& s) { return s.getStatus() != sf::SoundSource::Playing; });
+                               [](const sf::Sound& s) { return s.getStatus() != sf::SoundSource::Playing; });
 
     sf::Sound* s = (freeIt != _sfx_pool.end()) ? &(*freeIt) : &_sfx_pool.front();
 

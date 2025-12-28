@@ -35,7 +35,6 @@ public:
     /** @brief Move assignment is disabled. */
     Random& operator=(Random&&) = delete;
 
-
     /**
      * @brief Generates a uniform integer value in the range [min, max].
      * @param min Inclusive lower bound.

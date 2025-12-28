@@ -7,11 +7,11 @@
 #include "patterns/Observer.h"
 
 namespace logic {
-    void Subject::notify(const EventType &e) const {
-        for (auto &obs: observers) {
-            if (const auto ob = obs.lock()) {
-                ob->onNotify(e);
-            }
+void Subject::notify(const EventType& e) const {
+    for (auto& obs : observers) {
+        if (const auto ob = obs.lock()) {
+            ob->onNotify(e);
         }
     }
 }
+} // namespace logic

@@ -8,13 +8,14 @@
 #include <chrono>
 #include <utility>
 
-#include <events/EventType.h>
 #include "utils/FileManager.h"
+#include <events/EventType.h>
 
 #include <utils/Constants.h>
 
 namespace logic {
-Score::Score(std::string filePath, const int startScore) : _current_score(startScore), _score_file_path(std::move(filePath)) {
+Score::Score(std::string filePath, const int startScore)
+    : _current_score(startScore), _score_file_path(std::move(filePath)) {
     loadHighScores();
 }
 
@@ -44,7 +45,6 @@ void Score::onNotify(const EventType& event) {
 
 int Score::getScore() const { return _current_score; }
 
-
 void Score::update(float dt) {
     dt = std::max(0.f, dt);
 
@@ -58,7 +58,6 @@ void Score::update(float dt) {
     }
 }
 
-
 void Score::saveHighScores() const {
     std::string content;
 
@@ -70,7 +69,6 @@ void Score::saveHighScores() const {
 
     FileWriter::writeFile(_score_file_path, content);
 }
-
 
 void Score::loadHighScores() {
     for (const auto lines = FileReader::getFileLines(_score_file_path, true); auto& line : lines) {
@@ -91,8 +89,6 @@ void Score::updateHighScores() {
 
     saveHighScores();
 }
-
-
 
 void Score::increaseScore(const int amount) { _current_score += amount; }
 

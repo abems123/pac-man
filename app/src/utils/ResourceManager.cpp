@@ -39,7 +39,5 @@ const sf::Font& ResourceManager::getFont(const Font type) const { return _fonts.
 
 const sf::Texture& ResourceManager::getTexture() const { return _texture; }
 
-std::vector<std::string> ResourceManager::getMap() {
-    return FileReader::getFileLines("../../assets/maps/map.txt");
-}
+std::vector<std::string> ResourceManager::getMap() { return FileReader::getFileLines("../../assets/maps/map.txt"); }
 } // namespace representation

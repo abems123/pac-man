@@ -34,7 +34,7 @@ void EntityView::updatePosition() {
         // ============= Sync scale with current tile size [START] =============
         const float sx = Camera::instance().getTileWidth() / Constants::SPRITE_SIZE;
         const float sy = Camera::instance().getTileHeight() / Constants::SPRITE_SIZE;
-        const float s  = std::min(sx, sy);
+        const float s = std::min(sx, sy);
         _sprite.setScale({s, s});
         // ============= Sync scale with current tile size [END] =============
 
@@ -46,7 +46,6 @@ void EntityView::updatePosition() {
         // ============= Position Conversion [END] =============
     }
 }
-
 
 void EntityView::render(sf::RenderWindow& window) const { window.draw(_sprite); }
 logic::EntityType EntityView::getModelType() const {

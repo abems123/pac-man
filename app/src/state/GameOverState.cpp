@@ -142,7 +142,6 @@ void GameOverState::handleInput() {
 }
 // =========== Input [END] ===========
 
-
 // =========== Render [START] ===========
 void GameOverState::render(sf::RenderWindow& window) {
     window.draw(_overlay);

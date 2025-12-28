@@ -4,11 +4,10 @@
 
 #include "../../include/view/PacMan.h"
 
-
 #include "../../logic/include/entities/PacMan.h"
 
-#include <events/EventType.h>
 #include "utils/AnimationManager.h"
+#include <events/EventType.h>
 
 namespace representation {
 PacMan::PacMan(const std::shared_ptr<logic::PacMan>& model)

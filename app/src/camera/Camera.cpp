@@ -27,10 +27,10 @@ void Camera::updateLayout() {
 
     // Fixed HUD bands (top 10%, bottom 10%)
     game_play_start_y = H * _top_hud_ratio;
-    game_play_end_y   = H * (1.f - _bottom_hud_ratio);
+    game_play_end_y = H * (1.f - _bottom_hud_ratio);
 
     const float bandTop = game_play_start_y;
-    const float bandH   = std::max(1.f, game_play_end_y - game_play_start_y);
+    const float bandH = std::max(1.f, game_play_end_y - game_play_start_y);
 
     const float mapAspect = static_cast<float>(_cols) / static_cast<float>(_rows);
 
@@ -44,7 +44,7 @@ void Camera::updateLayout() {
     }
 
     const float left = (W - mapW) * 0.5f;
-    const float top  = bandTop + (bandH - mapH) * 0.5f;
+    const float top = bandTop + (bandH - mapH) * 0.5f;
 
     _map_rect_px = {left, top, mapW, mapH};
     // =========== Compute gameplay band + fit map inside it [END] ===========
@@ -56,7 +56,7 @@ sf::Vector2f Camera::worldToScreen(float x, float y) const {
     const float v = (y + 1.f) * 0.5f; // 0..1
 
     const float screenX = _map_rect_px.left + u * _map_rect_px.width;
-    const float screenY = _map_rect_px.top  + v * _map_rect_px.height;
+    const float screenY = _map_rect_px.top + v * _map_rect_px.height;
 
     return {screenX, screenY};
     // =========== Convert world [-1,1[ to pixels inside map rect [END] ===========
@@ -71,4 +71,4 @@ float Camera::getTileHeight() const {
     // Tile height in pixels
     return _map_rect_px.height / static_cast<float>(_rows);
 }
-}
+} // namespace representation

@@ -4,7 +4,6 @@
 
 #include "../../include/entities/EntityModel.h"
 
-
 #include <cmath>
 #include <events/EventType.h>
 

@@ -19,11 +19,12 @@ LockedGhost::LockedGhost(const float x, const float y) : Ghost(x, y, EntityType:
 
 static bool isHorizontal(Direction d) { return d == Direction::Left || d == Direction::Right; }
 
-
 void LockedGhost::decideDirection() {
-    if (_world == nullptr) return;
+    if (_world == nullptr)
+        return;
 
-    if (_mode != GhostMode::Chase && _mode != GhostMode::Fear) return;
+    if (_mode != GhostMode::Chase && _mode != GhostMode::Fear)
+        return;
 
     auto [cx, cy] = _world->getCenter(this);
     constexpr float tiny = 1e-4f;
@@ -51,20 +52,17 @@ void LockedGhost::decideDirection() {
 
     const float tileW = _world->xFromCol(1) - _world->xFromCol(0);
     const float tileH = _world->yFromRow(1) - _world->yFromRow(0);
-    const float step  = Stopwatch::getInstance().dt() * getSpeed();
-    const float eps_x   = std::max(tileW * 0.02f, step);
-    const float eps_y  = std::max(tileH * 0.02f, step);
-
+    const float step = Stopwatch::getInstance().dt() * getSpeed();
+    const float eps_x = std::max(tileW * 0.02f, step);
+    const float eps_y = std::max(tileH * 0.02f, step);
 
     // only switch directions close to the center of the tile
-    if (!atTileCenter(row, col, eps_x , eps_y))
+    if (!atTileCenter(row, col, eps_x, eps_y))
         return;
 
     const auto viableSet = _world->getAvailableGhostDirectionsAt(row, col, this);
 
-    auto toVec = [&](const std::set<Direction>& s) {
-        return std::vector(s.begin(), s.end());
-    };
+    auto toVec = [&](const std::set<Direction>& s) { return std::vector(s.begin(), s.end()); };
 
     // prefer not to reverse unless forced
     std::set<Direction> options = viableSet;

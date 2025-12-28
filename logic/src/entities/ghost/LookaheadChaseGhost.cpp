@@ -8,18 +8,17 @@
 #include <limits>
 #include <vector>
 
-#include <world/World.h>
 #include "utils/Random.h"
+#include <world/World.h>
 
 namespace logic {
 
-LookaheadChaseGhost::LookaheadChaseGhost(float x, float y)
-    : Ghost(x, y, EntityType::LookaheadChaseGhost) {}
-
+LookaheadChaseGhost::LookaheadChaseGhost(float x, float y) : Ghost(x, y, EntityType::LookaheadChaseGhost) {}
 
 void LookaheadChaseGhost::computeTarget() {
     const auto& pm = _world->getPacMan();
-    if (!pm) return;
+    if (!pm)
+        return;
 
     const auto [prow, pcol] = pacmanCellFromCenter();
     const Direction pd = pm->getDirection();
@@ -39,10 +38,12 @@ void LookaheadChaseGhost::computeTarget() {
 }
 
 void LookaheadChaseGhost::decideDirection() {
-    if (!_world) return;
+    if (!_world)
+        return;
 
     // Only chase logic in Chase/Fear modes
-    if (_mode != GhostMode::Chase && _mode != GhostMode::Fear) return;
+    if (_mode != GhostMode::Chase && _mode != GhostMode::Fear)
+        return;
 
     // Only decide at (roughly) the center of the current tile
     const auto [cur_row, cur_col] = ghostCellFromCenterBias();
@@ -61,8 +62,7 @@ void LookaheadChaseGhost::decideDirection() {
         const int next_row = cur_row + dr(dir);
         const int next_col = cur_col + dc(dir);
 
-        const int dist_to_target =
-            manhattan(next_row, next_col, _target_y, _target_x);
+        const int dist_to_target = manhattan(next_row, next_col, _target_y, _target_x);
 
         if (dist_to_target < best_dist) {
             best_dist = dist_to_target;
@@ -72,7 +72,6 @@ void LookaheadChaseGhost::decideDirection() {
             best_dirs.push_back(dir);
         }
     }
-
 
     if (best_dirs.empty())
         return;

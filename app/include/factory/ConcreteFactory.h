@@ -48,7 +48,6 @@ public:
      */
     explicit ConcreteFactory(std::vector<std::shared_ptr<EntityView>>* views);
 
-
     ~ConcreteFactory() override;
 
     /**

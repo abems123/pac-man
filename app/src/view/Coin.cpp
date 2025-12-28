@@ -8,8 +8,7 @@
 #include "utils/AnimationManager.h"
 
 namespace representation {
-Coin::Coin(const std::shared_ptr<logic::Coin>& model)
-    : EntityView(model), _shape(sf::CircleShape()) {
+Coin::Coin(const std::shared_ptr<logic::Coin>& model) : EntityView(model), _shape(sf::CircleShape()) {
     _shape.setFillColor(sf::Color::White);
     Coin::updatePosition();
 }
@@ -31,9 +30,6 @@ void Coin::updatePosition() {
     _shape.setPosition(sx + tileW * 0.5f, sy + tileH * 0.5f);
 }
 
-
-void Coin::render(sf::RenderWindow& window) const {
-    window.draw(_shape);
-}
+void Coin::render(sf::RenderWindow& window) const { window.draw(_shape); }
 
 } // namespace representation

@@ -10,8 +10,7 @@
 namespace logic {
 class Coin final : public Collectable {
 public:
-    Coin(const float x, const float y)
-        : Collectable(x, y, Constants::COIN_SCORE_FASTEST, EntityType::Coin) {}
+    Coin(const float x, const float y) : Collectable(x, y, Constants::COIN_SCORE_FASTEST, EntityType::Coin) {}
 };
 } // namespace logic
 

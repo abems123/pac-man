@@ -80,7 +80,6 @@ void StateManager::notifyResize(const unsigned width, const unsigned height) {
     // =========== Broadcast resize to every state in the stack [END] ===========
 }
 
-
 void StateManager::popToMenu() {
     // =========== Pop-to-menu now or queue if dispatching [START] ===========
     if (_dispatching) {

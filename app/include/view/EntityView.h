@@ -42,7 +42,6 @@ protected:
     /** @brief SFML sprite used to draw this entity on screen. */
     sf::Sprite _sprite;
 
-
     /**
      * @brief Texture rectangles for the current animation frames.
      *

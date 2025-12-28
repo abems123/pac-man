@@ -5,8 +5,8 @@
 #include "../../include/entities/MovableEntityModel.h"
 
 #include <cmath>
-#include <utils/Stopwatch.h>
 #include <events/EventType.h>
+#include <utils/Stopwatch.h>
 
 namespace logic {
 MovableEntityModel::MovableEntityModel(const float x, const float y, const EntityType type, const float speed)

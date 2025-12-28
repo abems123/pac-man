@@ -54,7 +54,8 @@ Wall::Wall(const std::shared_ptr<logic::EntityModel>& model, const bool isGate) 
                          Constants::compareFloats(model->getPosition().second, -1.0f);
         bool bottom_left = Constants::compareFloats(model->getPosition().first, -1.0f) &&
                            Constants::compareFloats(model->getPosition().second, 1.0f - _model_height);
-        bool bottom_right = most_right_wall && Constants::compareFloats(model->getPosition().second, 1.0f - _model_height);
+        bool bottom_right =
+            most_right_wall && Constants::compareFloats(model->getPosition().second, 1.0f - _model_height);
 
         _sprite.setTextureRect(_normal_wall_frames.front());
 
@@ -68,7 +69,6 @@ Wall::Wall(const std::shared_ptr<logic::EntityModel>& model, const bool isGate) 
             _sprite.setTextureRect(_edge_wall_frames[3]);
         } else if (most_left_wall || most_right_wall)
             _sprite.setTextureRect(_normal_wall_frames.back());
-
     }
 }
 

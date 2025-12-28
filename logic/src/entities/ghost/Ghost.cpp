@@ -122,7 +122,8 @@ void Ghost::setMode(const GhostMode mode) {
     _mode = mode;
 }
 
-Ghost::Ghost(const float x, const float y, const EntityType type) : MovableEntityModel(x, y, type, Constants::GHOST_START_SPEED) {
+Ghost::Ghost(const float x, const float y, const EntityType type)
+    : MovableEntityModel(x, y, type, Constants::GHOST_START_SPEED) {
     _speed = Constants::GHOST_START_SPEED;
     if (!_spawn_set) {
         _spawn_x = getPosition().first;
@@ -161,7 +162,6 @@ void Ghost::ensureSpawnStored() {
     }
     // =========== Store spawn position once [END] ===========
 }
-
 
 void Ghost::syncFrightenedFromWorld() {
     // =========== Sync local state with global frightened timer [START] ===========
@@ -475,7 +475,6 @@ void Ghost::forceEndFrightened(const GhostMode newMode) {
     notify(EventType::Moved);
 }
 
-
 void Ghost::resetToSpawn(GhostMode start) {
     setPosition(_spawn_x, _spawn_y);
     _mode = start;
@@ -488,6 +487,5 @@ void Ghost::resetToSpawn(GhostMode start) {
     _fear_active = false;
     _flash_sent = false;
 }
-
 
 } // namespace logic

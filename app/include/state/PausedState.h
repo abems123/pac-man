@@ -17,7 +17,7 @@ public:
     PausedState(StateManager& manager, Game& game);
 
     void handleInput() override;
-    void update(float dt) override{}
+    void update(float dt) override {}
     void render(sf::RenderWindow& window) override;
 
 private:
@@ -31,7 +31,6 @@ private:
 
     // Background “pill” behind each option (only visible for selected)
     std::vector<sf::RectangleShape> _option_boxes;
-
 
     /** Dark overlay behind the pause texts. */
     sf::RectangleShape _overlay;

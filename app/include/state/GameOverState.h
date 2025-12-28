@@ -7,8 +7,8 @@
 #include "State.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Text.hpp>
 
 #include <string>
 #include <vector>
@@ -37,7 +37,6 @@ public:
      */
     void handleInput() override;
 
-
     /**
      * @brief Render the overlay on top of the previous state.
      * @param window Render target.
@@ -65,7 +64,6 @@ private:
      * @brief Execute the currently selected option.
      */
     void activate() const;
-
 
     /**
      * @brief Rebuild and re-layout the Game Over overlay after a window resize.

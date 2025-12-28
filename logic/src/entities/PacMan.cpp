@@ -5,7 +5,6 @@
 #include "../../include/entities/PacMan.h"
 #include <events/EventType.h>
 
-
 namespace logic {
 void PacMan::update(const float dt) {
     if (_can_move_left && _direction == Direction::Left) {
