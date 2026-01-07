@@ -2,7 +2,7 @@
 // Created by abdellah on 12/13/25.
 //
 
-#include "../../include/entities/MovableEntityModel.h"
+#include "entities/MovableEntityModel.h"
 
 #include <cmath>
 #include <events/EventType.h>

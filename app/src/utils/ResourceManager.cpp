@@ -30,7 +30,7 @@ ResourceManager& ResourceManager::instance() {
 void ResourceManager::loadFont(const Font font, const std::string& path) {
     sf::Font _f;
     if (!_f.loadFromFile(path)) {
-        throw std::runtime_error("Failed to load super-meatball.ttf");
+        throw std::runtime_error("Failed to load " + path);
     }
     _fonts[font] = _f;
 }
@@ -39,5 +39,5 @@ const sf::Font& ResourceManager::getFont(const Font type) const { return _fonts.
 
 const sf::Texture& ResourceManager::getTexture() const { return _texture; }
 
-std::vector<std::string> ResourceManager::getMap() { return FileReader::getFileLines("../../assets/maps/map.txt"); }
+std::vector<std::string> ResourceManager::getMap() { return logic::FileReader::getFileLines("../../assets/maps/map.txt"); }
 } // namespace representation

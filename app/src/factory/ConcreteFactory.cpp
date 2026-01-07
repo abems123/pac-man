@@ -5,6 +5,7 @@
 #include "../../include/factory/ConcreteFactory.h"
 
 #include <memory>
+#include <stdexcept>
 
 #include "../../include/view/Ghost.h"
 #include "entities/PacMan.h"
@@ -14,7 +15,6 @@
 #include "entities/ghost/DirectChaseGhost.h"
 #include "entities/ghost/Ghost.h"
 #include "entities/ghost/LockedGhost.h"
-#include "utils/ResourceManager.h"
 #include "view/Coin.h"
 #include "view/Fruit.h"
 #include "view/PacMan.h"

@@ -7,6 +7,7 @@
 #include "entities/MovableEntityModel.h"
 
 #include <optional>
+#include <functional>
 
 namespace logic {
 class PacMan;

@@ -8,25 +8,26 @@
 
 #include <algorithm>
 #include <utils/Stopwatch.h>
+#include <stdexcept>
 
 namespace representation {
 
 namespace {
-constexpr auto kMusicMenu = "../../assets/soundeffects/music_menu.wav";
-constexpr auto kMusicLevel = "../../assets/soundeffects/music_level.wav";
+constexpr std::string_view kMusicMenu = "../../assets/soundeffects/music_menu.wav";
+constexpr std::string_view kMusicLevel = "../../assets/soundeffects/music_level.wav";
 
-constexpr auto kSfxCoin = "../../assets/soundeffects/sfx_turn_corner.wav";
-constexpr auto kSfxFruit = "../../assets/soundeffects/sfx_fruit.wav";
-constexpr auto kSfxGhost = "../../assets/soundeffects/sfx_ghost_eaten.wav";
-constexpr auto kSfxDie = "../../assets/soundeffects/sfx_pacman_die.wav";
-constexpr auto kSfxFright = "../../assets/soundeffects/sfx_frightened_start.wav";
+constexpr std::string_view kSfxCoin = "../../assets/soundeffects/sfx_turn_corner.wav";
+constexpr std::string_view kSfxFruit = "../../assets/soundeffects/sfx_fruit.wav";
+constexpr std::string_view kSfxGhost = "../../assets/soundeffects/sfx_ghost_eaten.wav";
+constexpr std::string_view kSfxDie = "../../assets/soundeffects/sfx_pacman_die.wav";
+constexpr std::string_view kSfxFright = "../../assets/soundeffects/sfx_frightened_start.wav";
 } // namespace
 
 Game::Game() {
     checkMapConsistent();
 
     _window.create(sf::VideoMode::getDesktopMode(), "Pac Man");
-    _window.setVerticalSyncEnabled(true);  
+    _window.setVerticalSyncEnabled(true);
     _window.setFramerateLimit(0);
 
     // initial menu
@@ -68,9 +69,7 @@ void Game::setMusicVolume(float volume01) {
     setMasterVolume(volume01);
 }
 
-float Game::getMusicVolume() const {
-    return _master_volume;
-}
+float Game::getMusicVolume() const { return _master_volume; }
 
 void Game::setSfxVolume(const float volume01) {
     _sfx_volume01 = std::clamp(volume01, 0.f, 1.f);
@@ -98,9 +97,9 @@ void Game::loadAudioAssets() {
     _sfx_pool.clear();
     _sfx_pool.resize(12);
 
-    auto loadBuf = [&](Sfx id, const char* path) {
+    auto loadBuf = [&](Sfx id, std::string_view path) {
         sf::SoundBuffer buf;
-        if (buf.loadFromFile(path)) {
+        if (buf.loadFromFile(std::string(path))) {
             _sfx_buffers.emplace(id, std::move(buf));
         }
     };
@@ -125,7 +124,7 @@ void Game::playMusic(const MusicTrack track, const bool loop) {
         return;
     }
 
-    const char* path = nullptr;
+    std::string path;
     switch (track) {
     case MusicTrack::Menu:
         path = kMusicMenu;
@@ -140,8 +139,9 @@ void Game::playMusic(const MusicTrack track, const bool loop) {
     _music.stop();
     _active_music = MusicTrack::None;
 
-    if (!path)
+    if (path.empty())
         return;
+
     if (!_music.openFromFile(path))
         return;
 
@@ -167,7 +167,7 @@ void Game::playSfx(const Sfx id) {
 
     // Find a free sound in the pool
     const auto freeIt = std::find_if(_sfx_pool.begin(), _sfx_pool.end(),
-                               [](const sf::Sound& s) { return s.getStatus() != sf::SoundSource::Playing; });
+                                     [](const sf::Sound& s) { return s.getStatus() != sf::SoundSource::Playing; });
 
     sf::Sound& s = (freeIt != _sfx_pool.end()) ? *freeIt : _sfx_pool.front();
 

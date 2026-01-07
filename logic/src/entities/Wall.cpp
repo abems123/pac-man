@@ -2,4 +2,4 @@
 // Created by abdellah on 12/11/25.
 //
 
-#include "../../include/entities/Wall.h"
+#include "entities/Wall.h"

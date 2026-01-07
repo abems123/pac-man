@@ -2,7 +2,7 @@
 // Created by abdellah on 12/11/25.
 //
 
-#include "../../../include/entities/ghost/LockedGhost.h"
+#include "entities/ghost/LockedGhost.h"
 
 #include "utils/Random.h"
 

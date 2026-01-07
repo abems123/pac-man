@@ -2,13 +2,14 @@
 // Created by abdellah on 12/11/25.
 //
 
-#include "../../../include/entities/ghost/Ghost.h"
+#include "entities/ghost/Ghost.h"
 
 #include <algorithm>
 #include <cmath>
 #include <events/EventType.h>
 #include <utils/Constants.h>
 #include <utils/Random.h>
+#include <stdexcept>
 
 #include <world/World.h>
 

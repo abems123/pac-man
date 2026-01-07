@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+namespace logic {
+
 /**
  * @brief Utility for reading text files.
  */
@@ -32,5 +34,5 @@ struct FileWriter {
      */
     static void writeFile(const std::string& filename, const std::string& content);
 };
-
+} // namespace logic
 #endif // PACMANPROJECT_FILEREADER_H

@@ -2,7 +2,7 @@
 // Created by abdellah on 12/11/25.
 //
 
-#include "../../include/entities/EntityModel.h"
+#include "entities/EntityModel.h"
 
 #include <cmath>
 #include <events/EventType.h>

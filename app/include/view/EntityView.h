@@ -103,6 +103,7 @@ public:
      * @return True if the model has been destroyed, false otherwise.
      */
     bool modelExpired() const { return _model.expired(); }
+
 };
 } // namespace representation
 

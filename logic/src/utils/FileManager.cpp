@@ -7,7 +7,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <stdexcept>
 
+namespace logic {
 std::vector<std::string> FileReader::getFileLines(const std::string& filename, const bool make) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -44,3 +46,4 @@ void FileWriter::writeFile(const std::string& filename, const std::string& conte
     file << content;
     file.close();
 }
+} // namespace logic
