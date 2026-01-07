@@ -180,6 +180,7 @@ public:
      * @brief Recomputes HUD text sizes and positions based on the current window size.
      */
     void updateHudLayout();
+    void updateBottomRightHudTextSizes();
 
     /**
      * @brief Reads user input and converts it to game actions (movement, pause, HUD toggles).

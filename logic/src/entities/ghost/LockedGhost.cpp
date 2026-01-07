@@ -11,8 +11,6 @@
 
 namespace logic {
 LockedGhost::LockedGhost(const float x, const float y) : Ghost(x, y, EntityType::LockedGhost) {
-    _is_moving = true;
-
     // start with a random horizontal direction
     setDirection(Random::instance().probability(0.5) ? Direction::Left : Direction::Right);
 }

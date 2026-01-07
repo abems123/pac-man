@@ -273,56 +273,16 @@ void World::handleCollision(const float dt) const {
     col = colFromX(scx);
     row = rowFromY(scy);
 
-    const float left = xFromCol(col);
-    const float top = yFromRow(row);
-    const float right = left + _model_width;
-    const float bottom = top + _model_height;
+    // viable directions for Pac-Man from this cell
+    const std::set<Direction> viable = getAvailableDirectionsAt(row, col);
 
-    const float step = dt * _pacman->getSpeed();
-
-    _pacman->setMove(Direction::Left, !isBlockedForPacman(row, col - 1) || (realCx - halfW) > left);
-    _pacman->setMove(Direction::Right, !isBlockedForPacman(row, col + 1) || (realCx + halfW) < right);
-    _pacman->setMove(Direction::Up, !isBlockedForPacman(row - 1, col) || (realCy - halfH) > top);
-    _pacman->setMove(Direction::Down, !isBlockedForPacman(row + 1, col) || (realCy + halfH) < bottom);
-
-    switch (dir) {
-    case Direction::Left: {
-        if (const float nextCx = realCx - step; isBlockedForPacman(row, col - 1) && (nextCx - halfW) < left) {
-            _pacman->setMove(Direction::Left, false);
-            _pacman->setPosition(left, _pacman->getPosition().second);
-        }
-    } break;
-
-    case Direction::Right: {
-        const float nextCx = realCx + step;
-        if (isBlockedForPacman(row, col + 1) && (nextCx + halfW) > right) {
-            _pacman->setMove(Direction::Right, false);
-            _pacman->setPosition(right - _model_width, _pacman->getPosition().second);
-        }
-    } break;
-
-    case Direction::Up: {
-        const float nextCy = realCy - step;
-        if (isBlockedForPacman(row - 1, col) && (nextCy - halfH) < top) {
-            _pacman->setMove(Direction::Up, false);
-            _pacman->setPosition(_pacman->getPosition().first, top);
-        }
-    } break;
-
-    case Direction::Down: {
-        const float nextCy = realCy + step;
-        if (isBlockedForPacman(row + 1, col) && (nextCy + halfH) > bottom) {
-            _pacman->setMove(Direction::Down, false);
-            _pacman->setPosition(_pacman->getPosition().first, bottom - _model_height);
-        }
-    } break;
-
-    default:
-        break;
-    }
+    // shared clamp + move flags (Pac-Man update now respects the flags)
+    _pacman->applyGridConstraints(*this, row, col, viable, dt, _model_width, _model_height);
 }
 
-void World::update(float dt) {
+void World::update(const float dt) {
+    if (!_pacman) return;
+
     if (_hit_cooldown > 0.f) {
         _hit_cooldown = std::max(0.f, _hit_cooldown - dt);
         return;
@@ -337,15 +297,13 @@ void World::update(float dt) {
         _frightened_left = std::max(0.f, _frightened_left - dt);
 
     for (const auto& g : _ghosts)
-        if (g)
-            g->update(this, dt);
+        if (g) g->update(this, dt);
 
-    if (!_pacman)
-        return;
 
+    // The only role for this None direction is to make pacman stay at his location when spawned
     if (_current_dir != Direction::None) {
         handleCollision(dt);
-        _pacman->update(dt);
+        _pacman->update(this, dt);
         collect();
     }
 
@@ -474,11 +432,13 @@ void World::setWallsTypes() const {
 }
 
 void World::startFrightened(const float duration) {
-    _frightened_left = std::max(_frightened_left, duration);
-    for (auto& g : _ghosts)
+    _frightened_left = std::max(0.f, duration);
+    for (auto& g : _ghosts) {
         if (g)
             g->enterFrightened();
+    }
 }
+
 
 std::set<Direction> World::getAvailableGhostDirectionsAt(const int row, const int col, const Ghost* ghost) const {
     std::set<Direction> dirs;

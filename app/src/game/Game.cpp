@@ -26,7 +26,8 @@ Game::Game() {
     checkMapConsistent();
 
     _window.create(sf::VideoMode::getDesktopMode(), "Pac Man");
-    _window.setFramerateLimit(60);
+    _window.setVerticalSyncEnabled(true);  
+    _window.setFramerateLimit(0);
 
     // initial menu
     _stateManager.pushState(std::make_unique<MenuState>(_stateManager, *this));
@@ -68,7 +69,6 @@ void Game::setMusicVolume(float volume01) {
 }
 
 float Game::getMusicVolume() const {
-    // For UI compatibility: return MASTER volume.
     return _master_volume;
 }
 
@@ -96,7 +96,7 @@ void Game::applyAudioVolumes() {
 void Game::loadAudioAssets() {
     // =========== Load audio assets [START] ===========
     _sfx_pool.clear();
-    _sfx_pool.resize(12); // allow overlapping SFX
+    _sfx_pool.resize(12);
 
     auto loadBuf = [&](Sfx id, const char* path) {
         sf::SoundBuffer buf;

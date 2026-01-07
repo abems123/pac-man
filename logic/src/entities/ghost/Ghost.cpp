@@ -50,7 +50,7 @@ std::pair<int, int> Ghost::ghostCellFromCenterBias() const {
 
     auto [center_x, center_y] = _world->getCenter(this);
 
-    const float tiny = 1e-4f;
+    constexpr float tiny = 1e-4f;
     switch (getDirection()) {
     case Direction::Left:
         center_x -= tiny;
@@ -77,7 +77,7 @@ std::pair<int, int> Ghost::pacmanCellFromCenter() const {
     if (!_world)
         return {0, 0};
 
-    const auto* pm = _world->getPacMan(); // assumes World::getPacMan() exists
+    const auto* pm = _world->getPacMan();
     if (!pm)
         return {0, 0};
 
@@ -107,11 +107,7 @@ Direction Ghost::opposite(Direction d) {
     }
 }
 
-bool Ghost::isFrightened() const {
-    // =========== One source of truth: world timer [START] ===========
-    return _world && _world->getFrightenedLeft() > 0.f;
-    // =========== One source of truth: world timer [END] ===========
-}
+bool Ghost::isFrightened() const { return _world && _world->getFrightenedLeft() > 0.f; }
 void Ghost::setMode(const GhostMode mode) {
     // =========== If we’re frightened, just remember what to return to [START] ===========
     if (_mode == GhostMode::Fear) {
@@ -136,10 +132,15 @@ void Ghost::enterFrightened() {
     if (_base_speed == 0.f)
         _base_speed = _speed;
 
-    if (!_fear_active) {
+    // New fruit should override eaten lockout so all ghosts participate again.
+    _fear_locked_out = false;
+
+    // Only capture "mode before fear" the first time we enter fear.
+    if (!_fear_active)
         _mode_before_fear = _mode;
-        setDirection(opposite(getDirection())); // immediate reverse (classic Pac-Man feel)
-    }
+
+    // Restart effect: reverse direction every time a fruit is eaten.
+    setDirection(opposite(getDirection()));
 
     _mode = GhostMode::Fear;
     _speed = _base_speed * Constants::FRIGHTENED_MODE_SLOW_PERCENTAGE;
@@ -147,7 +148,8 @@ void Ghost::enterFrightened() {
     _fear_active = true;
     _flash_sent = false;
 
-    k_flash_seconds = _world->getFrightenedLeft() * Constants::FLASHING_PERCENTAGE;
+    const float duration = _world->getFrightenedLeft();
+    k_flash_seconds = duration * Constants::FLASHING_PERCENTAGE;
 
     notify(EventType::FrightenedStarted);
     // =========== Enter fear mode once (reverse + slow + notify view) [END] ===========
@@ -183,7 +185,7 @@ void Ghost::syncFrightenedFromWorld() {
         if (!_fear_active)
             enterFrightened();
 
-        // Last 2 seconds -> switch to flashing/white visuals.
+        // Last (FrightenedDuration*Constants::FLASHING_PERCENTAGE) seconds -> switch to white visuals.
         if (!_flash_sent && left <= k_flash_seconds) {
             _flash_sent = true;
             notify(EventType::FrightenedFlashingStarted);
@@ -221,75 +223,16 @@ void Ghost::update(World* world, float dt) {
     col = std::clamp(col, 0, _world->getCols() - 1);
     // =========== Current tile (center + tiny bias) [END] ===========
 
-    const float tile_w = _world->xFromCol(1) - _world->xFromCol(0);
-    const float tile_h = _world->yFromRow(1) - _world->yFromRow(0);
-    const float halfW = tile_w * 0.5f;
-    const float halfH = tile_h * 0.5f;
-
-    const float left = _world->xFromCol(col);
-    const float top = _world->yFromRow(row);
-    const float right = left + tile_w;
-    const float bottom = top + tile_h;
-
     const auto viable = _world->getAvailableGhostDirectionsAt(row, col, this);
     if (viable.empty())
         return;
 
-    auto [cx, cy] = _world->getCenter(this);
-    const float step = dt * _speed;
+    const float tile_w = _world->xFromCol(1) - _world->xFromCol(0);
+    const float tile_h = _world->yFromRow(1) - _world->yFromRow(0);
 
-    // =========== Movement constraints (walls + gate rules) [START] ===========
-    setMove(Direction::Left, viable.contains(Direction::Left) || (cx - halfW) > left);
-    setMove(Direction::Right, viable.contains(Direction::Right) || (cx + halfW) < right);
-    setMove(Direction::Up, viable.contains(Direction::Up) || (cy - halfH) > top);
-    setMove(Direction::Down, viable.contains(Direction::Down) || (cy + halfH) < bottom);
-
-    switch (getDirection()) {
-    case Direction::Left: {
-        const float nextCx = cx - step;
-        if (!viable.contains(Direction::Left) && (nextCx - halfW) < left) {
-            setMove(Direction::Left, false);
-            setPosition(left, getPosition().second);
-        }
-    } break;
-    case Direction::Right: {
-        const float nextCx = cx + step;
-        if (!viable.contains(Direction::Right) && (nextCx + halfW) > right) {
-            setMove(Direction::Right, false);
-            setPosition(right - tile_w, getPosition().second);
-        }
-    } break;
-    case Direction::Up: {
-        const float nextCy = cy - step;
-        if (!viable.contains(Direction::Up) && (nextCy - halfH) < top) {
-            setMove(Direction::Up, false);
-            setPosition(getPosition().first, top);
-        }
-    } break;
-    case Direction::Down: {
-        const float nextCy = cy + step;
-        if (!viable.contains(Direction::Down) && (nextCy + halfH) > bottom) {
-            setMove(Direction::Down, false);
-            setPosition(getPosition().first, bottom - tile_h);
-        }
-    } break;
-    default:
-        break;
-    }
-    // =========== Movement constraints (walls + gate rules) [END] ===========
-
-    // Re-fetch center after potential clamp
-    std::tie(cx, cy) = _world->getCenter(this);
-
-    // =========== Only turn when we're at tile center [START] ===========
-    const float cell_cx = left + halfW;
-    const float cell_cy = top + halfH;
-
-    const float eps_x = tile_w * 0.03f;
-    const float eps_y = tile_h * 0.03f;
-
-    const bool at_center = std::fabs(cx - cell_cx) <= eps_x && std::fabs(cy - cell_cy) <= eps_y;
-    // =========== Only turn when we're at tile center [END] ===========
+    // =========== Shared collision + "at center" check [START] ===========
+    const bool at_center = applyGridConstraints(*_world, row, col, viable, dt, tile_w, tile_h);
+    // =========== Shared collision + "at center" check [END] ===========
 
     if (at_center) {
         // =========== Small helpers [START] ===========
@@ -426,7 +369,7 @@ void Ghost::update(World* world, float dt) {
         // =========== Direction decision (house / center / fear / chase) [END] ===========
     }
 
-    MovableEntityModel::update(dt);
+    MovableEntityModel::update(_world, dt);
 }
 
 void Ghost::eaten() {

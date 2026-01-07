@@ -331,6 +331,8 @@ void LevelState::handleInput() {
             for (auto& v : _views)
                 if (v)
                     v->updatePosition();
+
+            _state_manager.pushState(std::make_unique<PausedState>(_state_manager, _game));
         }
     }
 }
@@ -346,6 +348,20 @@ void LevelState::updateHudLayout() {
     centerTopHudText(score);
     centerTopHudText(_level_text);
 }
+
+void LevelState::updateBottomRightHudTextSizes() {
+    // =========== Update bottom-right HUD text sizes (resize) [START] ===========
+    const auto win = _game.getWindow().getSize();
+    const float bottomBandH = static_cast<float>(win.y) * 0.10f;
+
+    const unsigned charSize = static_cast<unsigned>(std::clamp(bottomBandH * 0.28f, 12.f, 22.f));
+
+    _volume_text.setCharacterSize(charSize);
+    _controls_text.setCharacterSize(charSize);
+    _controls_value_text.setCharacterSize(charSize);
+    // =========== Update bottom-right HUD text sizes (resize) [END] ===========
+}
+
 
 void LevelState::update(const float dt) {
     _world->update(dt);
@@ -482,9 +498,6 @@ void LevelState::render(sf::RenderWindow& window) {
 
 void LevelState::renderHud(sf::RenderWindow& window) {
     // =========== Draw HUD elements [START] ===========
-    layoutLivesHud(window);
-    layoutBottomRightHud(window);
-
     window.draw(score);
     window.draw(_level_text);
 
@@ -523,6 +536,8 @@ void LevelState::onResize(const unsigned width, const unsigned height) {
     updateHudLayout();
     layoutTopHud();
     layoutLivesHud(_game.getWindow());
+
+    updateBottomRightHudTextSizes();
     layoutBottomRightHud(_game.getWindow());
 
     for (auto& v : _views)

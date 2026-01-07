@@ -60,7 +60,7 @@ protected:
      * @param eps_y Allowed y error (world units).
      * @return true if close enough to tile center.
      */
-    bool atTileCenter(int row, int col, float eps_x, float eps_y) const;
+    [[nodiscard]] bool atTileCenter(int row, int col, float eps_x, float eps_y) const;
 
     /**
      * Snaps the ghost on the given row (keeps x, aligns y to tile top-left).
@@ -140,7 +140,7 @@ public:
      * @param world World pointer (stored once).
      * @param dt Delta time (seconds).
      */
-    void update(World* world, float dt);
+    void update(World* world, float dt) override;
 
     /** Respawn the ghost after Pac-Man eats it. */
     void eaten();
