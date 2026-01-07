@@ -24,7 +24,7 @@
 namespace representation {
 
 LevelState::LevelState(StateManager& manager, Game& game, const int level, int carryScore, int carryLives)
-    : State(manager, game), _factory(std::make_shared<ConcreteFactory>(&_views)), _level(level) {
+    : State(manager, game), _factory(std::make_shared<ConcreteFactory>(_views)), _level(level) {
     _world = std::make_unique<logic::World>(_factory, _level, carryScore, carryLives);
     initHud();
 
@@ -331,6 +331,8 @@ void LevelState::handleInput() {
             for (auto& v : _views)
                 if (v)
                     v->updatePosition();
+
+            _state_manager.pushState(std::make_unique<PausedState>(_state_manager, _game));
         }
     }
 }
@@ -346,6 +348,20 @@ void LevelState::updateHudLayout() {
     centerTopHudText(score);
     centerTopHudText(_level_text);
 }
+
+void LevelState::updateBottomRightHudTextSizes() {
+    // =========== Update bottom-right HUD text sizes (resize) [START] ===========
+    const auto win = _game.getWindow().getSize();
+    const float bottomBandH = static_cast<float>(win.y) * 0.10f;
+
+    const unsigned charSize = static_cast<unsigned>(std::clamp(bottomBandH * 0.28f, 12.f, 22.f));
+
+    _volume_text.setCharacterSize(charSize);
+    _controls_text.setCharacterSize(charSize);
+    _controls_value_text.setCharacterSize(charSize);
+    // =========== Update bottom-right HUD text sizes (resize) [END] ===========
+}
+
 
 void LevelState::update(const float dt) {
     _world->update(dt);
@@ -388,14 +404,14 @@ void LevelState::update(const float dt) {
     // =========== Push end screen after cleanup so last coin isn't shown [START] ===========
     if (!_end_screen_pushed) {
         if (_world->getCoinsLeft() <= 0 && _world->getFruitsLeft() <= 0) {
-            _world->getScore()->onNotify(logic::EventType::LevelCleared);
-            const int finalScore = _world->getScore()->getScore();
+            _world->getScore().onNotify(logic::EventType::LevelCleared);
+            const int finalScore = _world->getScore().getScore();
             const int livesLeft = _world->getLivesLeft();
             _state_manager.pushState(
                 std::make_unique<VictoryState>(_state_manager, _game, _level, finalScore, livesLeft));
             _end_screen_pushed = true;
         } else if (_world->getLivesLeft() <= 0) {
-            const int finalScore = _world->getScore()->getScore();
+            const int finalScore = _world->getScore().getScore();
             _state_manager.pushState(std::make_unique<GameOverState>(_state_manager, _game, _level, finalScore));
             _end_screen_pushed = true;
         }
@@ -404,7 +420,7 @@ void LevelState::update(const float dt) {
 }
 
 void LevelState::updateHud() {
-    score.setString("Score: " + std::to_string(_world->getScore()->getScore()));
+    score.setString("Score: " + std::to_string(_world->getScore().getScore()));
 
     const int lives = std::clamp(_world->getLivesLeft(), 0, 3);
     for (int i = 0; i < 3; ++i)
@@ -482,9 +498,6 @@ void LevelState::render(sf::RenderWindow& window) {
 
 void LevelState::renderHud(sf::RenderWindow& window) {
     // =========== Draw HUD elements [START] ===========
-    layoutLivesHud(window);
-    layoutBottomRightHud(window);
-
     window.draw(score);
     window.draw(_level_text);
 
@@ -523,6 +536,8 @@ void LevelState::onResize(const unsigned width, const unsigned height) {
     updateHudLayout();
     layoutTopHud();
     layoutLivesHud(_game.getWindow());
+
+    updateBottomRightHudTextSizes();
     layoutBottomRightHud(_game.getWindow());
 
     for (auto& v : _views)

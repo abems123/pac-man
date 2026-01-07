@@ -24,10 +24,11 @@ public:
 
     /**
      * @brief Updates Pac-Man movement and state for the current frame.
+     * @param world
      * @param dt Delta time in seconds.
      * @return void
      */
-    void update(float dt) override;
+    void update(World& world, float dt) override;
 
     /**
      * @brief Respawns Pac-Man at a given position and stops all movement until new input.

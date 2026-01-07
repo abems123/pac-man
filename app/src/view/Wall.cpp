@@ -78,7 +78,7 @@ void Wall::updateWall() {
     if (_is_gate)
         return;
 
-    switch (std::dynamic_pointer_cast<logic::Wall>(_model.lock())->getWallType()) {
+    switch (std::static_pointer_cast<logic::Wall>(_model.lock())->getWallType()) {
     case logic::WallType::Horizontal:
         _sprite.setTextureRect(_normal_wall_frames.front());
         break;

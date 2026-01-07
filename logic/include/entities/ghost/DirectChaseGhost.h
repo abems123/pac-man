@@ -7,7 +7,7 @@
 #include "LookaheadChaseGhost.h"
 
 namespace logic {
-class DirectChaseGhost final : public LookaheadChaseGhost {
+class DirectChaseGhost : public LookaheadChaseGhost {
 public:
     /**
      * @brief Constructs a direct-chase ghost at the given world position.

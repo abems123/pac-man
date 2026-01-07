@@ -26,7 +26,8 @@ Game::Game() {
     checkMapConsistent();
 
     _window.create(sf::VideoMode::getDesktopMode(), "Pac Man");
-    _window.setFramerateLimit(60);
+    _window.setVerticalSyncEnabled(true);  
+    _window.setFramerateLimit(0);
 
     // initial menu
     _stateManager.pushState(std::make_unique<MenuState>(_stateManager, *this));
@@ -68,7 +69,6 @@ void Game::setMusicVolume(float volume01) {
 }
 
 float Game::getMusicVolume() const {
-    // For UI compatibility: return MASTER volume.
     return _master_volume;
 }
 
@@ -96,7 +96,7 @@ void Game::applyAudioVolumes() {
 void Game::loadAudioAssets() {
     // =========== Load audio assets [START] ===========
     _sfx_pool.clear();
-    _sfx_pool.resize(12); // allow overlapping SFX
+    _sfx_pool.resize(12);
 
     auto loadBuf = [&](Sfx id, const char* path) {
         sf::SoundBuffer buf;
@@ -166,18 +166,18 @@ void Game::playSfx(const Sfx id) {
         return;
 
     // Find a free sound in the pool
-    auto freeIt = std::find_if(_sfx_pool.begin(), _sfx_pool.end(),
+    const auto freeIt = std::find_if(_sfx_pool.begin(), _sfx_pool.end(),
                                [](const sf::Sound& s) { return s.getStatus() != sf::SoundSource::Playing; });
 
-    sf::Sound* s = (freeIt != _sfx_pool.end()) ? &(*freeIt) : &_sfx_pool.front();
+    sf::Sound& s = (freeIt != _sfx_pool.end()) ? *freeIt : _sfx_pool.front();
 
-    s->setBuffer(it->second);
+    s.setBuffer(it->second);
 
     // Effective SFX volume = MASTER * SFX_MULT
     const float sfxVol = (_master_volume * _sfx_volume01) * 100.f;
-    s->setVolume(sfxVol);
+    s.setVolume(sfxVol);
 
-    s->play();
+    s.play();
 }
 
 void Game::applyResizeIfNeeded() {

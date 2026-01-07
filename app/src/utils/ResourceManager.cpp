@@ -32,7 +32,7 @@ void ResourceManager::loadFont(const Font font, const std::string& path) {
     if (!_f.loadFromFile(path)) {
         throw std::runtime_error("Failed to load super-meatball.ttf");
     }
-    _fonts[font] = std::move(_f);
+    _fonts[font] = _f;
 }
 
 const sf::Font& ResourceManager::getFont(const Font type) const { return _fonts.at(type); }

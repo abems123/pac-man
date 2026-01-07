@@ -19,7 +19,7 @@ class Stopwatch {
     float _delta_time = 0.0f;
 
     /** @brief Private constructor for singleton usage. */
-    Stopwatch() = default;
+    Stopwatch() : _last(std::chrono::steady_clock::now()) {}
 
 public:
     /**

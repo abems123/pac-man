@@ -24,12 +24,12 @@ class ResourceManager;
  */
 class ConcreteFactory final : public logic::AbstractFactory {
     /**
-     * @brief Non-owning pointer to the container that stores all active views.
+     * @brief Reference to the container that stores all active views.
      *
      * ConcreteFactory pushes freshly created views into this vector so the game can update/render them.
      * The vector itself is owned elsewhere (typically by Game / LevelState).
      */
-    std::vector<std::shared_ptr<EntityView>>* _views;
+    std::vector<std::shared_ptr<EntityView>>& _views;
 
     /**
      * @brief Counter used to track how many ghosts were created so far.
@@ -46,7 +46,7 @@ public:
      * @param views Pointer to the view container where created EntityView instances must be stored.
      *              Must remain valid for the entire lifetime of this factory.
      */
-    explicit ConcreteFactory(std::vector<std::shared_ptr<EntityView>>* views);
+    explicit ConcreteFactory(std::vector<std::shared_ptr<EntityView>>& views);
 
     ~ConcreteFactory() override;
 

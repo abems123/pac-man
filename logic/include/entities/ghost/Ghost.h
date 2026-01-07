@@ -6,14 +6,22 @@
 
 #include "entities/MovableEntityModel.h"
 
+#include <optional>
+
 namespace logic {
 class PacMan;
 class World;
 
 class Ghost : public MovableEntityModel {
 protected:
-    /** @brief Cached world pointer (set once). */
-    World* _world = nullptr;
+    /** @return The world this ghost belongs to. Throws if not set yet. */
+    World& world();
+
+    /** @return The world this ghost belongs to. Throws if not set yet. */
+    const World& world() const;
+
+    /** Non-owning reference to the active world (set on first update). */
+    std::optional<std::reference_wrapper<World>> _world;
 
     /** @brief Time left (seconds) before switching from Center to Chase. 0 = already released. */
     float _release_left = 0.f;
@@ -60,7 +68,7 @@ protected:
      * @param eps_y Allowed y error (world units).
      * @return true if close enough to tile center.
      */
-    bool atTileCenter(int row, int col, float eps_x, float eps_y) const;
+    [[nodiscard]] bool atTileCenter(int row, int col, float eps_x, float eps_y) const;
 
     /**
      * Snaps the ghost on the given row (keeps x, aligns y to tile top-left).
@@ -88,10 +96,10 @@ protected:
     [[nodiscard]] std::pair<int, int> pacmanCellFromCenter() const;
 
     /** Computes the current target for this ghost (depends on ghost type). */
-    virtual void computeTarget() = 0;
+    virtual void computeTarget(const World& world) = 0;
 
     /** Chooses a direction when appropriate (usually only at tile center). */
-    virtual void decideDirection() = 0;
+    virtual void decideDirection(const World& world) = 0;
 
 public:
     Ghost(float x, float y, EntityType type);
@@ -140,7 +148,7 @@ public:
      * @param world World pointer (stored once).
      * @param dt Delta time (seconds).
      */
-    void update(World* world, float dt);
+    void update(World& world, float dt) override;
 
     /** Respawn the ghost after Pac-Man eats it. */
     void eaten();
@@ -176,7 +184,7 @@ private:
     void syncFrightenedFromWorld();
 
     /** @brief Seconds at the end of frightened where ghosts flash white. */
-    float k_flash_seconds;
+    float k_flash_seconds = 0.f;
 
     /** @brief True while this ghost is considered in fear mode locally. */
     bool _fear_active = false;

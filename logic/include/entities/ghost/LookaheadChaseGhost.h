@@ -24,13 +24,13 @@ public:
      * @brief Selects the next movement direction at a decision point.
      * @return void
      */
-    void decideDirection() override;
+    void decideDirection(const World& world) override;
 
     /**
      * @brief Computes the current chase target based on Pac-Man's direction and lookahead.
      * @return void
      */
-    void computeTarget() override;
+    void computeTarget(const World& world) override;
 
 protected:
     /** @brief Number of tiles to look ahead of Pac-Man when computing the chase target. */

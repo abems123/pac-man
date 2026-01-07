@@ -15,8 +15,8 @@ namespace logic {
 
 LookaheadChaseGhost::LookaheadChaseGhost(float x, float y) : Ghost(x, y, EntityType::LookaheadChaseGhost) {}
 
-void LookaheadChaseGhost::computeTarget() {
-    const auto& pm = _world->getPacMan();
+void LookaheadChaseGhost::computeTarget(const World& world) {
+    const auto& pm = world.getPacMan();
     if (!pm)
         return;
 
@@ -28,7 +28,7 @@ void LookaheadChaseGhost::computeTarget() {
     int tc = pcol + LOOKAHEAD * dc(pd);
 
     // If that lands in a wall, just aim for Pac-Man's current tile
-    if (_world->isWallCell(tr, tc)) {
+    if (world.isWallCell(tr, tc)) {
         tr = prow;
         tc = pcol;
     }
@@ -37,10 +37,7 @@ void LookaheadChaseGhost::computeTarget() {
     _target_x = tc;
 }
 
-void LookaheadChaseGhost::decideDirection() {
-    if (!_world)
-        return;
-
+void LookaheadChaseGhost::decideDirection(const World& world) {
     // Only chase logic in Chase/Fear modes
     if (_mode != GhostMode::Chase && _mode != GhostMode::Fear)
         return;
@@ -48,10 +45,10 @@ void LookaheadChaseGhost::decideDirection() {
     // Only decide at (roughly) the center of the current tile
     const auto [cur_row, cur_col] = ghostCellFromCenterBias();
 
-    computeTarget();
+    computeTarget(world);
 
     // Check viable moves from this tile (walls filtered out by World)
-    const auto viable_dirs = _world->getAvailableGhostDirectionsAt(cur_row, cur_col, this);
+    const auto viable_dirs = world.getAvailableGhostDirectionsAt(cur_row, cur_col, *this);
     if (viable_dirs.empty())
         return;
 

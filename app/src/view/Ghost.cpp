@@ -40,9 +40,9 @@ void Ghost::onNotify(const logic::EventType& event) {
     if (event == logic::EventType::FrightenedEnded) {
         _in_frightened = false;
 
-        // Put back the correct directional frames immediately.
-        if (auto var = _model.lock()) {
-            auto ghost_model = std::dynamic_pointer_cast<logic::Ghost>(var);
+        // Put back the correct directional frames immediately
+        if (const auto var = _model.lock()) {
+            auto ghost_model = std::static_pointer_cast<logic::Ghost>(var);
             if (ghost_model) {
                 switch (ghost_model->getDirection()) {
                 case logic::Direction::Left:

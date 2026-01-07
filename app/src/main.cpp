@@ -1,10 +1,15 @@
-#include <iostream>
-
 #include "game/Game.h"
 
 int main() {
-    representation::Game game;
-    game.run();
-
-    // std::cout << logic::Stopwatch::getInstance().dt() << std::endl;
+    try {
+        representation::Game game;
+        game.run();
+        return 0;
+    } catch (const std::exception& e) {
+        std::cerr << "Fatal error: " << e.what() << '\n';
+        return 1;
+    } catch (...) {
+        std::cerr << "Fatal unknown error.\n";
+        return 2;
+    }
 }

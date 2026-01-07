@@ -13,10 +13,9 @@
 #include "entities/PacMan.h"
 #include "score/Score.h"
 
-class Collectable;
-
 namespace logic {
 
+class Collectable;
 class AbstractFactory;
 class EntityModel;
 class Ghost;
@@ -145,7 +144,7 @@ public:
      * @param ghost Ghost pointer (needed for mode rules).
      * @return Set of allowed directions.
      */
-    [[nodiscard]] std::set<Direction> getAvailableGhostDirectionsAt(int row, int col, const Ghost* ghost) const;
+    [[nodiscard]] std::set<Direction> getAvailableGhostDirectionsAt(int row, int col, const Ghost& ghost) const;
 
     /**
      * @brief Convert world X to column index.
@@ -177,10 +176,10 @@ public:
 
     /**
      * @brief Get model center (top-left + half tile).
-     * @param model Model pointer.
+     * @param model Model reference.
      * @return (center_x, center_y).
      */
-    [[nodiscard]] std::pair<float, float> getCenter(const EntityModel* model) const;
+    std::pair<float, float> getCenter(const EntityModel& model) const;
 
     /**
      * @brief Snap Pac-Man's X to a column (used for clean turns).
@@ -214,7 +213,7 @@ public:
      * @param m2 Second model.
      * @return True if overlapped.
      */
-    bool collides(const EntityModel* m1, const EntityModel* m2) const;
+    bool collides(const EntityModel& m1, const EntityModel& m2) const;
 
     /**
      * @brief Start or extend frightened mode globally.
@@ -232,13 +231,13 @@ public:
      * @brief Get Pac-Man pointer (can be null if not spawned).
      * @return Pac-Man pointer.
      */
-    [[nodiscard]] const PacMan* getPacMan() const { return _pacman.get(); }
+    [[nodiscard]] const std::shared_ptr<PacMan>& getPacMan() const { return _pacman; }
 
     /**
      * @brief Get score system.
-     * @return Score pointer.
+     * @return Score reference.
      */
-    [[nodiscard]] Score* getScore() const { return _score.get(); }
+    [[nodiscard]] Score& getScore() const { return *_score; }
 
     /**
      * @brief Get ghosts list.

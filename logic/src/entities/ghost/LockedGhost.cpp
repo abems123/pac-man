@@ -11,22 +11,17 @@
 
 namespace logic {
 LockedGhost::LockedGhost(const float x, const float y) : Ghost(x, y, EntityType::LockedGhost) {
-    _is_moving = true;
-
     // start with a random horizontal direction
     setDirection(Random::instance().probability(0.5) ? Direction::Left : Direction::Right);
 }
 
 static bool isHorizontal(Direction d) { return d == Direction::Left || d == Direction::Right; }
 
-void LockedGhost::decideDirection() {
-    if (_world == nullptr)
-        return;
-
+void LockedGhost::decideDirection(const World& world) {
     if (_mode != GhostMode::Chase && _mode != GhostMode::Fear)
         return;
 
-    auto [cx, cy] = _world->getCenter(this);
+    auto [cx, cy] = world.getCenter(*this);
     constexpr float tiny = 1e-4f;
 
     // small bias makes tile indexing stable when exactly on an edge
@@ -47,11 +42,11 @@ void LockedGhost::decideDirection() {
         break;
     }
 
-    const int col = _world->colFromX(cx);
-    const int row = _world->rowFromY(cy);
+    const int col = world.colFromX(cx);
+    const int row = world.rowFromY(cy);
 
-    const float tileW = _world->xFromCol(1) - _world->xFromCol(0);
-    const float tileH = _world->yFromRow(1) - _world->yFromRow(0);
+    const float tileW = world.xFromCol(1) - world.xFromCol(0);
+    const float tileH = world.yFromRow(1) - world.yFromRow(0);
     const float step = Stopwatch::getInstance().dt() * getSpeed();
     const float eps_x = std::max(tileW * 0.02f, step);
     const float eps_y = std::max(tileH * 0.02f, step);
@@ -60,7 +55,7 @@ void LockedGhost::decideDirection() {
     if (!atTileCenter(row, col, eps_x, eps_y))
         return;
 
-    const auto viableSet = _world->getAvailableGhostDirectionsAt(row, col, this);
+    const auto viableSet = world.getAvailableGhostDirectionsAt(row, col, *this);
 
     auto toVec = [&](const std::set<Direction>& s) { return std::vector(s.begin(), s.end()); };
 
@@ -72,9 +67,9 @@ void LockedGhost::decideDirection() {
     auto applyTurn = [&](const Direction newDir) {
         // snap onto the grid before turning (keeps it aligned)
         if (isHorizontal(newDir)) {
-            setPosition(getPosition().first, _world->yFromRow(row));
+            setPosition(getPosition().first, world.yFromRow(row));
         } else {
-            setPosition(_world->xFromCol(col), getPosition().second);
+            setPosition(world.xFromCol(col), getPosition().second);
         }
         setDirection(newDir);
     };

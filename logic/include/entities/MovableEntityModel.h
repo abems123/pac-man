@@ -6,6 +6,8 @@
 
 #include "EntityModel.h"
 
+#include <set>
+
 namespace logic {
 class World;
 class MovableEntityModel : public EntityModel {
@@ -14,12 +16,6 @@ protected:
     float _speed = 0.2f;
     /** @brief Current movement direction. */
     Direction _direction = Direction::Right;
-
-    /** @brief Non-owning pointer to the World used for collision/queries. */
-    World* _world = nullptr;
-
-    /** @brief Whether the entity is currently moving. */
-    bool _is_moving = false;
 
     /** @brief Cached movement permissions for each direction (set by collision logic). */
     bool _can_move_right = false;
@@ -38,7 +34,7 @@ public:
      * @param type Entity kind represented by this model.
      * @param speed Initial movement speed.
      */
-    MovableEntityModel(const float x, const float y, const EntityType type, const float speed);
+    MovableEntityModel(float x, float y, EntityType type, float speed);
 
     /**
      * @brief Gets the current movement speed.
@@ -67,18 +63,12 @@ public:
     void setDirection(Direction direction);
 
     /**
-     * @brief Sets whether the entity should move during updates.
-     * @param moving True to move; false to stay still.
-     * @return void
-     */
-    void setMoving(const bool moving) { _is_moving = moving; }
-
-    /**
      * @brief Updates the entity movement for the current frame.
+     * @param world World reference.
      * @param dt Delta time in seconds.
      * @return void
      */
-    virtual void update(float dt);
+  virtual void update(World& world, float dt);
 
     /**
      * @brief Sets whether movement is allowed in a specific direction.
@@ -87,5 +77,30 @@ public:
      * @return void
      */
     void setMove(Direction dir, bool can_move);
+
+
+    /**
+     * @brief Shared grid clamp for Pac-Man + ghosts.
+     *
+     * World decides what's "viable". This just applies the flags + clamps.
+     *
+     * @param world World for x/y conversions.
+     * @param row Current row.
+     * @param col Current col.
+     * @param viable Allowed directions to enter from this cell.
+     * @param dt Delta time.
+     * @param model_w Tile width in world units.
+     * @param model_h Tile height in world units.
+     * @param center_eps_ratio How strict the "at center" check is.
+     * @return True if entity is close enough to cell center (good moment to turn).
+     */
+    bool applyGridConstraints(const World& world,
+                              int row,
+                              int col,
+                              const std::set<Direction>& viable,
+                              float dt,
+                              float model_w,
+                              float model_h,
+                              float center_eps_ratio = 0.03f);
 };
 } // namespace logic

@@ -21,7 +21,7 @@
 #include "view/Wall.h"
 
 namespace representation {
-ConcreteFactory::ConcreteFactory(std::vector<std::shared_ptr<EntityView>>* views) : _views(views) {}
+ConcreteFactory::ConcreteFactory(std::vector<std::shared_ptr<EntityView>>& views) : _views(views) {}
 
 ConcreteFactory::~ConcreteFactory() = default;
 
@@ -29,7 +29,7 @@ std::shared_ptr<logic::PacMan> ConcreteFactory::createPacMan(float x, float y) {
     auto model = std::make_shared<logic::PacMan>(x, y);
     const auto view = std::make_shared<PacMan>(model);
     model->attach(view);
-    _views->push_back(view);
+    _views.push_back(view);
     return model;
 }
 
@@ -69,7 +69,7 @@ std::shared_ptr<logic::Ghost> ConcreteFactory::createGhost(float x, float y) {
 
     const auto view = std::make_shared<Ghost>(model, _created_ghosts);
     model->attach(view);
-    _views->push_back(view);
+    _views.push_back(view);
 
     ++_created_ghosts;
     return model;
@@ -79,7 +79,7 @@ std::shared_ptr<logic::Wall> ConcreteFactory::createWall(float x, float y, const
     auto model = std::make_shared<logic::Wall>(x, y);
     const auto view = std::make_shared<Wall>(model, isGate);
     model->attach(view);
-    _views->push_back(view);
+    _views.push_back(view);
     return model;
 }
 
@@ -87,7 +87,7 @@ std::shared_ptr<logic::Coin> ConcreteFactory::createCoin(float x, float y) {
     auto model = std::make_shared<logic::Coin>(x, y);
     const auto view = std::make_shared<Coin>(model);
     model->attach(view);
-    _views->push_back(view);
+    _views.push_back(view);
     return model;
 }
 
@@ -95,7 +95,7 @@ std::shared_ptr<logic::Fruit> ConcreteFactory::createFruit(float x, float y) {
     auto model = std::make_shared<logic::Fruit>(x, y);
     const auto view = std::make_shared<Fruit>(model);
     model->attach(view);
-    _views->push_back(view);
+    _views.push_back(view);
     return model;
 }
 } // namespace representation

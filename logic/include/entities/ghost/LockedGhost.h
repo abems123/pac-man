@@ -23,18 +23,19 @@ public:
      * @brief Computes the current target (unused for LockedGhost).
      * @return void
      */
-    void computeTarget() override {}
+    void computeTarget(const World& world) override {}
 
     /**
      * @brief Selects the next movement direction for the locked ghost.
      * @return void
      */
-    void decideDirection() override;
+    void decideDirection(const World& world) override;
 
     /**
      * @brief Destructor.
      */
     ~LockedGhost() override;
+
 };
 } // namespace logic
 
