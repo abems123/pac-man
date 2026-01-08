@@ -16,14 +16,14 @@ namespace representation {
 namespace {
 using namespace std::literals;
 
-constexpr std::string_view kMusicMenu = "../../assets/soundeffects/music_menu.wav"sv;
-constexpr std::string_view kMusicLevel = "../../assets/soundeffects/music_level.wav"sv;
+constexpr std::string_view kMusicMenu = "assets/soundeffects/music_menu.wav"sv;
+constexpr std::string_view kMusicLevel = "assets/soundeffects/music_level.wav"sv;
 
-constexpr std::string_view kSfxCoin = "../../assets/soundeffects/sfx_turn_corner.wav"sv;
-constexpr std::string_view kSfxFruit = "../../assets/soundeffects/sfx_fruit.wav"sv;
-constexpr std::string_view kSfxGhost = "../../assets/soundeffects/sfx_ghost_eaten.wav"sv;
-constexpr std::string_view kSfxDie = "../../assets/soundeffects/sfx_pacman_die.wav"sv;
-constexpr std::string_view kSfxFright = "../../assets/soundeffects/sfx_frightened_start.wav"sv;
+constexpr std::string_view kSfxCoin = "assets/soundeffects/sfx_turn_corner.wav"sv;
+constexpr std::string_view kSfxFruit = "assets/soundeffects/sfx_fruit.wav"sv;
+constexpr std::string_view kSfxGhost = "assets/soundeffects/sfx_ghost_eaten.wav"sv;
+constexpr std::string_view kSfxDie = "assets/soundeffects/sfx_pacman_die.wav"sv;
+constexpr std::string_view kSfxFright = "assets/soundeffects/sfx_frightened_start.wav"sv;
 } // namespace
 
 Game::Game() {

@@ -11,13 +11,13 @@
 
 namespace representation {
 ResourceManager::ResourceManager() {
-    loadFont(Font::Crackman, "../../assets/fonts/crackman.otf");
-    loadFont(Font::SuperMeatBall, "../../assets/fonts/super-meatball.ttf");
-    loadFont(Font::PressStart2P, "../../assets/fonts/pressstart2p.ttf");
-    loadFont(Font::VT323, "../../assets/fonts/vt323-regular.ttf");
-    loadFont(Font::PixelifySans, "../../assets/fonts/pixelify-sans.ttf");
+    loadFont(Font::Crackman, "assets/fonts/crackman.otf");
+    loadFont(Font::SuperMeatBall, "assets/fonts/super-meatball.ttf");
+    loadFont(Font::PressStart2P, "assets/fonts/pressstart2p.ttf");
+    loadFont(Font::VT323, "assets/fonts/vt323-regular.ttf");
+    loadFont(Font::PixelifySans, "assets/fonts/pixelify-sans.ttf");
 
-    if (!_texture.loadFromFile("../../assets/sprites/sprite.png")) {
+    if (!_texture.loadFromFile("assets/sprites/sprite.png")) {
         throw std::runtime_error("Failed to load sprite.png");
     }
 }
@@ -39,5 +39,5 @@ const sf::Font& ResourceManager::getFont(const Font type) const { return _fonts.
 
 const sf::Texture& ResourceManager::getTexture() const { return _texture; }
 
-std::vector<std::string> ResourceManager::getMap() { return logic::FileReader::getFileLines("../../assets/maps/map.txt"); }
+std::vector<std::string> ResourceManager::getMap() { return logic::FileReader::getFileLines("assets/maps/map.txt"); }
 } // namespace representation

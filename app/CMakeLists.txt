@@ -13,6 +13,13 @@ add_executable(pacman_app
         ${APP_SOURCES}
 )
 
+add_custom_command(TARGET pacman_app POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:pacman_app>/assets
+)
+
+
 # Link with the logic library and SFML
 target_link_libraries(pacman_app
         PRIVATE

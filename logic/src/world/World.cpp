@@ -47,7 +47,7 @@ inline bool isVertical(const Direction d) { return d == Direction::Up || d == Di
 
 World::World(const std::shared_ptr<AbstractFactory>& factory, const int level, int carryScore, const int carryLives)
     : _lives_left(std::max(1, carryLives)), _score(std::make_unique<Score>("scoreboard.txt", carryScore)),
-      _factory(factory), _map(FileReader::getFileLines("../../assets/maps/map.txt")),
+      _factory(factory), _map(FileReader::getFileLines("assets/maps/map.txt")),
       _rows(static_cast<int>(_map.size())), _cols(static_cast<int>(_map.front().size())), _model_width(2.0f / _cols),
       _model_height(2.0f / _rows), _level(std::max(1, level)) {
     parseMap();
