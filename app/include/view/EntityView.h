@@ -31,7 +31,7 @@ protected:
     /**
      * @brief Non-owning link to the model represented by this view.
      *
-     * The World owns the model (shared_ptr). The view only *observes* it,
+     * The World owns the model (shared_ptr). The view only observes it,
      * so we store a weak_ptr to avoid extending the model's lifetime and to prevent
      * ownership cycles (e.g., model <-> view via observers).
      *

@@ -7,20 +7,23 @@
 #include "state/MenuState.h"
 
 #include <algorithm>
-#include <utils/Stopwatch.h>
 #include <stdexcept>
+#include <string_view>
+#include <utils/Stopwatch.h>
 
 namespace representation {
 
 namespace {
-constexpr std::string_view kMusicMenu = "../../assets/soundeffects/music_menu.wav";
-constexpr std::string_view kMusicLevel = "../../assets/soundeffects/music_level.wav";
+using namespace std::literals;
 
-constexpr std::string_view kSfxCoin = "../../assets/soundeffects/sfx_turn_corner.wav";
-constexpr std::string_view kSfxFruit = "../../assets/soundeffects/sfx_fruit.wav";
-constexpr std::string_view kSfxGhost = "../../assets/soundeffects/sfx_ghost_eaten.wav";
-constexpr std::string_view kSfxDie = "../../assets/soundeffects/sfx_pacman_die.wav";
-constexpr std::string_view kSfxFright = "../../assets/soundeffects/sfx_frightened_start.wav";
+constexpr std::string_view kMusicMenu = "../../assets/soundeffects/music_menu.wav"sv;
+constexpr std::string_view kMusicLevel = "../../assets/soundeffects/music_level.wav"sv;
+
+constexpr std::string_view kSfxCoin = "../../assets/soundeffects/sfx_turn_corner.wav"sv;
+constexpr std::string_view kSfxFruit = "../../assets/soundeffects/sfx_fruit.wav"sv;
+constexpr std::string_view kSfxGhost = "../../assets/soundeffects/sfx_ghost_eaten.wav"sv;
+constexpr std::string_view kSfxDie = "../../assets/soundeffects/sfx_pacman_die.wav"sv;
+constexpr std::string_view kSfxFright = "../../assets/soundeffects/sfx_frightened_start.wav"sv;
 } // namespace
 
 Game::Game() {
@@ -99,9 +102,10 @@ void Game::loadAudioAssets() {
 
     auto loadBuf = [&](Sfx id, std::string_view path) {
         sf::SoundBuffer buf;
-        if (buf.loadFromFile(std::string(path))) {
-            _sfx_buffers.emplace(id, std::move(buf));
+        if (!buf.loadFromFile(std::string(path))) {
+            throw std::runtime_error("Missing SFX file: " + std::string(path));
         }
+        _sfx_buffers.emplace(id, std::move(buf));
     };
 
     loadBuf(Sfx::Coin, kSfxCoin);
@@ -124,7 +128,7 @@ void Game::playMusic(const MusicTrack track, const bool loop) {
         return;
     }
 
-    std::string path;
+    std::string_view path{};
     switch (track) {
     case MusicTrack::Menu:
         path = kMusicMenu;
@@ -142,8 +146,8 @@ void Game::playMusic(const MusicTrack track, const bool loop) {
     if (path.empty())
         return;
 
-    if (!_music.openFromFile(path))
-        return;
+    if (!_music.openFromFile(std::string(path)))
+        throw std::runtime_error("Missing music file: " + std::string(path));
 
     _active_music = track;
 
