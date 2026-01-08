@@ -11,6 +11,8 @@
 #include <state/LevelState.h>
 #include <vector>
 
+#include <functional>
+#include <ranges>
 #include <utils/ResourceManager.h>
 
 namespace representation {
@@ -99,7 +101,7 @@ void MenuState::buildUi() {
     refreshTopScores();
     layoutScoreboard();
     layoutTitle();
-    layoutStartHint();
+    layoutPlayButton();
 
     // Cache current file state so update() can detect changes later.
     _scoreboard_cache_valid = false;
@@ -113,6 +115,64 @@ void MenuState::buildUi() {
     }
 }
 // =========== Build UI [END] ===========
+
+void MenuState::startGame() { _state_manager.pushState(std::make_unique<LevelState>(_state_manager, _game, 1, 0, 3)); }
+
+void MenuState::layoutPlayButton() {
+    const auto win = _game.getWindow().getSize();
+    const float W = static_cast<float>(win.x);
+    const float H = static_cast<float>(win.y);
+
+    auto& rm = ResourceManager::instance();
+    const auto& font = rm.getFont(Font::SuperMeatBall);
+
+    // Text
+    _play_btn_text.setFont(font);
+    _play_btn_text.setString("PLAY");
+    _play_btn_text.setCharacterSize(static_cast<unsigned>(std::clamp(H * 0.070f, 18.f, 42.f)));
+    _play_btn_text.setFillColor(sf::Color::White);
+
+    _play_btn_text_shadow = _play_btn_text;
+    _play_btn_text_shadow.setFillColor(sf::Color(0, 0, 0, 160));
+
+    // Button sizing from text bounds
+    const sf::FloatRect tb = _play_btn_text.getLocalBounds();
+    const float padX = std::clamp(W * 0.020f, 16.f, 32.f);
+    const float padY = std::clamp(H * 0.016f, 12.f, 22.f);
+
+    const float btnW = tb.width + padX * 2.f;
+    const float btnH = tb.height + padY * 2.f;
+
+    // Position: centered under the scoreboard card
+    const auto cardPos = _score_card.getPosition();
+    const auto cardSize = _score_card.getSize();
+
+    const float x = W * 0.5f - btnW * 0.5f;
+    float y = cardPos.y + cardSize.y + H * 0.055f;
+    y = std::min(y, H * 0.90f);
+
+    // Shadow
+    _play_btn_shadow.setSize({btnW, btnH});
+    _play_btn_shadow.setPosition(x + 3.f, y + 3.f);
+    _play_btn_shadow.setFillColor(sf::Color(0, 0, 0, 140));
+
+    // Button
+    _play_btn.setSize({btnW, btnH});
+    _play_btn.setPosition(x, y);
+    _play_btn.setFillColor(sf::Color(15, 15, 20, 230));
+    _play_btn.setOutlineThickness(std::max(2.f, H * 0.0030f));
+    _play_btn.setOutlineColor(sf::Color(255, 255, 255, 90));
+
+    // Hover styling (keep it subtle)
+    if (_play_hovered) {
+        _play_btn.setFillColor(sf::Color(25, 25, 35, 240));
+        _play_btn.setOutlineColor(sf::Color(255, 255, 255, 140));
+    }
+
+    // Center label
+    centerText(_play_btn_text_shadow, x + btnW * 0.5f + 2.f, y + btnH * 0.5f + 2.f);
+    centerText(_play_btn_text, x + btnW * 0.5f, y + btnH * 0.5f);
+}
 
 // =========== Check scoreboard file changed [START] ===========
 bool MenuState::scoreboardFileChanged() {
@@ -170,7 +230,6 @@ void MenuState::refreshTopScoresIfFileChanged() {
     refreshTopScores();
     layoutScoreboard();
     layoutTitle();
-    layoutStartHint();
 }
 // =========== Refresh only if file changed [END] ===========
 
@@ -216,10 +275,15 @@ void MenuState::handleInput() {
         if (e.type == sf::Event::Closed)
             window.close();
 
-        else if (e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Enter) {
-            _state_manager.pushState(std::make_unique<LevelState>(_state_manager, _game, 1, 0, 3));
-            return;
-        } else if (e.type == sf::Event::Resized) {
+        else if (e.type == sf::Event::MouseMoved) {
+            const sf::Vector2f m(static_cast<float>(e.mouseMove.x), static_cast<float>(e.mouseMove.y));
+            const bool hoveredNow = _play_btn.getGlobalBounds().contains(m);
+            if (hoveredNow != _play_hovered) {
+                _play_hovered = hoveredNow;
+                layoutPlayButton();
+            }
+        }
+        else if (e.type == sf::Event::Resized) {
             window.setView(
                 sf::View(sf::FloatRect(0.f, 0.f, static_cast<float>(e.size.width), static_cast<float>(e.size.height))));
 
@@ -228,6 +292,11 @@ void MenuState::handleInput() {
             toggleMusic();
         } else if (e.type == sf::Event::MouseButtonPressed && e.mouseButton.button == sf::Mouse::Left) {
             const sf::Vector2f m(static_cast<float>(e.mouseButton.x), static_cast<float>(e.mouseButton.y));
+            if (_play_btn.getGlobalBounds().contains(m)) {
+                startGame();
+                return;
+            }
+
             if (_music_btn.getGlobalBounds().contains(m)) {
                 toggleMusic();
             }
@@ -251,22 +320,24 @@ void MenuState::render(sf::RenderWindow& window) {
         window.draw(_score_rows[i]);
     }
 
-    // Start hint
-    window.draw(_start_hint_shadow);
-    window.draw(_start_hint);
-
     // Music button
     window.draw(_music_btn_shadow);
     window.draw(_music_btn);
     window.draw(_music_btn_text_shadow);
     window.draw(_music_btn_text);
+
+    // Play button
+    window.draw(_play_btn_shadow);
+    window.draw(_play_btn);
+    window.draw(_play_btn_text_shadow);
+    window.draw(_play_btn_text);
 }
 
 void MenuState::onResize(const unsigned, const unsigned) {
     layoutScoreboard();
     layoutTitle();
-    layoutStartHint();
     layoutMusicButton();
+    layoutPlayButton();
 }
 
 void MenuState::refreshTopScores() {
@@ -349,38 +420,6 @@ void MenuState::layoutScoreboard() {
         centerText(_score_rows[i], cardX + cardW * 0.5f, y);
     }
     // =========== Layout scoreboard card [END] ===========
-}
-
-void MenuState::layoutStartHint() {
-    // =========== Layout "Press Enter" hint [START] ===========
-    const auto win = _game.getWindow().getSize();
-    const float W = static_cast<float>(win.x);
-    const float H = static_cast<float>(win.y);
-
-    auto& rm = ResourceManager::instance();
-    const auto& font = rm.getFont(Font::SuperMeatBall);
-
-    _start_hint.setFont(font);
-    _start_hint.setCharacterSize(static_cast<unsigned>(H * 0.060f));
-    _start_hint.setFillColor(sf::Color(255, 255, 255, 235));
-    _start_hint.setString("Press Enter to start playing");
-    _start_hint.setOutlineThickness(std::max(1.f, H * 0.0025f));
-    _start_hint.setOutlineColor(sf::Color(0, 0, 0, 180));
-
-    _start_hint_shadow = _start_hint;
-    _start_hint_shadow.setFillColor(sf::Color(0, 0, 0, 160));
-
-    // Position it under the scoreboard card
-    const auto cardPos = _score_card.getPosition();
-    const auto cardSize = _score_card.getSize();
-
-    const float x = W * 0.5f;
-    float y = cardPos.y + cardSize.y + H * 0.06f;
-    y = std::min(y, H * 0.92f);
-
-    centerText(_start_hint_shadow, x + 2.f, y + 2.f);
-    centerText(_start_hint, x, y);
-    // =========== Layout "Press Enter" hint [END] ===========
 }
 
 } // namespace representation

@@ -26,7 +26,7 @@ public:
     MenuState(StateManager& manager, Game& game);
 
     /**
-     * @brief Handle user input in the menu (Enter to play, resize, close, toggle music).
+     * @brief Handle user input in the menu (Play button, resize, close, toggle music).
      */
     void handleInput() override;
 
@@ -96,6 +96,43 @@ private:
      */
     void toggleMusic();
 
+    // ===================== Play button UI =====================
+
+    /**
+     * @brief Play button background.
+     */
+    sf::RectangleShape _play_btn{};
+
+    /**
+     * @brief Shadow rectangle for the play button.
+     */
+    sf::RectangleShape _play_btn_shadow{};
+
+    /**
+     * @brief Play button label.
+     */
+    sf::Text _play_btn_text{};
+
+    /**
+     * @brief Shadow label for the play button.
+     */
+    sf::Text _play_btn_text_shadow{};
+
+    /**
+     * @brief True when the mouse is hovering the play button.
+     */
+    bool _play_hovered{false};
+
+    /**
+     * @brief Position and size the play button based on current window size.
+     */
+    void layoutPlayButton();
+
+    /**
+     * @brief Start the game (push LevelState).
+     */
+    void startGame();
+
     // ===================== UI helpers =====================
 
     /**
@@ -120,11 +157,6 @@ private:
      * @brief Layout the scoreboard “card” and its rows.
      */
     void layoutScoreboard();
-
-    /**
-     * @brief Layout the “Press Enter to start playing” hint.
-     */
-    void layoutStartHint();
 
     /**
      * @brief Layout the yellow “PAC MAN” title above the scoreboard.
@@ -198,16 +230,6 @@ private:
      * @brief Shadow texts for each score row.
      */
     std::array<sf::Text, 5> _score_rows_shadow{};
-
-    /**
-     * @brief Start hint text (e.g., "Press Enter to start playing").
-     */
-    sf::Text _start_hint{};
-
-    /**
-     * @brief Shadow for the start hint text.
-     */
-    sf::Text _start_hint_shadow{};
 
     /**
      * @brief Big “PAC MAN” title text.
